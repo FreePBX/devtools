@@ -29,6 +29,10 @@ while ($moddir = shift @ARGV) {
 	open FH, ">$moddir/module.xml";
 	print FH $newxml;
 	close FH;
+	system("cp $filename ../../release/");
+	system("svn add ../../release/$filename");
+	system("svn ps svn:mime-type application/tgz ../../release/$filename");
+	system("svn ci ../../release/$filename");
 }
 
 
