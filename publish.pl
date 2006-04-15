@@ -18,7 +18,7 @@ while ($moddir = shift @ARGV) {
 	die "Don't know rawname of $moddir" if ($rawname eq "unset");
 	# Now we know the version. Create the tar.gz
 	$filename = "$rawname-$vers.tgz";
-	system("tar zcf $filename $rawname");
+	system("tar zcf $filename --exclude .svn $rawname");
 	# Update the md5 info
 	open MD5, "md5sum $filename|";
 	$md5 = <MD5>;
@@ -29,7 +29,7 @@ while ($moddir = shift @ARGV) {
 	open FH, ">$moddir/module.xml";
 	print FH $newxml;
 	close FH;
-	system("cp $filename ../../release/");
+	system("mv $filename ../../release/");
 	system("svn add ../../release/$filename");
 	system("svn ps svn:mime-type application/tgz ../../release/$filename");
 	system("svn ci ../../release/$filename");
