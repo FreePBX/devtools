@@ -7,7 +7,7 @@
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
-	<location>unreleased</location>
+	<location>release/gabcast-1.0.tgz</location>
 	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
-	<md5sum>86028186d8ece1d07b8f4244544dc500</md5sum>
+	<md5sum>f8d728c3c15411ea847bd2b69c161a77</md5sum>
 </module>
