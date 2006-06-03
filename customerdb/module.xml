@@ -1,0 +1,14 @@
+<module>
+	<rawname>customerdb</rawname>
+	<name>Customer DB</name>
+	<version>1.1</version>
+	<type>tool</type>
+	<category>Module</category>
+	<menuitems>
+		<customerdb>Customer DB</customerdb>
+	</menuitems>
+	<location>release/customerdb-1.1.tgz</location>
+	<md5sum>xx</md5sum>
+	<info>http://freepbx.org/wiki/CustomerDB</info>
+</module>
+
