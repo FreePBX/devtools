@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS inventorydb (
+ id int UNIQUE AUTO_INCREMENT,
+ empnum varchar(10) null,
+ empname varchar(20) not null,
+ building varchar(150) null,
+ floor varchar(10) null,
+ room varchar(10) null,
+ section varchar(6) null,
+ cubicle varchar(6) null,
+ desk varchar(6) null,
+ exten  varchar(8) null,
+ phusername varchar(10) null, 
+ phpassword varchar(10) null,
+ mac varchar(18) null,
+ serial varchar(20) null, 
+ device varchar(20) null, 
+ distdate varchar(10) null, 
+ ip varchar(14) null, 
+ pbxbox varchar(20) null,
+ extrainfo varchar(256) null
+ );

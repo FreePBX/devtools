@@ -1,0 +1,14 @@
+<module>
+	<rawname>inventorydb</rawname>
+	<name>Inventory</name>
+	<version>1.0.1</version>
+	<type>tool</type>
+	<category>Module</category>
+	<menuitems>
+		<inventorydb>Inventory</inventorydb>
+	</menuitems>
+	<location>release/inventorydb-1.0.1.tgz</location>
+	<md5sum>xx</md5sum>
+	<info>http://freepbx.org/wiki/inventorydb</info>
+</module>
+
