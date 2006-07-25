@@ -73,4 +73,3 @@ function inventorydb_edit($extdisplay, $empnum, $empname, $floor, $room, $sectio
 }
 
 ?>
-
