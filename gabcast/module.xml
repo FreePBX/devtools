@@ -1,13 +1,13 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.0</version>
+	<version>1.1</version>
 	<type>tools</type>
 	<category>Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
-	<location>release/gabcast-1.0.tgz</location>
+	<location>release/gabcast-1.1.tgz</location>
 	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
-	<md5sum>f8d728c3c15411ea847bd2b69c161a77</md5sum>
+	<md5sum>70940a1ce64dfc58671e7f4475122258</md5sum>
 </module>
