@@ -2,7 +2,7 @@
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
 	<version>1.0</version>
-	<type>setup</type>
+	<type>tools</type>
 	<category>Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
