@@ -7,8 +7,8 @@
 	<menuitems>
 		<customerdb>Customer DB</customerdb>
 	</menuitems>
-	<location>release/customerdb-1.1.tgz</location>
-	<md5sum>820270b93b17cdbc575c5fe154bfb44c</md5sum>
+	<location>release//2.2/customerdb-1.1.tgz</location>
+	<md5sum>8fe1d09b9cb4c9abd25be0d1423e3110</md5sum>
 	<info>http://freepbx.org/wiki/CustomerDB</info>
 </module>
 
