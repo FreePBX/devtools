@@ -1,5 +1,6 @@
 #!/usr/bin/perl
 
+$rver = "2.2";
 
 my $reldir = "release/";
 
@@ -25,13 +26,13 @@ while ($moddir = shift @ARGV) {
 	close MD5;
 	($md5sum, $null) = split(/ /, $md5);
 	$newxml =~ s/<md5sum>.+<\/md5sum>/<md5sum>$md5sum<\/md5sum>/;
-	$newxml =~ s/<location>.+<\/location>/<location>$reldir$filename<\/location>/;
+	$newxml =~ s/<location>.+<\/location>/<location>$reldir/$rver/$filename<\/location>/;
 	open FH, ">$moddir/module.xml";
 	print FH $newxml;
 	close FH;
-	system("mv $filename ../../release/");
-	system("svn add ../../release/$filename");
-	system("svn ps svn:mime-type application/tgz ../../release/$filename");
-	system("svn ci ../../release/$filename $rawname/module.xml -m \"Module Publish Script: $rawname\"");
+	system("mv $filename ../../release/$rver");
+	system("svn add ../../release/$rver/$filename");
+	system("svn ps svn:mime-type application/tgz ../../release/$rver/$filename");
+	system("svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname\"");
 }
 
