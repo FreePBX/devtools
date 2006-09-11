@@ -1,8 +1,8 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.1</version>
-	<type>tools</type>
+	<version>1.2.0</version>
+	<type>tool</type>
 	<category>Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>

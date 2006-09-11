@@ -1,17 +1,27 @@
 <?php
  /* $Id:$ */
 
-function gabcast_hook_core($viewing_itemid, $target_menuid) {
-	if ($viewing_itemid != "" & ($target_menuid == 'extensions' | $target_menuid == 'users')) { 
+function gabcast_configpageinit($dispnum) {
+	global $currentcomponent;
+
+	if ( $dispnum == 'users' || $dispnum == 'extensions' ) {
+		$currentcomponent->addguifunc('gabcast_configpageload');
+	}	
+}
+
+function gabcast_configpageload() {
+	global $currentcomponent;
+
+	$viewing_itemid = $_REQUEST['extdisplay'];
+	if ( $viewing_itemid != '' ) {
 		$list = gabcast_get($viewing_itemid);
 		if (is_array($list)) {
-			$res = "<p><a href='".$_SERVER['PHP_SELF']."?display=gabcast&amp;ext=$viewing_itemid&amp;action=edit'>";
-			$res .= _("Edit Gabcast Settings")."</a></p>";
+			$res = $_SERVER['PHP_SELF']."?display=gabcast&type=tool&ext=$viewing_itemid&action=edit";
+			$currentcomponent->addguielem('_top', new gui_link('gabcastlink', 'Edit Gabcast Settings', $res));
 		} else {
-			$res = "<p><a href='".$_SERVER['PHP_SELF']."?display=gabcast&amp;ext=$viewing_itemid&amp;action=add'>";
-			$res .= _("Add Gabcast Settings")."</a></p>";
+			$res = $_SERVER['PHP_SELF']."?display=gabcast&type=tool&ext=$viewing_itemid&action=add";
+			$currentcomponent->addguielem('_top', new gui_link('gabcastlink', 'Add Gabcast Settings', $res));
 		}
-		return $res;
 	}
 }
 
@@ -27,7 +37,7 @@ function gabcast_destinations() {
 		}
 	return $extens;
 	} else {
-	return null;
+		return null;
 	}
 }
 

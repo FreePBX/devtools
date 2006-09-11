@@ -101,6 +101,7 @@ End_Of_Delete;
 	
 	if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'add') {
 		$thisxtn['ext'] = $_REQUEST['ext'];
+		$thisxtn[0] = $_REQUEST['ext'];
 		$player = "";
 		$action = 'add';
 		
