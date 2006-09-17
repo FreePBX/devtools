@@ -17,7 +17,7 @@ function zoip_get_config($engine) {
 
         switch($engine) {
 		case "asterisk":
-			$ext->add('app-zoip', 's', '', new ext_answer());
+			$ext->add('app-zoip', 's', '', new ext_answer(''));
 			$ext->add('app-zoip', 's', '', new ext_agi($amp_conf['AMPWEBROOT'].'/admin/modules/zoip/sphinx_server.pl'));
 			$ext->add('app-zoip', 's', '', new ext_playback('wait-moment'));
 			$ext->add('app-zoip', 's', '', new ext_noop('Letting the Sphinx server start.'));
