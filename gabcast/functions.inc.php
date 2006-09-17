@@ -12,7 +12,7 @@ function gabcast_configpageinit($dispnum) {
 function gabcast_configpageload() {
 	global $currentcomponent;
 
-	$viewing_itemid = $_REQUEST['extdisplay'];
+	$viewing_itemid = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:null;
 	if ( $viewing_itemid != '' ) {
 		$list = gabcast_get($viewing_itemid);
 		if (is_array($list)) {
