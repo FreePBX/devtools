@@ -1,14 +1,14 @@
 <module>
 	<rawname>customerdb</rawname>
 	<name>Customer DB</name>
-	<version>1.2</version>
+	<version>1.2.1</version>
 	<type>tool</type>
 	<category>Module</category>
 	<menuitems>
 		<customerdb>Customer DB</customerdb>
 	</menuitems>
-	<location>release/2.2/customerdb-1.2.tgz</location>
-	<md5sum>e77afba6e5082ed06e5a8073d3b1f6af</md5sum>
+	<location>release/2.2/customerdb-1.2.1.tgz</location>
+	<md5sum>57ff7941c3901dbbb744a4844812d889</md5sum>
 	<info>http://freepbx.org/wiki/CustomerDB</info>
 </module>
 
