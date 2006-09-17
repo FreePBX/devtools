@@ -120,7 +120,7 @@ else {
 	}
 		
 	
-	if(is_array($customerInfo)){
+	if(isset($customerInfo) && is_array($customerInfo)){
 		$action="edit";
 		echo "<h2> ".$extdisplay." ".$name."</h2>";
 		echo "<p><a href=\"".$delURL."\">Delete Customer</a></p>";
