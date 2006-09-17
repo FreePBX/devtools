@@ -7,13 +7,13 @@ function inventorydb_list(){
 	foreach($results as $result){
 		$inventorys[] = array($result[0],$result[1]);
 	}
-	return $inventorys;
+	return isset($inventorys)?$inventorys:null;
 }
 
 function inventorydb_get($extdisplay){
 	$sql="SELECT * FROM inventorydb where id=$extdisplay";
 	$results=sql($sql, "getRow", DB_FETCHMODE_ASSOC);
-	return $results;
+	return isset($results)?$results:null;
 }
 
 function inventorydb_add($empnum, $empname, $building, $floor, $room, $section, $cubicle, $desk, $exten, $phusername, $phpassword, $mac, $serial, $device, $distdate, $ip, $pbxbox, $extrainfo){

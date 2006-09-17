@@ -7,13 +7,13 @@ function customerdb_list(){
 	foreach($results as $result){
 		$customers[] = array($result[0],$result[1]);
 	}
-	return $customers;
+	return isset($customers)?$customers:null;
 }
 
 function customerdb_get($extdisplay){
 	$sql="SELECT * FROM customerdb where id=$extdisplay";
 	$results=sql($sql, "getRow", DB_FETCHMODE_ASSOC);
-	return $results;
+	return isset($results)?$results:null;
 }
 
 function customerdb_add($name, $addr1, $addr2, $city, $state, $zip, $sip, $did, $device, $ip, $serial, $account, $email, $username, $password){
@@ -62,13 +62,13 @@ function customerdb_edit($extdisplay, $name, $addr1, $addr2, $city, $state, $zip
 function customerdb_getsip(){
 	$sql="SELECT DISTINCT id from sip order by id";
 	$results=sql($sql, "getAll");
-	return $results;
+	return isset($results)?$results:null;
 }
 
 function customerdb_getdid(){
 	$sql="SELECT extension from incoming order by extension";
 	$results=sql($sql, "getAll");
-	return $results;
+	return isset($results)?$results:null;
 }	
 
 ?>	
