@@ -35,7 +35,7 @@ function gabcast_destinations() {
 		foreach($results as $result){
 				$extens[] = array('destination' => 'gabcast,'.$result['0'].',1', 'description' => 'gabcast channel '. $result['1'].' <'.$result[0].'>');
 		}
-	return $extens;
+	return isset($extens)?$extens:null;
 	} else {
 		return null;
 	}
