@@ -1,0 +1,10 @@
+<module>
+	<rawname>zoip</rawname>
+	<name>Zork</name>
+	<version>0.2.0</version>
+	<type>module</type>
+	<category>Games</category>
+	<location>xx</location>
+	<info>http://aussievoip.com.au/wiki/freePBX-ZoIP</info>
+	<md5sum>8697c26fae3f9b1f89f6786fe108be20</md5sum>
+</module>
