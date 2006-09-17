@@ -70,5 +70,4 @@ function customerdb_getdid(){
 	$results=sql($sql, "getAll");
 	return isset($results)?$results:null;
 }	
-
-?>	
+?>
