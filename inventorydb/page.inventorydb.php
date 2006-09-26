@@ -16,7 +16,7 @@
 //Set all the vars so there arent a ton of errors in the httpd error_log
 
 $display = isset($_REQUEST['display'])?$_REQUEST['display']:'inventorydb';
-$extdisplay = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']]:'';
+$extdisplay = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:'';
 $type = isset($_REQUEST['type'])?$_REQUEST['type']:'setup';
 $action = isset($_REQUEST['action'])?$_REQUEST['action']:'';
 $empnum = isset($_REQUEST['empnum'])?$_REQUEST['empnum']:'';
@@ -128,7 +128,7 @@ else {
 		$extrainfo=$inventoryInfo['extrainfo'];
 	}
 
-	if(is_array($inventoryInfo)){
+	if(isset($inventoryInfo) && is_array($inventoryInfo)){
 		$action="edit";
 		echo "<h2> ".$extdisplay." ".$empname."</h2>";
 		echo "<p><a href=\"".$delURL."\">Delete inventory</a></p>";
