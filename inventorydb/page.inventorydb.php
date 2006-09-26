@@ -85,7 +85,7 @@ switch($action) {
 <div class="rnav">
 <?php
 $inventorys=inventorydb_list();
-drawListMenu($inventorys, isset($_REQUEST['skip'])?$_REQUEST['skip']:0, $dispnum, isset($extdisplay)?$extdisplay:null, _("inventory"));
+drawListMenu($inventorys, $skip, $type, $dispnum, $extdisplay, _("inventory"));
 ?>
 </div>
 

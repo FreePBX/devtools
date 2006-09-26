@@ -33,7 +33,6 @@ $account = isset($_REQUEST['account'])?$_REQUEST['account']:'';
 $email = isset($_REQUEST['email'])?$_REQUEST['email']:'';
 $username = isset($_REQUEST['username'])?$_REQUEST['username']:'';
 $password = isset($_REQUEST['password'])?$_REQUEST['password']:'';
-$extdisplay = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:'';
 
 include 'common/php-asmanager.php';
 
@@ -79,7 +78,7 @@ switch($action) {
 <div class="rnav">
 <?php
 $customers=customerdb_list();
-drawListMenu($customers, isset($_REQUEST['skip'])?$_REQUEST['skip']:0, $dispnum, isset($extdisplay)?$extdisplay:null, _("Customer"));
+drawListMenu($customers, $skip, $type, $dispnum, $extdisplay, _("Customer"));
 ?>
 </div>
 
@@ -132,6 +131,7 @@ else {
 }
 
 echo "<form name=\"addNew\" action=\"".$_SERVER['PHP_SELF']."\" method=\"post\" onsubmit=\"return addNew_onsubmit();\">";
+echo "<input type=hidden name=type value='tool'>\n";
 echo "<input type=hidden name=extdisplay value=$extdisplay>\n";
 echo "<input type=hidden name=action value=\"";
 echo ($action=="" ? "add" : $action);
