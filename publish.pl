@@ -17,6 +17,7 @@ while ($moddir = shift @ARGV) {
 	close FH;
 	die "Don't know version of $moddir" if ($vers eq "unset");
 	die "Don't know rawname of $moddir" if ($rawname eq "unset");
+	svn ci -m "Auto Check-in of any outstanding patches" $moddir
 	# Now we know the version. Create the tar.gz
 	$filename = "$rawname-$vers.tgz";
 	system("tar zcf $filename --exclude .svn $rawname");
