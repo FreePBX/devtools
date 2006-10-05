@@ -1,10 +1,16 @@
 <module>
 	<rawname>zoip</rawname>
-	<name>Zork (Read this link before downloading)</name>
+	<name>Zork</name>
 	<version>0.2.0</version>
+	<description>Zoip is a new way of playing Zork - It uses Text-to-Speech and Speech Recognition to play the classic infocom game, Zork. It appears as a destination. If you wish to play this without needing to go through an IVR, the easy way is to create a Ring Group with an invalid extension in it, and a destination of Zoip. </description>
+	<attention>
+		This is a 7 Megabyte download. It may not be able to download via this interface properly. In addition, Sphinx2 and Festival are required. 
+	
+		Please see http://aussievoip.com.au/wiki/freePBX-ZoIP before installing this module.
+	</attention>
 	<type>module</type>
 	<category>Games</category>
-	
+	<description></description>
 	<location>release/2.2/zoip-0.2.0.tgz</location>
 	<info>http://aussievoip.com.au/wiki/freePBX-ZoIP</info>
 	<md5sum>a0318ecc7376f33c54abf9c3efd96958</md5sum>
