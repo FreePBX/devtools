@@ -34,6 +34,6 @@ while ($moddir = shift @ARGV) {
 	system("mv $filename ../../release/$rver");
 	system("svn add ../../release/$rver/$filename");
 	system("svn ps svn:mime-type application/tgz ../../release/$rver/$filename");
-	system("svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname\"");
+	system("svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname $vers\"");
 }
 
