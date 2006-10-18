@@ -13,7 +13,8 @@ function gabcast_configpageload() {
 	global $currentcomponent;
 
 	$viewing_itemid = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:null;
-	if ( $viewing_itemid != '' ) {
+	$action =  isset($_REQUEST['action'])?$_REQUEST['action']:null; 
+	if ( $viewing_itemid != '' && $action != 'del') { 
 		$list = gabcast_get($viewing_itemid);
 		if (is_array($list)) {
 			$res = $_SERVER['PHP_SELF']."?display=gabcast&type=tool&ext=$viewing_itemid&action=edit";
