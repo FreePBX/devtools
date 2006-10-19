@@ -3,7 +3,7 @@
 	<name>Customer DB</name>
 	<version>1.2.1</version>
 	<type>tool</type>
-	<category>Module</category>
+	<category>Third Party Addon</category>
 	<menuitems>
 		<customerdb>Customer DB</customerdb>
 	</menuitems>

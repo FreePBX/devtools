@@ -3,7 +3,7 @@
 	<name>Gabcast</name>
 	<version>1.2.1</version>
 	<type>tool</type>
-	<category>Addon</category>
+	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
