@@ -3,7 +3,7 @@
 	<name>Inventory</name>
 	<version>1.0.2</version>
 	<type>tool</type>
-	<category>Module</category>
+	<category>Third Party Addon</category>
 	<menuitems>
 		<inventorydb>Inventory</inventorydb>
 	</menuitems>
