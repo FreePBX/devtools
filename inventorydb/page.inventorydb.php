@@ -1,4 +1,3 @@
-
 <?php
 //inventoryDB 1.0.0 written by Richard Neese 2006-05-24
 //Copyright (C) 2006 Richard Neese (r.neese@gmail.com)
@@ -38,6 +37,7 @@ $ip = isset($_REQUEST['ip'])?$_REQUEST['ip']:'';
 $pbxbox = isset($_REQUEST['pbxbox'])?$_REQUEST['pbxbox']:'';
 $extrainfo = isset($_REQUEST['extrainfo'])?$_REQUEST['extrainfo']:'';
 
+// TODO do we need this include...?
 include 'common/php-asmanager.php';
 
 extract($_REQUEST);
