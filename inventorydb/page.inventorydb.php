@@ -37,9 +37,6 @@ $ip = isset($_REQUEST['ip'])?$_REQUEST['ip']:'';
 $pbxbox = isset($_REQUEST['pbxbox'])?$_REQUEST['pbxbox']:'';
 $extrainfo = isset($_REQUEST['extrainfo'])?$_REQUEST['extrainfo']:'';
 
-// TODO do we need this include...?
-include 'common/php-asmanager.php';
-
 extract($_REQUEST);
 
 $dispnum='inventorydb';
