@@ -34,8 +34,6 @@ $email = isset($_REQUEST['email'])?$_REQUEST['email']:'';
 $username = isset($_REQUEST['username'])?$_REQUEST['username']:'';
 $password = isset($_REQUEST['password'])?$_REQUEST['password']:'';
 
-require_once 'common/php-asmanager.php';
-
 extract($_REQUEST);
 
 $dispnum='customerdb';
