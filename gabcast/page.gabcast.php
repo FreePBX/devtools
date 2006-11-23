@@ -11,7 +11,7 @@
 //GNU General Public License for more details.
 
 $iam = 'gabcast'; //used for switch on config.php
-$type = 'setup';
+$type = 'tool';
 
 // look for form post
 isset($_POST['action'])?$postaction = $_POST['action']:$postaction='';

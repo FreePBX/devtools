@@ -1,12 +1,15 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.2.1</version>
+	<version>1.2.2</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
+	<changelog>
+ *1.2.2* Fix issue where you were unable to add a channel 
+	</changelog>
 	<location>release/2.2/gabcast-1.2.1.tgz</location>
 	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
 	<md5sum>e931391f2e1eb12937873cc22488a921</md5sum>
