@@ -66,14 +66,17 @@ switch($action) {
 		$extrainfo='';
 		//needreload();
 		//right now... not writing config files... don't need to reload
+		redirect_standard();
 	break;
 	case "del":
 		inventorydb_del($extdisplay);
 		//needreload();
+		redirect_standard();
 	break;
 	case "edit":
 		inventorydb_edit($extdisplay, $empnum, $empname, $building, $floor, $room, $section, $cubicle, $desk, $exten, $phusername, phpassword, $mac, $serial, $device, $distdate, $ip, $pbxbox, $extrainfo);
 		//needreload();
+		redirect_standard();
 	break;
 
 }

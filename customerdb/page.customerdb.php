@@ -60,14 +60,17 @@ switch($action) {
 		$password='';
 		//needreload(); 
 		//right now... not writing config files... don't need to reload
+		redirect_standard();
 	break;
 	case "del":
 		customerdb_del($extdisplay);
 		//needreload();
+		redirect_standard();
 	break;
 	case "edit":
 		customerdb_edit($extdisplay, $name, $addr1, $addr2, $city, $state, $zip, $sip, $did, $device, $ip, $serial, $account, $email, $username, $password);
 		//needreload();
+		redirect_standard();
 	break;
 	
 }
