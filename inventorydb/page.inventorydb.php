@@ -76,7 +76,7 @@ switch($action) {
 	case "edit":
 		inventorydb_edit($extdisplay, $empnum, $empname, $building, $floor, $room, $section, $cubicle, $desk, $exten, $phusername, phpassword, $mac, $serial, $device, $distdate, $ip, $pbxbox, $extrainfo);
 		//needreload();
-		redirect_standard();
+		redirect_standard('extdisplay');
 	break;
 
 }

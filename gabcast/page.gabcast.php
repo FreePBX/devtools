@@ -20,12 +20,12 @@ switch ($postaction) {
 	case "add":
 		gabcast_add($_POST['ext'],$_POST['channbr'],$_POST['pin']);
 		needreload();
-		redirect_standard('ext');
+		redirect_standard();
 	break;
 	case "delete":
 		gabcast_del($_POST['ext']);
 		needreload();
-		redirect_standard('ext');
+		redirect_standard();
 	break;
 	case "edit":
 		gabcast_edit($_POST['ext'],$_POST['channbr'],$_POST['pin']);

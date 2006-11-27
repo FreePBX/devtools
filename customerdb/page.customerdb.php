@@ -70,7 +70,7 @@ switch($action) {
 	case "edit":
 		customerdb_edit($extdisplay, $name, $addr1, $addr2, $city, $state, $zip, $sip, $did, $device, $ip, $serial, $account, $email, $username, $password);
 		//needreload();
-		redirect_standard();
+		redirect_standard('extdisplay');
 	break;
 	
 }
