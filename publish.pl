@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-$rver = "2.2";
+$rver = "2.3";
 
 my $reldir = "release/";
 
