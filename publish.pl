@@ -11,7 +11,7 @@ while ($moddir = shift @ARGV) {
 	$vers = "unset";
 	$rawname = "unset";
 	while (<FH>) {
-		if (/<version>(.+)<\/version>/) { $vers = $1; }
+		if ($vers == 'unset' && /<version>(.+)<\/version>/) { $vers = $1; }
 		if (/<rawname>(.+)<\/rawname>/) { $rawname = $1; }
 		$newxml .= $_;
 	}
