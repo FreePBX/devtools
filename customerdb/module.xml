@@ -10,8 +10,8 @@
 	<changelog>
 		*1.2.3* Add he_IL translation
 	</changelog>
-	<location>release/2.2/customerdb-1.2.3.tgz</location>
-	<md5sum>cf1fec9f1f20b688c6938d2595836710</md5sum>
+	<location>release/2.3/customerdb-1.2.3.tgz</location>
+	<md5sum>7993b668880c3f5287fb44b4909546fb</md5sum>
 	<info>http://freepbx.org/wiki/CustomerDB</info>
 </module>
 
