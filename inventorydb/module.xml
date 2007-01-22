@@ -1,14 +1,17 @@
 <module>
 	<rawname>inventorydb</rawname>
 	<name>Inventory</name>
-	<version>1.0.2</version>
+	<version>1.0.3</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<inventorydb>Inventory</inventorydb>
 	</menuitems>
-	<location>release/2.2/inventorydb-1.0.2.tgz</location>
-	<md5sum>cc81eee30f026a2234bde90d7c2e4989</md5sum>
+	<changelog>
+		*1.0.3* Add he_IL translation
+	</changelog>
+	<location>release/2.2/inventorydb-1.0.3.tgz</location>
+	<md5sum>a575ae7e9ee4c2c52b46c91ea834b875</md5sum>
 	<info>http://freepbx.org/wiki/inventorydb</info>
 </module>
 

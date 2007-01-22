@@ -1,16 +1,17 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.2.2</version>
+	<version>1.2.3</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
 	<changelog>
- *1.2.2* Fix issue where you were unable to add a channel 
+		*1.2.3* Add he_IL translation
+		*1.2.2* Fix issue where you were unable to add a channel 
 	</changelog>
-	<location>release/2.2/gabcast-1.2.2.tgz</location>
+	<location>release/2.2/gabcast-1.2.3.tgz</location>
 	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
-	<md5sum>c3d15a633d06425ccbd1e4064aed4995</md5sum>
+	<md5sum>c78065ece959a05276d3ecda7a4503ca</md5sum>
 </module>
