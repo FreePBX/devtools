@@ -10,8 +10,8 @@
 	<changelog>
 		*1.0.3* Add he_IL translation
 	</changelog>
-	<location>release/2.2/inventorydb-1.0.3.tgz</location>
-	<md5sum>a575ae7e9ee4c2c52b46c91ea834b875</md5sum>
+	<location>release/2.3/inventorydb-1.0.3.tgz</location>
+	<md5sum>c3ce8838930a4ae6bcd1f3170820dff6</md5sum>
 	<info>http://freepbx.org/wiki/inventorydb</info>
 </module>
 
