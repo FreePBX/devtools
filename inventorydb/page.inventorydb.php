@@ -16,7 +16,7 @@
 
 $display = isset($_REQUEST['display'])?$_REQUEST['display']:'inventorydb';
 $extdisplay = isset($_REQUEST['extdisplay'])?$_REQUEST['extdisplay']:'';
-$type = isset($_REQUEST['type'])?$_REQUEST['type']:'setup';
+$type = isset($_REQUEST['type'])?$_REQUEST['type']:'tool';
 $action = isset($_REQUEST['action'])?$_REQUEST['action']:'';
 $empnum = isset($_REQUEST['empnum'])?$_REQUEST['empnum']:'';
 $empname = isset($_REQUEST['empname'])?$_REQUEST['empname']:'';
@@ -145,6 +145,7 @@ echo "<input type=hidden name=action value=\"";
 echo ($action=="" ? "add" : $action);
 echo "\">\n";
 echo "<input type=hidden name=display value=\"inventorydb\">";
+echo "<input type=hidden name=type value=\"tool\">";
 
 echo "<table>";
 
@@ -176,7 +177,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Building Located\n";
 echo "<span>Building where the phone is located</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"building\" value=\"$building\"\n";
+echo "<input name=\"building\" value=\"$building\">\n";
 echo "</td></tr>\n";
 
 //floor
