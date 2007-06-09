@@ -132,7 +132,8 @@ function gabcast_gabdial($c) {
 
         $id = "app-gabcast"; // The context to be included
 		$ext->addInclude('from-internal-additional', $id);
-		$ext->add($id, $c, '', new ext_goto('1','${CALLERID(num)}','gabcast'));
+		$ext->add($id, $c, '', new ext_macro('user-callerid')); // $cmd,n,Macro(user-callerid)
+		$ext->add($id, $c, '', new ext_goto('1','${AMPUSER}','gabcast'));
 /*		
         $ext->add($id, $c, '', new ext_macro('user-callerid'));
         $ext->add($id, $c, '', new ext_noop('Checking for ${CALLERID(num)}'));
