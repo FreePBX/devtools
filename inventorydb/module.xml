@@ -8,6 +8,7 @@
 		<inventorydb>Inventory</inventorydb>
 	</menuitems>
 	<changelog>
+		*1.1.0* Added SQLite3 support. Fixes ticket:1783
 		*1.0.3* Add he_IL translation
 	</changelog>
 	<location>release/2.3/inventorydb-1.0.3.tgz</location>

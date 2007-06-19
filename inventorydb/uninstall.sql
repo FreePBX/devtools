@@ -1,1 +1,1 @@
-DROP TABLE inventorydb;
+DROP TABLE `inventorydb`;
