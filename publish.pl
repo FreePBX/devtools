@@ -1,11 +1,32 @@
 #!/usr/bin/perl
 
 $rver = "2.3";
+$fwbranch = "branches/2.3";
+$framework = "framework";
 
 my $reldir = "release/";
 
 while ($moddir = shift @ARGV) {
 	next if (!-d $moddir);
+	if ($moddir =~ /$framework/) {
+
+		# Framework module is special case. We export and pull in all the files of framework that we are going to want to udpate. For now this is
+		# all files under htdocs, agi-bin and bin. We have not included astetc since such files should be done with core modules. We have also
+		# temporarily chosen not to include FOP since it is likely FOP may be handled by a FOP module going forward. Othewise we will add it here.
+		#
+		# TODO: really SHOULD put in some error chekcing...
+		#
+		system("rm -rf $framework/agi-bin $framework/bin $framework/htdocs");
+		system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/agi-bin $framework/agi-bin");
+		system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/bin $framework/bin");
+		system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/htdocs $framework/htdocs");
+
+		# Now we must remove a few files which users may have legitimately edited. For now this is the main.conf.php file which is the current
+		# ARI file used for editing paramters and options.
+		#
+		system("rm -rf $framework/recordings/includes/main.conf.php");
+	}
+
 	open FH, "$moddir/module.xml"; 
 	$newxml = "";
 	$vers = "unset";
