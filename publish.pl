@@ -24,7 +24,7 @@ while ($moddir = shift @ARGV) {
 		# Now we must remove a few files which users may have legitimately edited. For now this is the main.conf.php file which is the current
 		# ARI file used for editing paramters and options.
 		#
-		system("rm -rf $framework/recordings/includes/main.conf.php");
+		system("rm -rf $framework/htdocs/recordings/includes/main.conf.php");
 	}
 
 	open FH, "$moddir/module.xml"; 
