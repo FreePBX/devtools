@@ -25,6 +25,13 @@ while ($moddir = shift @ARGV) {
 		# ARI file used for editing paramters and options.
 		#
 		system("rm -rf $framework/htdocs/recordings/includes/main.conf.php");
+		
+		# Remove from htdocs root mainstyle.css and index.html as these are owned by root (need to investigate why these are there
+		# and change that. Also some others
+		#
+		system("rm -rf $framework/htdocs/mainstyle.css");
+		system("rm -rf $framework/htdocs/index.html");
+		system("rm -rf $framework/htdocs/admin/modules/_cache");
 	}
 
 	open FH, "$moddir/module.xml"; 
