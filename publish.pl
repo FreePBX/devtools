@@ -47,6 +47,12 @@ while ($moddir = shift @ARGV) {
 		if (system("svn co --non-recursive https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch $framework/tmp")) {
 			die "FATAL: failed to checkout branch with libfreepbx.install.php\n";
 		}
+		# Create the svnversion information for this framework snapshot
+		#
+		if (system("echo SVN VERSION: `svnversion $framework/tmp` > $framework/svnversion.txt")) {
+			die "FATAL: svnversion failed to create svnversion.txt\n";
+		}
+
 		if (system("mv $framework/tmp/libfreepbx.install.php $framework/")) {
 			die "FATAL: failed to mv libfreepbx.install.php to $framework\n";
 		}
