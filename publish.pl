@@ -99,10 +99,25 @@ while ($moddir = shift @ARGV) {
 	chdir($moddir);
 	@arr = <*>;
 	$files = "";
-	while ($x = shift @arr) {
-		# Excluding module.xml which gets checked in later..
-		next if ($x =~ /module.xml/);
-		$files .= "$x ";
+	if ($moddir =~ /$framework/) {
+		while ($x = shift @arr) {
+			# Excluding module.xml which gets checked in later..
+			next if ($x =~ /module.xml/);
+			next if ($x =~ /agi-bin/);
+			next if ($x =~ /bin/);
+			next if ($x =~ /htdocs/);
+			next if ($x =~ /htdocs_panel/);
+			next if ($x =~ /upgrades/);
+			next if ($x =~ /libfreepbx.install.php/);
+			next if ($x =~ /svnversion.txt/);
+			$files .= "$x ";
+		}
+	} else {
+		while ($x = shift @arr) {
+			# Excluding module.xml which gets checked in later..
+			next if ($x =~ /module.xml/);
+			$files .= "$x ";
+		}
 	}
 	if ($debug) {
 		print "svn ci -m \"Auto Check-in of any outstanding patches\" $files\n";
