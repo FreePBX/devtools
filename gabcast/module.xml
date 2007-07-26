@@ -13,7 +13,7 @@
 		*1.2.3* Add he_IL translation
 		*1.2.2* Fix issue where you were unable to add a channel 
 	</changelog>
-	<location>release/2.3/gabcast-1.2.4.tgz</location>
+	<location>release/2.3/gabcast-1.2.5.tgz</location>
 	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
-	<md5sum>08c4ac0d367bba5eae7d31a295aaa8e6</md5sum>
+	<md5sum>76c23ec8d6cb80e3bcde20e1390a67fb</md5sum>
 </module>
