@@ -78,7 +78,7 @@ function gabcast_text() {
 <div style=;margin-top:20px;>
 	<?php echo gabcast_player();?>
 </div>
-<?
+<?php
 }
 
 function gabcast_show($xtn, $type, $iam) {

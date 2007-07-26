@@ -1,13 +1,14 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.2.4</version>
+	<version>1.2.5</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
 	<changelog>
+		*1.2.5* #2070 fix proper use of script tags
 	  *1.2.4* changed ${CALLERID(number)} to ${AMPUSER} to accomodate CID number masquerading
 		*1.2.3* Add he_IL translation
 		*1.2.2* Fix issue where you were unable to add a channel 
