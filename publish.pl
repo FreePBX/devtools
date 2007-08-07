@@ -42,7 +42,7 @@ while ($moddir = shift @ARGV) {
 		# svn doesn't seem to allow for a single file to be checked out so we need to do a kludgey workaround
 		# this is what we wanted:
 		#
-		# if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/libfreepbx.install.php $framework/libfreepbx.install.php")) {
+		# if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/libfreepbx.install.php $framework/libfreepbx.install.php"))
 		#
 		if (system("svn co --non-recursive https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch $framework/tmp")) {
 			die "FATAL: failed to checkout branch with libfreepbx.install.php\n";
@@ -117,6 +117,13 @@ while ($moddir = shift @ARGV) {
 			# Excluding module.xml which gets checked in later..
 			next if ($x =~ /module.xml/);
 			$files .= "$x ";
+
+			# Quick and dirty check for php syntax errors at the top level of module directories. Should probably
+			# do this recursively in the future. Also - checks all files now but php -l seems to be ok with that.
+			#
+			if (system("php -l $x")) {
+				die "FATAL: php syntax error detected in $x\n";
+			}
 		}
 	}
 	if ($debug) {
