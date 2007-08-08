@@ -121,8 +121,10 @@ while ($moddir = shift @ARGV) {
 			# Quick and dirty check for php syntax errors at the top level of module directories. Should probably
 			# do this recursively in the future. Also - checks all files now but php -l seems to be ok with that.
 			#
-			if (system("php -l $x")) {
-				die "FATAL: php syntax error detected in $x\n";
+			if (-f $x) {
+				if (system("php -l $x")) {
+					die "FATAL: php syntax error detected in $x\n";
+				}
 			}
 		}
 	}
