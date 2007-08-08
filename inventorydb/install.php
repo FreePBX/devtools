@@ -29,7 +29,7 @@ $sql = "CREATE TABLE IF NOT EXISTS inventorydb (
 
 $check = $db->query($sql);
 if(DB::IsError($check)) {
-        die("Can not create `inventorydb` table\n");
+        die_freepbx("Can not create `inventorydb` table\n");
 }
 
 ?>
