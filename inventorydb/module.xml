@@ -11,7 +11,7 @@
 		*1.1.0* Added SQLite3 support. Fixes ticket:1783, bump for rc1
 		*1.0.3* Add he_IL translation
 	</changelog>
-	<location>release/2.3/inventorydb-1.0.3.tgz</location>
-	<md5sum>c91eeb1f8c96e0734df8b34c35e453b2</md5sum>
+	<location>release/2.3/inventorydb-1.1.0.tgz</location>
+	<md5sum>ae5cd1817f27ea15b5d25f8eff048bf8</md5sum>
 </module>
 
