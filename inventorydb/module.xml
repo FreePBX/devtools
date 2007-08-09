@@ -1,18 +1,17 @@
 <module>
 	<rawname>inventorydb</rawname>
 	<name>Inventory</name>
-	<version>1.0.3</version>
+	<version>1.1.0</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<inventorydb>Inventory</inventorydb>
 	</menuitems>
 	<changelog>
-		*1.1.0* Added SQLite3 support. Fixes ticket:1783
+		*1.1.0* Added SQLite3 support. Fixes ticket:1783, bump for rc1
 		*1.0.3* Add he_IL translation
 	</changelog>
 	<location>release/2.3/inventorydb-1.0.3.tgz</location>
 	<md5sum>c91eeb1f8c96e0734df8b34c35e453b2</md5sum>
-	<info>http://freepbx.org/wiki/inventorydb</info>
 </module>
 

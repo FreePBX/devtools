@@ -1,17 +1,17 @@
 <module>
 	<rawname>customerdb</rawname>
 	<name>Customer DB</name>
-	<version>1.2.3</version>
+	<version>1.2.3.1</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<customerdb>Customer DB</customerdb>
 	</menuitems>
 	<changelog>
+		*1.2.3.1* bump for rc1
 		*1.2.3* Add he_IL translation
 	</changelog>
 	<location>release/2.3/customerdb-1.2.3.tgz</location>
 	<md5sum>7993b668880c3f5287fb44b4909546fb</md5sum>
-	<info>http://freepbx.org/wiki/CustomerDB</info>
 </module>
 

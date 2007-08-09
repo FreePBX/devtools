@@ -1,19 +1,19 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.2.5</version>
+	<version>1.2.5.1</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
 	<changelog>
+		*1.2.5.1* bump for rc1
 		*1.2.5* #2070 fix proper use of script tags
 	  *1.2.4* changed ${CALLERID(number)} to ${AMPUSER} to accomodate CID number masquerading
 		*1.2.3* Add he_IL translation
 		*1.2.2* Fix issue where you were unable to add a channel 
 	</changelog>
 	<location>release/2.3/gabcast-1.2.5.tgz</location>
-	<info>http://aussievoip.com.au/wiki/freePBX-gabcast</info>
 	<md5sum>76c23ec8d6cb80e3bcde20e1390a67fb</md5sum>
 </module>
