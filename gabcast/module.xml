@@ -14,6 +14,6 @@
 		*1.2.3* Add he_IL translation
 		*1.2.2* Fix issue where you were unable to add a channel 
 	</changelog>
-	<location>release/2.3/gabcast-1.2.5.tgz</location>
-	<md5sum>76c23ec8d6cb80e3bcde20e1390a67fb</md5sum>
+	<location>release/2.3/gabcast-1.2.5.1.tgz</location>
+	<md5sum>572980430521866987e3a09efedc2ad4</md5sum>
 </module>
