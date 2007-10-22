@@ -25,27 +25,27 @@ while ($moddir = shift @ARGV) {
 		if (system("rm -rf $framework/agi-bin $framework/bin $framework/htdocs $framework/htdocs_panel $framework/upgrades $framework/libfreepbx.install.php")) {
 			die "FATAL: failed to remove previoulsly exported directories\n";
 		}
-		if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/agi-bin $framework/agi-bin")) {
+		if (system("svn export http//svn.freepbx.org/freepbx/$fwbranch/amp_conf/agi-bin $framework/agi-bin")) {
 			die "FATAL: failed to export agi-bin directory\n";
 		}
-		if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/bin $framework/bin")) {
+		if (system("svn export http//svn.freepbx.org/freepbx/$fwbranch/amp_conf/bin $framework/bin")) {
 			die "FATAL: failed to export bin directory\n";
 		}
-		if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/htdocs $framework/htdocs")) {
+		if (system("svn export http//svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs $framework/htdocs")) {
 			die "FATAL: failed to export htdocs directory\n";
 		}
-		if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/amp_conf/htdocs_panel $framework/htdocs_panel")) {
+		if (system("svn export http//svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs_panel $framework/htdocs_panel")) {
 			die "FATAL: failed to export htdocs_panel directory\n";
 		}
-		if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/upgrades $framework/upgrades")) {
+		if (system("svn export http//svn.freepbx.org/freepbx/$fwbranch/upgrades $framework/upgrades")) {
 			die "FATAL: failed to export upgrades directory\n";
 		}
 		# svn doesn't seem to allow for a single file to be checked out so we need to do a kludgey workaround
 		# this is what we wanted:
 		#
-		# if (system("svn export https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch/libfreepbx.install.php $framework/libfreepbx.install.php"))
+		# if (system("svn export http//svn.freepbx.org/freepbx/$fwbranch/libfreepbx.install.php $framework/libfreepbx.install.php"))
 		#
-		if (system("svn co --non-recursive https://amportal.svn.sourceforge.net/svnroot/amportal/freepbx/$fwbranch $framework/tmp")) {
+		if (system("svn co --non-recursive http//svn.freepbx.org/freepbx/$fwbranch $framework/tmp")) {
 			die "FATAL: failed to checkout branch with libfreepbx.install.php\n";
 		}
 		# Create the svnversion information for this framework snapshot
