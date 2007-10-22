@@ -57,6 +57,9 @@ while ($moddir = shift @ARGV) {
 		if (system("mv $framework/tmp/libfreepbx.install.php $framework/")) {
 			die "FATAL: failed to mv libfreepbx.install.php to $framework\n";
 		}
+		if (system("mv $framework/tmp/CHANGES $framework/")) {
+			die "FATAL: failed to mv CHANGES to $framework\n";
+		}
 		if (system("rm -rf $framework/tmp")) {
 			die "FATAL: failed to remove $framework/tmp\n";
 		}
