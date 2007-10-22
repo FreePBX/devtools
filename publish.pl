@@ -22,7 +22,7 @@ while ($moddir = shift @ARGV) {
 		#
 		# TODO: ADD FOP until we can get into a module
 		#
-		if (system("rm -rf $framework/agi-bin $framework/bin $framework/htdocs $framework/htdocs_panel $framework/upgrades $framework/libfreepbx.install.php")) {
+		if (system("rm -rf $framework/agi-bin $framework/bin $framework/htdocs $framework/htdocs_panel $framework/upgrades $framework/libfreepbx.install.php $framework/CHANGES")) {
 			die "FATAL: failed to remove previoulsly exported directories\n";
 		}
 		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/agi-bin $framework/agi-bin")) {
