@@ -42,6 +42,31 @@ function gabcast_destinations() {
 	}
 }
 
+function gabcast_getdest($exten) {
+	return array('gabcast,'.$exten.',1');
+}
+
+function gabcast_getdestinfo($dest) {
+	global $active_modules;
+
+	if (substr(trim($dest),0,8) == 'gabcast,') {
+		$exten = explode(',',$dest);
+		$exten = $exten[1];
+		$thisexten = gabcast_get($exten);
+		if (empty($thisexten)) {
+			return array();
+		} else {
+			$type = isset($active_modules['announcement']['type'])?$active_modules['announcement']['type']:'tool';
+			return array('description' => 'Gabcast Channel : '.$thisexten['channbr'],
+			             'edit_url' => 'config.php?type='.$type.'&display=gabcast&ext='.urlencode($exten).'&action=edit',
+
+								  );
+		}
+	} else {
+		return false;
+	}
+}
+
 function gabcast_get_config($engine) {
         $modulename = 'gabcast';
 
