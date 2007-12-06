@@ -1,0 +1,82 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2007-01-25 23:17+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Francesco Romano\n"
+"Language-Team: Italian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ISO-8859-1\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: page.customerdb.php:82
+msgid "Customer"
+msgstr "Cliente"
+
+#: page.customerdb.php:90
+msgid "deleted"
+msgstr "eliminato"
+
+msgid "Customer DB"
+msgstr "Database Clienti"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Address 1"
+msgstr "Indirizzo 1"
+
+msgid "Address 2"
+msgstr "Indirizzo 2"
+
+msgid "City"
+msgstr "Città"
+
+msgid "State"
+msgstr "Stato (USA)"
+
+msgid "Zip/Post Code"
+msgstr "CAP"
+
+msgid "Sip Account"
+msgstr "Account Sip"
+
+msgid "DID Number"
+msgstr "Numero Sel. Passante"
+
+msgid "Device"
+msgstr "Apparato"
+
+msgid "Serial"
+msgstr "Seriale"
+
+msgid "IP Address"
+msgstr "Indirizzo IP"
+
+msgid "Username"
+msgstr "Nome utente"
+
+msgid "Add Customer"
+msgstr "Aggiungi Cliente"
+
+msgid "Add a user"
+msgstr "Aggiungi utente"
+
+msgid "Add"
+msgstr "Aggiungi"
+
+msgid "Delete Customer"
+msgstr "Elimina Cliente"
+
+msgid "Submit Changes"
+msgstr "Invia"
+
+msgid "Edit Customer"
+msgstr "Modifica Cliente"
