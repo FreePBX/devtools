@@ -56,10 +56,9 @@ function gabcast_getdestinfo($dest) {
 		if (empty($thisexten)) {
 			return array();
 		} else {
-			$type = isset($active_modules['announcement']['type'])?$active_modules['announcement']['type']:'tool';
-			return array('description' => 'Gabcast Channel : '.$thisexten['channbr'],
-			             'edit_url' => 'config.php?type='.$type.'&display=gabcast&ext='.urlencode($exten).'&action=edit',
-
+			$type = isset($active_modules['gabcast']['type'])?$active_modules['gabcast']['type']:'tool';
+			return array('description' => 'Gabcast : Ext'.$thisexten[0].' -> channel '.$thisexten[1],
+			             'edit_url' => 'config.php?display=gabcast&action=edit&type='.$type.'&ext='.urlencode($exten),
 								  );
 		}
 	} else {

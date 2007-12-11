@@ -98,9 +98,18 @@ function gabcast_show($xtn, $type, $iam) {
 		<form method="POST" action="{$_SERVER['PHP_SELF']}?type={$type}&display={$iam}">
 		<input type="hidden" name="action" value="delete">
 		<input type="hidden" name="ext" value="{$thisxtn[0]}">
-		<input type="submit" value="delete settings"></form><hr>
+		<input type="submit" value="delete settings"></form>
 End_Of_Delete;
 	}
+		$usage_list = framework_display_destination_usage(gabcast_getdest($xtn));
+		if (!empty($usage_list)) {
+		?>
+			<a href="#" class="info"><?php echo $usage_list['text']?>:<span><?php echo $usage_list['tooltip']?></span></a>
+		<?php
+		}
+?>
+	<hr>
+<?php
 	
 	if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'add') {
 		$thisxtn['ext'] = $_REQUEST['ext'];
@@ -140,7 +149,7 @@ End_Of_Html;
 
 function gabcast_sidebar($sel, $type, $iam) {
         echo "</div><div class='rnav'>\n";
-        echo "<li><a id='".($sel==''?'current':'std')."' ";
+        echo "<ul><li><a id='".($sel==''?'current':'std')."' ";
         echo "href='config.php?type={$type}&amp;display={$iam}&amp;action=add'>"._("Add Gabcast Channel")."</a></li>";
         //get the list of paging groups
         $resarr = gabcast_list();
@@ -153,7 +162,7 @@ function gabcast_sidebar($sel, $type, $iam) {
                         echo _("Ext")." ${cursel} -> "._("Chan")." ${resar[1]} </a></li>";
                 }
         }
-        echo "</div><div class='content'><h2>"._("Gabcast Configuration")."</h2>\n";
+        echo "</ul></div><div class='content'><h2>"._("Gabcast Configuration")."</h2>\n";
 }
 
 function gabcast_player($chanid = false) {
