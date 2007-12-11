@@ -1,19 +1,20 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>1.2.5.1</version>
+	<version>2.4.0</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
 	<changelog>
+		*2.4.0* add dest registry, fix rnav formating
 		*1.2.5.1* bump for rc1
 		*1.2.5* #2070 fix proper use of script tags
 	  *1.2.4* changed ${CALLERID(number)} to ${AMPUSER} to accomodate CID number masquerading
 		*1.2.3* Add he_IL translation
 		*1.2.2* Fix issue where you were unable to add a channel 
 	</changelog>
-	<location>release/2.3/gabcast-1.2.5.1.tgz</location>
-	<md5sum>572980430521866987e3a09efedc2ad4</md5sum>
+	<location>release/2.4/gabcast-2.4.0.tgz</location>
+	<md5sum>bb0c2df9d37121cdd41c7d344ded1ffd</md5sum>
 </module>
