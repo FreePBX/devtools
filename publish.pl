@@ -7,7 +7,7 @@
 $debug = 0;
 $checkphp = 1;
 $rver = "2.4";
-$fwbranch = "trunk";
+$fwbranch = "branches/2.4";
 $framework = "framework";
 
 my $reldir = "release/";
