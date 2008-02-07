@@ -32,7 +32,7 @@ function inventorydb_del($extdisplay){
 	sql($sql);
 }
 
-function inventorydb_edit($extdisplay, $empnum, $empname, $floor, $room, $section, $cubicle, $desk, $exten, $phusername, $phpassword, $mac, $serial, $device, $distdate, $ip, $pbxbox, $extrainfo){
+function inventorydb_edit($extdisplay, $empnum, $empname, $building, $floor, $room, $section, $cubicle, $desk, $exten, $phusername, $phpassword, $mac, $serial, $device, $distdate, $ip, $pbxbox, $extrainfo){
 	$sql="UPDATE inventorydb set empnum='$empnum' where id='$extdisplay'";
 	sql($sql);
 	$sql="UPDATE inventorydb set empname='$empname' where id='$extdisplay'";
