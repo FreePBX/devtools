@@ -1,13 +1,14 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>2.4.0</version>
+	<version>2.4.0.1</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
 	<changelog>
+		*2.4.0.1* added depends on 2.4.0
 		*2.4.0* add dest registry, fix rnav formating
 		*1.2.5.1* bump for rc1
 		*1.2.5* #2070 fix proper use of script tags
@@ -15,6 +16,9 @@
 		*1.2.3* Add he_IL translation
 		*1.2.2* Fix issue where you were unable to add a channel 
 	</changelog>
-	<location>release/2.4/gabcast-2.4.0.tgz</location>
-	<md5sum>bb0c2df9d37121cdd41c7d344ded1ffd</md5sum>
+	<depends>
+		<version>2.4.0</version>
+	</depends>
+	<location>release/2.4/gabcast-2.4.0.1.tgz</location>
+	<md5sum>d12ef876cf7bed2197804cbdccdb9a25</md5sum>
 </module>
