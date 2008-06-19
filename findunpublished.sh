@@ -5,9 +5,7 @@
 
 for i in *; do
 	if [ -d $i ]; then
-		svn log --limit 1 $i | grep -q "Module Publish Script"
-		if [ $? -ne 0 ]; then
-			echo $i
-		fi
+		echo $i
+		svn log -r PREV  $i 
 	fi
 done
