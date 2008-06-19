@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Helper utility to create directory structure add a bunch of translation files for the modules
+#
+# usage looks like:
+#
+# ./mk_i18n_structure ru_RU /tmp/Russian
+#
+# where ru_RU would be the language, and /tmp/Russian whould be where all the files
+# have been placed
+
+for i in *; do
+	echo $i:
+	if [ -d $i ] && [ -a ${2}/${i}.mo ] && [ -a ${2}/${i}.po ]; then
+		if [ ! -d ${i}/i18n ]; then
+			svn mkdir ${i}/i18n
+		fi
+		if [ ! -d ${i}/i18n/$1 ]; then
+			svn mkdir ${i}/i18n/$1
+			svn mkdir ${i}/i18n/$1/LC_MESSAGES
+		fi
+		cp $2/$i.mo $i/i18n/$1/LC_MESSAGES/
+		cp $2/$i.po $i/i18n/$1/LC_MESSAGES/
+		svn add $i/i18n/$1/LC_MESSAGES/$i.mo
+		svn add $i/i18n/$1/LC_MESSAGES/$i.po
+	fi
+done
+
