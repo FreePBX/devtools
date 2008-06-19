@@ -1,18 +1,19 @@
 <module>
 	<rawname>inventorydb</rawname>
 	<name>Inventory</name>
-	<version>2.4.0</version>
+	<version>2.4.0.1</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<inventorydb>Inventory</inventorydb>
 	</menuitems>
 	<changelog>
+		*2.4.0.1* #2645 API error - NOTICE: This module will be removed from future versions
 		*2.4.0* bumped for 2.4
 		*1.1.0* Added SQLite3 support. Fixes ticket:1783, bump for rc1
 		*1.0.3* Add he_IL translation
 	</changelog>
-	<location>release/2.4/inventorydb-2.4.0.tgz</location>
-	<md5sum>8f8e2fb2bb350b8d8a33092555a88999</md5sum>
+	<location>release/2.4/inventorydb-2.4.0.1.tgz</location>
+	<md5sum>cac6ee93c6d07a29cc611b9064b46d00</md5sum>
 </module>
 
