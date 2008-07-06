@@ -149,11 +149,11 @@ echo "</h5></td></tr>\n";
 echo "<tr ";
 echo ($extdisplay ? '' : '');
 echo "><td>";
-echo "<a href=\"#\" class=\"info\">Name\n";
+echo "<a href=\"#\" class=\"info\" >Name\n";
 echo "<span>Name of business or person (REQUIRED)</span></a>\n";
 echo "</td>";
 echo "<td>";
-echo "<input type=text name=\"name\" value=\"$name\">\n";
+echo "<input type=text name=\"name\" value=\"$name\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Address Line 1
@@ -161,7 +161,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Address 1\n";
 echo "<span>Address Line 1 (REQUIRED)</span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"addr1\" value=\"$addr1\"\n";
+echo "<input type=text tabindex=".++$tabindex." name=\"addr1\" value=\"$addr1\"\n";
 echo "</td></tr>\n";
 
 //Address Line 2
@@ -169,7 +169,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Address 2\n";
 echo "<span>Address Line 2</span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"addr2\" value=\"$addr2\">\n";
+echo "<input type=text tabindex=".++$tabindex." name=\"addr2\" value=\"$addr2\">\n";
 echo "</td><tr>\n";
 
 //City
@@ -177,7 +177,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">City\n";
 echo "<span>City (REQUIRED)</span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"city\" value=\"$city\">\n";
+echo "<input type=text name=\"city\" value=\"$city\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //State
@@ -187,7 +187,7 @@ echo "<span>State (REQUIRED)</span></a>\n";
 echo "</td><td>\n";
 $state=($extdisplay ? $state : "LA");
 $states = array('AL', 'AK', 'AR', 'AZ', 'CA', 'CO', 'CT', 'DC', 'DE', 'FL', 'GA', 'HI', 'IA', 'ID', 'IL', 'IN', 'KS', 'KY', 'LA', 'MA','MD', 'ME', 'MI', 'MN', 'MO', 'MS', 'MT', 'NC', 'ND', 'NE', 'NH', 'NJ', 'NM', 'NV', 'NY', 'OH', 'OK', 'OR', 'PA', 'PR', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VA', 'VT', 'WA', 'WV', 'WI', 'WY', 'TAS', 'VIC', 'NSW', 'ACT', 'QLD', 'NT', 'SA'); 
-echo "&nbsp;&nbsp;<select name=\"state\">\n";
+echo "&nbsp;&nbsp;<select name=\"state\" tabindex=".++$tabindex.">\n";
 foreach ($states as $s){
 	echo "<option value=\"$s\"";
 	if($state==$s) echo " SELECTED";
@@ -201,12 +201,12 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Zip/Post Code\n";
 echo "<span>Zip (REQUIRED)</span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"zip\" value=\"$zip\">\n";
+echo "<input type=text name=\"zip\" value=\"$zip\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Sip
 echo "<tr><td align=left>\n";
-echo "<input type=radio checked name=\"sipbtn\" onclick=\"switchit_sip();return true;\"><a 
+echo "<input type=radio checked name=\"sipbtn\" onclick=\"switchit_sip();return true;\" tabindex=".++$tabindex."><a 
 href=\"#\" class=\"info\">Sip Account\n";
 echo "<span>Sip Account <font size=-1>(must have this or a did tied to the account)</font></span></a>\n";
 echo "</td><td>\n";
@@ -243,7 +243,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Device\n";
 echo "<span>Device <font size=-1>(example... Linksys PAP-2, Sipura)</font></span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"device\" value=\"$device\">\n";
+echo "<input type=text name=\"device\" value=\"$device\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Serial
@@ -251,7 +251,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Serial\n";
 echo "<span>Serial Number</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"serial\" value=\"$serial\">\n";
+echo "<input name=\"serial\" value=\"$serial\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //IP
@@ -259,7 +259,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">IP Address\n";
 echo "<span>IP Address </font></span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"ip\" value=\"$ip\">\n";
+echo "<input type=text name=\"ip\" value=\"$ip\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Account
@@ -267,7 +267,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Account\n";
 echo "<span>Account Number (internal use)</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"account\" value=\"$account\">\n";
+echo "<input name=\"account\" value=\"$account\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Email
@@ -275,7 +275,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Email\n";
 echo "<span>Email Address</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"email\" value=\"$email\">\n";
+echo "<input name=\"email\" value=\"$email\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Username
@@ -283,7 +283,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Username\n";
 echo "<span>Username for the device</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"username\" value=\"$username\">\n";
+echo "<input name=\"username\" value=\"$username\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Password
@@ -291,11 +291,11 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Password\n";
 echo "<span>Password for device</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"password\" value=\"$password\">\n";
+echo "<input name=\"password\" value=\"$password\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 ?>
-<tr><td></td><td><input type=submit Value="Submit Changes"></td></tr></table>
+<tr><td></td><td><input type=submit Value="Submit Changes" tabindex="<?php echo ++$tabindex;?>"></td></tr></table>
 
 <script language="javascript">
 var cform = document.addNew;

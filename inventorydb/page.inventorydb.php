@@ -160,7 +160,7 @@ echo "><td>";
 echo "<a href=\"#\" class=\"info\">Employee #\n";
 echo "<span>Employee Number</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"empnum\" value=\"$empnum\">\n";
+echo "<input name=\"empnum\" value=\"$empnum\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //empname
@@ -169,7 +169,7 @@ echo "<a href=\"#\" class=\"info\">Employee Name\n";
 echo "<span>Employee Name</span></a>\n";
 echo "</td>";
 echo "<td>";
-echo "<input type=text name=\"empname\" value=\"$empname\">\n";
+echo "<input type=text name=\"empname\" value=\"$empname\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //building
@@ -177,7 +177,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Building Located\n";
 echo "<span>Building where the phone is located</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"building\" value=\"$building\">\n";
+echo "<input name=\"building\" value=\"$building\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //floor
@@ -185,7 +185,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Floor #\n";
 echo "<span>Floor # phone is on</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"floor\" value=\"$floor\">\n";
+echo "<input name=\"floor\" value=\"$floor\" tabindex=".++$tabindex.">\n";
 echo "</td><tr>\n";
 
 //room
@@ -193,7 +193,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Room #\n";
 echo "<span>Room phone is in</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"room\" value=\"$room\">\n";
+echo "<input name=\"room\" value=\"$room\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //section
@@ -201,7 +201,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Floor Section #\n";
 echo "<span>Floor Section # the phone is in</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"section\" value=\"$section\">\n";
+echo "<input name=\"section\" value=\"$section\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //cubicle
@@ -209,7 +209,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Cubicle #\n";
 echo "<span>Cubicle phone is in</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"cubicle\" value=\"$cubicle\">\n";
+echo "<input name=\"cubicle\" value=\"$cubicle\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //desk
@@ -217,7 +217,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Desk #\n";
 echo "<span>Desk Number phone is on</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"desk\" value=\"$desk\">\n";
+echo "<input name=\"desk\" value=\"$desk\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //exten
@@ -225,7 +225,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Extension #\n";
 echo "<span>Exten Assigned to the phone</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"exten\" value=\"$exten\">\n";
+echo "<input name=\"exten\" value=\"$exten\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //phusername
@@ -233,7 +233,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Phone UserName\n";
 echo "<span>Phone Admin Username</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"phusername\" value=\"$phusername\">\n";
+echo "<input name=\"phusername\" value=\"$phusername\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //phpassword
@@ -241,7 +241,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Phone Password\n";
 echo "<span>Phone Admin Password </span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"phpassword\" value=\"$phpassword\">\n";
+echo "<input name=\"phpassword\" value=\"$phpassword\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //mac
@@ -249,7 +249,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">MAC Address\n";
 echo "<span>MAC Address of phone</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"mac\" value=\"$mac\">\n";
+echo "<input name=\"mac\" value=\"$mac\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Serial
@@ -257,7 +257,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Serial #\n";
 echo "<span>Serial Number of the phone</span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"serial\" value=\"$serial\">\n";
+echo "<input name=\"serial\" value=\"$serial\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Device
@@ -265,7 +265,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Phone/Device\n";
 echo "<span>Device <font size=-1>(example... Linksys PAP-2, Sipura)</font></span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"device\" value=\"$device\">\n";
+echo "<input type=text name=\"device\" value=\"$device\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //DistDate
@@ -273,7 +273,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Distributed Date\n";
 echo "<span>Distribution Date</font></span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"distdate\" value=\"$distdate\">\n";
+echo "<input name=\"distdate\" value=\"$distdate\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //IP
@@ -281,7 +281,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">IP Address\n";
 echo "<span>IP Address Assigned If not DHCP</font></span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"ip\" value=\"$ip\">\n";
+echo "<input name=\"ip\" value=\"$ip\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //pbxbox
@@ -289,7 +289,7 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">PBX Box Name\n";
 echo "<span>PBX Box Name</span></a>\n";
 echo "</td><td>\n";
-echo "<input type=text name=\"pbxbox\" value=\"$pbxbox\">\n";
+echo "<input type=text name=\"pbxbox\" value=\"$pbxbox\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //extrainfo
@@ -297,12 +297,12 @@ echo "<tr><td>\n";
 echo "<a href=\"#\" class=\"info\">Extra Info\n";
 echo "<span>Extra Information</span></span></a>\n";
 echo "</td><td>\n";
-echo "<input name=\"extrainfo\" value=\"$extrainfo\">\n";
+echo "<input name=\"extrainfo\" value=\"$extrainfo\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 
 ?>
-<tr><td></td><td><input type=submit Value="Submit Changes"></td></tr></table>
+<tr><td></td><td><input type=submit Value="Submit Changes" tabindex="<?php echo ++$tabindex;?>"></td></tr></table>
 
 </script>
 
