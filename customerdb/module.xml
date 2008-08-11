@@ -1,20 +1,21 @@
 <module>
 	<rawname>customerdb</rawname>
 	<name>Customer DB</name>
-	<version>2.5.0.1</version>
+	<version>2.5.0.2</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<customerdb>Customer DB</customerdb>
 	</menuitems>
 	<changelog>
+		*2.5.0.2* #2987 sqlite3 install script changes
 		*2.5.0.1* #2781 allow sqlite table creation
 		*2.5.0* #2845 tabindex
 		*2.4.0* it translations, bump for 2.4
 		*1.2.3.1* bump for rc1
 		*1.2.3* Add he_IL translation
 	</changelog>
-	<location>release/2.5/customerdb-2.5.0.1.tgz</location>
-	<md5sum>f94e7ff06f40b077bfe1d6f04388219d</md5sum>
+	<location>release/2.5/customerdb-2.5.0.2.tgz</location>
+	<md5sum>321b45d000535af62f8bb3208b5083e3</md5sum>
 </module>
 
