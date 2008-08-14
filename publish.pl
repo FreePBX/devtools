@@ -4,7 +4,7 @@
 #              and module.xml modifications made since these can be reverted. Review carefully if you care concerned that it will
 #              lose work.
 #
-$debug = 1;
+$debug = 0;
 $checkphp = 1;
 $rver = "2.5";
 $fwbranch = "branches/2.5";
