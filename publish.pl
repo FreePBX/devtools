@@ -4,10 +4,10 @@
 #              and module.xml modifications made since these can be reverted. Review carefully if you care concerned that it will
 #              lose work.
 #
-$debug = 0;
+$debug = 1;
 $checkphp = 1;
 $rver = "2.5";
-$fwbranch = "trunk";
+$fwbranch = "branches/2.5";
 $framework = "framework";
 
 my $reldir = "release/";
