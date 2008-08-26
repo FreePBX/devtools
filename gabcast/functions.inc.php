@@ -18,10 +18,10 @@ function gabcast_configpageload() {
 		$list = gabcast_get($viewing_itemid);
 		if (is_array($list)) {
 			$res = $_SERVER['PHP_SELF']."?display=gabcast&type=tool&ext=$viewing_itemid&action=edit";
-			$currentcomponent->addguielem('_top', new gui_link('gabcastlink', 'Edit Gabcast Settings', $res));
+			$currentcomponent->addguielem('_top', new gui_link('gabcastlink', _("Edit Gabcast Settings"), $res));
 		} else {
 			$res = $_SERVER['PHP_SELF']."?display=gabcast&type=tool&ext=$viewing_itemid&action=add";
-			$currentcomponent->addguielem('_top', new gui_link('gabcastlink', 'Add Gabcast Settings', $res));
+			$currentcomponent->addguielem('_top', new gui_link('gabcastlink', _("Add Gabcast Settings"), $res));
 		}
 	}
 }
