@@ -9,6 +9,8 @@ $checkphp = 1;
 $rver = "2.5";
 $fwbranch = "branches/2.5";
 $framework = "framework";
+$fw_fop = "fw_fop";
+$fw_ari = "fw_ari";
 
 my $reldir = "release/";
 
@@ -33,9 +35,6 @@ while ($moddir = shift @ARGV) {
 		}
 		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs $framework/htdocs")) {
 			die "FATAL: failed to export htdocs directory\n";
-		}
-		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs_panel $framework/htdocs_panel")) {
-			die "FATAL: failed to export htdocs_panel directory\n";
 		}
 		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/upgrades $framework/upgrades")) {
 			die "FATAL: failed to export upgrades directory\n";
@@ -64,10 +63,10 @@ while ($moddir = shift @ARGV) {
 			die "FATAL: failed to remove $framework/tmp\n";
 		}
 
-		# Now we must remove a few files which users may have legitimately edited. For now this is the main.conf.php file which is the current
+		# Now we must remove a few files which users may have legitimately edited. For now, all of ARI moved to new module
 		# ARI file used for editing paramters and options.
 		#
-		if (system("rm -rf $framework/htdocs/recordings/includes/main.conf.php")) {
+		if (system("rm -rf $framework/htdocs/recordings")) {
 			die "FATAL: failed to trim main.conf.php ARI file\n";
 		}
 		
@@ -85,6 +84,43 @@ while ($moddir = shift @ARGV) {
 		if (system("rm -rf $framework/htdocs/admin/modules/_cache")) {
 			die "FATAL: failed to trim modules/_cache\n";
 		}
+	}
+	if ($moddir =~ /$fw_fop/) {
+
+		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs_panel $fw_fop/htdocs_panel")) {
+			die "FATAL: failed to export htdocs_panel directory\n";
+		}
+
+		# Create the svnversion information for this framework snapshot
+		#
+		if (system("echo SVN VERSION: `svn log -q -r HEAD http://svn.freepbx.org/ | cut -s -f 1 -d ' ' | cut -b '2-'` > $fw_fop/svnversion.txt")) {
+			die "FATAL: svnversion failed to create svnversion.txt\n";
+		}
+
+	}
+	if ($moddir =~ /$fw_ari/) {
+
+		if (system("rm -rf $fw_ari/htdocs_ari")) {
+			die "FATAL: failed to remove previoulsly exported directories\n";
+		}
+
+		# Create the svnversion information for this framework snapshot
+		#
+		if (system("echo SVN VERSION: `svn log -q -r HEAD http://svn.freepbx.org/ | cut -s -f 1 -d ' ' | cut -b '2-'` > $fw_fop/svnversion.txt")) {
+			die "FATAL: svnversion failed to create svnversion.txt\n";
+		}
+
+		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs/recordings $fw_ari/htdocs_ari")) {
+			die "FATAL: failed to export htdocs directory\n";
+		}
+
+		# Now we must remove a few files which users may have legitimately edited. For now this is the main.conf.php file which is the current
+		# ARI file used for editing paramters and options.
+		#
+		if (system("rm -rf $fw_ari/htdocs_ari/includes/main.conf.php")) {
+			die "FATAL: failed to trim main.conf.php ARI file\n";
+		}
+
 	}
 
 	open FH, "$moddir/module.xml"; 
@@ -116,6 +152,16 @@ while ($moddir = shift @ARGV) {
 			next if ($x =~ /svnversion.txt/);
 			$files .= "$x ";
 		}
+	} elsif ($moddir =~ /$fw_fop/) {
+			next if ($x =~ /module.xml/);
+			next if ($x =~ /htdocs_panel/);
+			next if ($x =~ /svnversion.txt/);
+			$files .= "$x ";
+	} elsif ($moddir =~ /$fw_ari/) {
+			next if ($x =~ /module.xml/);
+			next if ($x =~ /htdocs_ari/);
+			next if ($x =~ /svnversion.txt/);
+			$files .= "$x ";
 	} else {
 		while ($x = shift @arr) {
 			# Excluding module.xml which gets checked in later..
@@ -163,4 +209,3 @@ while ($moddir = shift @ARGV) {
 		system("svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname $vers\"");
 	}
 }
-
