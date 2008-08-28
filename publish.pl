@@ -106,7 +106,7 @@ while ($moddir = shift @ARGV) {
 
 		# Create the svnversion information for this framework snapshot
 		#
-		if (system("echo SVN VERSION: `svn log -q -r HEAD http://svn.freepbx.org/ | cut -s -f 1 -d ' ' | cut -b '2-'` > $fw_fop/svnversion.txt")) {
+		if (system("echo SVN VERSION: `svn log -q -r HEAD http://svn.freepbx.org/ | cut -s -f 1 -d ' ' | cut -b '2-'` > $fw_ari/svnversion.txt")) {
 			die "FATAL: svnversion failed to create svnversion.txt\n";
 		}
 
