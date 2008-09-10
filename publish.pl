@@ -11,6 +11,7 @@ $fwbranch = "branches/2.5";
 $framework = "framework";
 $fw_fop = "fw_fop";
 $fw_ari = "fw_ari";
+$fw_langpacks = "fw_langpacks";
 
 my $reldir = "release/";
 
@@ -122,6 +123,56 @@ while ($moddir = shift @ARGV) {
 		}
 
 	}
+	if ($moddir =~ /$fw_langpacks/) {
+
+		my $module_url="http://svn.freepbx.org/modules/branches/$rver";
+		my $base_url="http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs";
+		my $framework_url="$base_url/admin";
+		my $recordings_url="$base_url/recordings";
+
+		@modules=`svn list $module_url | grep '/'`;
+
+		if (system("rm -rf $fw_langpacks/htdocs")) {
+			die "FATAL: failed to remove old htdocs dir\n";
+		}
+		if (system("mkdir -p $fw_langpacks/htdocs/admin/modules")) {
+			die "FATAL: failed to create htdocs/admin/modules\n";
+		}
+		if (system("mkdir -p $fw_langpacks/htdocs/recordings")) {
+			die "FATAL: failed to create htdocs/recordings\n";
+		}
+
+		if (system("svn export $framework_url/i18n $fw_langpacks/htdocs/admin/i18n")) {
+			die "FATAL: failed to export $framework_url/i18n\n";
+		}
+		if (system("svn export $recordings_url/locale $fw_langpacks/htdocs/recordings/locale")) {
+			die "FATAL: failed to export $recurdings_url/locale\n";
+		}
+		foreach my $module ( @modules ) {
+			chomp($module);
+			if (system("rm -rf $fw_langpacks/i18n")) {
+				die "FATAL: failed to remove temp i18n dir\n";
+			}
+			if (!system("svn export $module_url/$module"."i18n $fw_langpacks/i18n 2> /dev/null")) {
+				if (system("mkdir $fw_langpacks/htdocs/admin/modules/$module")) {
+					die "FATAL: failed to create htdocs/admin/modules/$module\n";
+				}
+				if (system("mv $fw_langpacks/i18n $fw_langpacks/htdocs/admin/modules/$module")) {
+					die "FATAL: failed to move i18n to htdocs/admin/modules/$module\n";
+				}
+			} else {
+				print "No i18n files for $module"."\n";
+			}
+		}
+
+
+		# Create the svnversion information for this framework snapshot
+		#
+		if (system("echo SVN VERSION: `svn log -q -r HEAD http://svn.freepbx.org/ | cut -s -f 1 -d ' ' | cut -b '2-'` > $fw_langpacks/svnversion.txt")) {
+			die "FATAL: svnversion failed to create svnversion.txt\n";
+		}
+
+	}
 
 	open FH, "$moddir/module.xml"; 
 	$newxml = "";
@@ -160,6 +211,11 @@ while ($moddir = shift @ARGV) {
 	} elsif ($moddir =~ /$fw_ari/) {
 			next if ($x =~ /module.xml/);
 			next if ($x =~ /htdocs_ari/);
+			next if ($x =~ /svnversion.txt/);
+			$files .= "$x ";
+	} elsif ($moddir =~ /$fw_langpacks/) {
+			next if ($x =~ /module.xml/);
+			next if ($x =~ /htdocs/);
 			next if ($x =~ /svnversion.txt/);
 			$files .= "$x ";
 	} else {
