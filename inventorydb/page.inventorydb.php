@@ -84,6 +84,8 @@ switch($action) {
 </div>
 <div class="rnav">
 <?php
+// Dirty fix for localization
+_("Add");
 $inventorys=inventorydb_list();
 drawListMenu($inventorys, $skip, $type, $dispnum, $extdisplay, _("inventory"));
 ?>
@@ -98,7 +100,7 @@ if($action=='del'){
 else if(!isset($extdisplay)) {
 
 
-	echo "<h2>Add a user</h2>";
+	echo "<h2>"._("Add a user")."</h2>";
 //	echo "<li><a href=\"".$_SERVER['PHP_SELF']."?$action=add\";>Add</a><br>";
 
 }
@@ -131,10 +133,10 @@ else {
 	if(isset($inventoryInfo) && is_array($inventoryInfo)){
 		$action="edit";
 		echo "<h2> ".$extdisplay." ".$empname."</h2>";
-		echo "<p><a href=\"".$delURL."\">Delete inventory</a></p>";
+		echo "<p><a href=\"".$delURL."\">"._("Delete inventory")."</a></p>";
 	}
 	else {
-		echo "<h2>Add inventory</h2>";
+		echo "<h2>"._("Add inventory")."</h2>";
 	}
 
 }
@@ -154,155 +156,191 @@ echo ($extdisplay ? _('Edit inventory') : _('Add inventory'));
 echo "</h5></td></tr>\n";
 
 //empnum
+$employee = _("Employee #");
+$employeehelp = _("Employee Number");
 echo "<tr ";
 echo ($extdisplay ? '' : '');
 echo "><td>";
-echo "<a href=\"#\" class=\"info\">Employee #\n";
-echo "<span>Employee Number</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$employee."\n";
+echo "<span>".$employeehelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"empnum\" value=\"$empnum\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //empname
+$employeename = _("Employee Name");
+$employeenamehelp = _("The Name for the Employee");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Employee Name\n";
-echo "<span>Employee Name</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$employeename."\n";
+echo "<span>".$employeenamehelp."</span></a>\n";
 echo "</td>";
 echo "<td>";
 echo "<input type=text name=\"empname\" value=\"$empname\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //building
+$buildingloc = _("Building Located");
+$buildinglochelp = _("Building where the phone is located");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Building Located\n";
-echo "<span>Building where the phone is located</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$buildingloc."\n";
+echo "<span>".$buildinglochelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"building\" value=\"$building\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //floor
+$floorno = _("Floor #");
+$floornohelp = _("Floor # phone is on"); 
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Floor #\n";
-echo "<span>Floor # phone is on</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$floorno."\n";
+echo "<span>".$floornohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"floor\" value=\"$floor\" tabindex=".++$tabindex.">\n";
 echo "</td><tr>\n";
 
 //room
+$roomno = _("Room #");
+$roomnohelp = _("Room phone is in");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Room #\n";
-echo "<span>Room phone is in</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$roomno."\n";
+echo "<span>".$roomnohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"room\" value=\"$room\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //section
+$sectionno = _("Floor Section #");
+$sectionnohelp = _("Floor Section # the phone is in");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Floor Section #\n";
-echo "<span>Floor Section # the phone is in</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$sectionno."\n";
+echo "<span>".$sectionnohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"section\" value=\"$section\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //cubicle
+$cubicleno = _("Cubicle #");
+$cubiclenohelp = _("Cubicle phone is in");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Cubicle #\n";
-echo "<span>Cubicle phone is in</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$cubicleno."\n";
+echo "<span>".$cubiclenohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"cubicle\" value=\"$cubicle\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //desk
+$deskno = _("Desk #");
+$desknohelp = _("Desk Number phone is on");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Desk #\n";
-echo "<span>Desk Number phone is on</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$deskno."\n";
+echo "<span>".$desknohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"desk\" value=\"$desk\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //exten
+$extenno = _("Extension #");
+$extennohelp = _("Exten Assigned to the phone");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Extension #\n";
-echo "<span>Exten Assigned to the phone</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$extenno."\n";
+echo "<span>".$extennohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"exten\" value=\"$exten\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //phusername
+$phuser = _("Phone UserName");
+$phuserhelp = _("Phone Admin Username");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Phone UserName\n";
-echo "<span>Phone Admin Username</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$phuser."\n";
+echo "<span>".$phuserhelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"phusername\" value=\"$phusername\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //phpassword
+$phpass = _("Phone Password");
+$phpasshelp = _(" Phone Admin Password");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Phone Password\n";
-echo "<span>Phone Admin Password </span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$phpass."\n";
+echo "<span>".$phpasshelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"phpassword\" value=\"$phpassword\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //mac
+$macaddr = _("MAC Address");
+$macaddrhelp = _("MAC Address of the phone");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">MAC Address\n";
-echo "<span>MAC Address of phone</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$macaddr."\n";
+echo "<span>".$macaddrhelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"mac\" value=\"$mac\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Serial
+$serialno = _("Serial #");
+$serialnohelp = _("Serial Number of the phone");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Serial #\n";
-echo "<span>Serial Number of the phone</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$serialno."\n";
+echo "<span>".$serialnohelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"serial\" value=\"$serial\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //Device
+$phdevice = _("Phone/Device");
+$phdevicehelp = _("Device, example... Linksys PAP-2, Sipura");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Phone/Device\n";
-echo "<span>Device <font size=-1>(example... Linksys PAP-2, Sipura)</font></span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$phdevice."\n";
+echo "<span>".$phdevicehelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input type=text name=\"device\" value=\"$device\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //DistDate
+$dateinst = _("Distributed Date");
+$dateinsthelp = _("Distribution Date");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Distributed Date\n";
-echo "<span>Distribution Date</font></span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$dateinst."\n";
+echo "<span>".$dateinsthelp."</font></span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"distdate\" value=\"$distdate\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //IP
+$ipaddr = _("IP Address");
+$ipaddrhelp = _("IP Address Assigned If not DHCP");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">IP Address\n";
-echo "<span>IP Address Assigned If not DHCP</font></span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$ipaddr."\n";
+echo "<span>".$ipaddrhelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"ip\" value=\"$ip\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //pbxbox
+$pbxname = _("PBX Box Name");
+$pbxnamehelp = _("PBX Box Name");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">PBX Box Name\n";
-echo "<span>PBX Box Name</span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$pbxname."\n";
+echo "<span>".$pbxnamehelp."</span></a>\n";
 echo "</td><td>\n";
 echo "<input type=text name=\"pbxbox\" value=\"$pbxbox\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 //extrainfo
+$extra = _("Extra Info");
+$extrahelp = _("Extra Information");
 echo "<tr><td>\n";
-echo "<a href=\"#\" class=\"info\">Extra Info\n";
-echo "<span>Extra Information</span></span></a>\n";
+echo "<a href=\"#\" class=\"info\">".$extra."\n";
+echo "<span>".$extrahelp."</span></span></a>\n";
 echo "</td><td>\n";
 echo "<input name=\"extrainfo\" value=\"$extrainfo\" tabindex=".++$tabindex.">\n";
 echo "</td></tr>\n";
 
 
 ?>
-<tr><td></td><td><input type=submit Value="Submit Changes" tabindex="<?php echo ++$tabindex;?>"></td></tr></table>
+<tr><td></td><td><input type=submit Value="<?php echo _("Submit Changes")?>" tabindex="<?php echo ++$tabindex;?>"></td></tr></table>
 
 </script>
 
