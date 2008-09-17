@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: FreePBX inventorydb\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2008-09-16 14:07+0200\n"
-"PO-Revision-Date: 2008-09-16 15:22+0100\n"
+"PO-Revision-Date: 2008-09-17 10:08+0100\n"
 "Last-Translator: Mikael Carlsson <mickecamino@gmail.com>\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: page.inventorydb.php:88
 msgid "Add"
-msgstr "Lagg till"
+msgstr "Lägg till"
 
 #: page.inventorydb.php:90
 msgid "inventory"
@@ -37,7 +37,8 @@ msgstr "Lägg till en användare"
 msgid "Delete inventory"
 msgstr "Ta bort inventarie"
 
-#: page.inventorydb.php:139 page.inventorydb.php:155
+#: page.inventorydb.php:139
+#: page.inventorydb.php:155
 msgid "Add inventory"
 msgstr "Lägg till inventarie"
 
@@ -173,7 +174,8 @@ msgstr "IP-adress"
 msgid "IP Address Assigned If not DHCP"
 msgstr "IP-adressen som telefonen använder eller DHCP om detta används"
 
-#: page.inventorydb.php:322 page.inventorydb.php:323
+#: page.inventorydb.php:322
+#: page.inventorydb.php:323
 msgid "PBX Box Name"
 msgstr "Namnet på din växel"
 
@@ -192,3 +194,4 @@ msgstr "Spara ändringar"
 #: module.xml
 msgid "Inventory"
 msgstr "Inventarier"
+
