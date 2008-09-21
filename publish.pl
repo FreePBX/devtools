@@ -253,15 +253,20 @@ while ($moddir = shift @ARGV) {
 	open FH, ">$moddir/module.xml";
 	print FH $newxml;
 	close FH;
+
+	my $lastpublish = `svnversion $rawname`;
+
 	if ($debug) {
 		print "mv $filename ../../release/$rver\n";
 		print "svn add ../../release/$rver/$filename\n";
 		print "svn ps svn:mime-type application/tgz ../../release/$rver/$filename\n";
+		print "svn ps lastpublish $lastpublish $moddir";
 		print "svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname $vers\"\n";
 	} else {
 		system("mv $filename ../../release/$rver");
 		system("svn add ../../release/$rver/$filename");
 		system("svn ps svn:mime-type application/tgz ../../release/$rver/$filename");
+		system("svn ps lastpublish '$lastpublish' $rawname");
 		system("svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname $vers\"");
 	}
 }
