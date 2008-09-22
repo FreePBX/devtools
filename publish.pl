@@ -254,6 +254,7 @@ while ($moddir = shift @ARGV) {
 	print FH $newxml;
 	close FH;
 
+	system("svn update $rawname");
 	my $lastpublish = `svnversion $rawname`;
 
 	if ($debug) {
@@ -267,6 +268,6 @@ while ($moddir = shift @ARGV) {
 		system("svn add ../../release/$rver/$filename");
 		system("svn ps svn:mime-type application/tgz ../../release/$rver/$filename");
 		system("svn ps lastpublish '$lastpublish' $rawname");
-		system("svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname $vers\"");
+		system("svn ci ../../release/$rver/$filename $rawname/module.xml ./$rawname -m \"Module Publish Script: $rawname $vers\"");
 	}
 }
