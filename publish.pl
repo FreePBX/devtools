@@ -23,7 +23,6 @@ while ($moddir = shift @ARGV) {
 		# all files under htdocs, agi-bin and bin. We have not included astetc since such files should be done with core modules. We have also
 		# temporarily chosen not to include FOP since it is likely FOP may be handled by a FOP module going forward. Othewise we will add it here.
 		#
-		# TODO: ADD FOP until we can get into a module
 		#
 		if (system("rm -rf $framework/agi-bin $framework/bin $framework/htdocs $framework/htdocs_panel $framework/upgrades $framework/libfreepbx.install.php $framework/CHANGES")) {
 			die "FATAL: failed to remove previoulsly exported directories\n";
@@ -72,7 +71,7 @@ while ($moddir = shift @ARGV) {
 		}
 		
 		# Remove from htdocs root mainstyle.css and index.html as these are owned by root (need to investigate why these are there
-		# and change that. Also some others
+		# and change that. Remove retrieve_op_conf_from_mysql.pl now handled by fw_fop. Also some others.
 		#
 		# TODO: check if these are stiff there and need to be special cased
 		#
@@ -85,11 +84,28 @@ while ($moddir = shift @ARGV) {
 		if (system("rm -rf $framework/htdocs/admin/modules/_cache")) {
 			die "FATAL: failed to trim modules/_cache\n";
 		}
+		if (system("rm -rf $framework/bin/retrieve_op_conf_from_mysql.pl")) {
+			die "FATAL: failed to trim bin/retrieve_op_conf_from_mysql.pl\n";
+		}
 	}
 	if ($moddir =~ /$fw_fop/) {
-
+		if (system("rm -rf $fw_fop/bin $fw_fop/htdocs_panel")) {
+			die "FATAL: failed to remove previoulsly exported directories\n";
+		}
 		if (system("svn export http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs_panel $fw_fop/htdocs_panel")) {
 			die "FATAL: failed to export htdocs_panel directory\n";
+		}
+		if (system("svn co --non-recursive http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/bin $fw_fop/tmp")) {
+			die "FATAL: failed to checkout bin\n";
+		}
+		if (system("mkdir $fw_fop/bin")) {
+			die "FATAL: failed to create $fw_fop/bin\n";
+		}
+		if (system("mv $fw_fop/tmp/retrieve_op_conf_from_mysql.pl $fw_fop/bin")) {
+			die "FATAL: failed to mv retrieve_op_conf_from_mysql.pl to $fw_fop/bin\n";
+		}
+		if (system("rm -rf $fw_fop/tmp")) {
+			die "FATAL: failed to remove $fw_fop/tmp\n";
 		}
 
 		# Create the svnversion information for this framework snapshot
@@ -255,13 +271,14 @@ while ($moddir = shift @ARGV) {
 	close FH;
 
 	system("svn update $rawname");
-	my $lastpublish = `svnversion $rawname`;
+	my $lastpublish = `svn info $rawname | grep Revision: | cut -f 2 -d ' '`;
+	chomp($lastpublish);
 
 	if ($debug) {
 		print "mv $filename ../../release/$rver\n";
 		print "svn add ../../release/$rver/$filename\n";
 		print "svn ps svn:mime-type application/tgz ../../release/$rver/$filename\n";
-		print "svn ps lastpublish $lastpublish $moddir";
+		print "svn ps lastpublish '$lastpublish' $moddir\n";
 		print "svn ci ../../release/$rver/$filename $rawname/module.xml -m \"Module Publish Script: $rawname $vers\"\n";
 	} else {
 		system("mv $filename ../../release/$rver");
