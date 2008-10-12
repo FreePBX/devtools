@@ -57,7 +57,7 @@ function gabcast_getdestinfo($dest) {
 			return array();
 		} else {
 			$type = isset($active_modules['gabcast']['type'])?$active_modules['gabcast']['type']:'tool';
-			return array('description' => 'Gabcast : Ext'.$thisexten[0].' -> channel '.$thisexten[1],
+			return array('description' => sprintf(_("Gabcast: %s Ext: %s"),$thisexten[0].' -> channel ',$thisexten[1]),
 			             'edit_url' => 'config.php?display=gabcast&action=edit&type='.$type.'&ext='.urlencode($exten),
 								  );
 		}

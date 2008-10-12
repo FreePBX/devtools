@@ -55,30 +55,24 @@ switch ($action) {
 
 
 function gabcast_text() {
-?>
 
-<div>
-	This 
-	<a class=info href="http://www.gabcast.com" target=_new>Gabcast
-		<span>
-			Gabcast is a social broadcasting 
-			platform that offers virtual communities, individuals, and organizations an easy 
-			way to create and distribute audio content.<br><br>Visit www.gabcast.com for more info.
-		</span>
-	</a> module allows you to:
-	<ul>
-		<li>Link extensions to Gabcast channels. It creates a feature code (which defaults to <u>*422</u> "gab" - you can change this in 
-		<a href="config.php?type=setup&display=featurecodeadmin">Feature Code Admin</a>) 	which allows you to log directly into your Gabcast account.  This is ideal for personal podcasting!
-		
-		<li>Define a Gabcast channel as a Destination for other modules.  For example, you can direct a DID or IVR menu option directly to Gabcast. This is ideal for group and public podcasting!
-	</ul>
-</div>
-
-
-<div style=;margin-top:20px;>
-	<?php echo gabcast_player();?>
-</div>
-<?php
+    echo "<div>";
+    echo _("This ");
+    echo "<a class=info href=\"http://www.gabcast.com\" target=_new>Gabcast<span>";
+    echo _("Gabcast is a social broadcasting platform that offers virtual communities, individuals, and organizations an easy way to create and distribute audio content.<br><br>Visit www.gabcast.com for more info.");
+    echo "</span>";
+    echo "</a> "._("module allows you to:");
+    echo "<ul><li>";
+    echo _("Link extensions to Gabcast channels. It creates a feature code, which defaults to <u>*422</u> 'gab' - you can change this in");
+    echo "&nbsp;<a href=\"config.php?type=setup&display=featurecodeadmin\">&nbsp;"._("Feature Code Admin").",&nbsp;</a>";
+    echo _("which allows you to log directly into your Gabcast account.  This is ideal for personal podcasting!");
+    echo "<li>";
+    echo _("Define a Gabcast channel as a Destination for other modules. For example, you can direct a DID or IVR menu option directly to Gabcast. This is ideal for group and public podcasting!");
+    echo "</ul>";
+    echo "</div>";
+    echo "<div style=;margin-top:20px;>";
+    echo gabcast_player();
+    echo "</div>";
 }
 
 function gabcast_show($xtn, $type, $iam) {
@@ -87,19 +81,18 @@ function gabcast_show($xtn, $type, $iam) {
 	if(!empty($xtn)) {
 		$thisxtn = gabcast_get($xtn);
 		if(!is_array($thisxtn)) {
-			echo "Error: cannot retreive Gabcast info for this extension";
+			echo _("Error: cannot retreive Gabcast info for this extension");
 			return;
 		}
 		$player = gabcast_player($thisxtn[1]);
 		$action = 'edit';
-		
-		//draw delete button
-		echo <<< End_Of_Delete
+
+?>		
 		<form method="POST" action="{$_SERVER['PHP_SELF']}?type={$type}&display={$iam}">
 		<input type="hidden" name="action" value="delete">
 		<input type="hidden" name="ext" value="{$thisxtn[0]}">
-		<input type="submit" value="delete settings"></form>
-End_Of_Delete;
+		<input type="submit" value="<?php echo _('Delete settings');?>"></form>
+<?php
 	}
 		$usage_list = framework_display_destination_usage(gabcast_getdest($xtn));
 		if (!empty($usage_list)) {
@@ -107,9 +100,7 @@ End_Of_Delete;
 			<a href="#" class="info"><?php echo $usage_list['text']?>:<span><?php echo $usage_list['tooltip']?></span></a>
 		<?php
 		}
-?>
-	<hr>
-<?php
+	echo "<hr>";
 	
 	if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'add') {
 		$thisxtn['ext'] = $_REQUEST['ext'];
@@ -117,34 +108,25 @@ End_Of_Delete;
 		$player = "";
 		$action = 'add';
 		
-		echo '<div style=margin-bottom:10px;>You <u>must</u> have a Gabcast account & channel to use this feature.  Visit <a href="http://www.gabcast.com" target="_blank">www.gabcast.com</a> to sign up. <u>It\'s a free service</u>!</div>';
+		echo "<div style=margin-bottom:10px;>";
+
+		echo _("You <u>must</u> have a Gabcast account & channel to use this feature. Visit");
+		echo "&nbsp;<a href=\"http://www.gabcast.com\" target=\"_blank\">www.gabcast.com</a>&nbsp;";
+		echo _("to sign up. <u>It's a free service</u>!");
+		echo "</div>";
 	}
 	
-	echo <<< End_Of_Html
-
-	<form method="POST" action="{$_SERVER['PHP_SELF']}?type={$type}&display={$iam}&action={$action}">
-		<input type="hidden" name="action" value="{$action}">
-		<div>
-			Gabcast Channel Number:
-			<input size="10" type="text" name="channbr" value="{$thisxtn[1]}">
-		</div>
-		<div>
-			Gabcast Channel Password:
-			<input size="10" type="text" name="pin" value="{$thisxtn[2]}">
-		</div>
-		<div>
-			Link to Extension/User Number:
-			<input size="10" type="text" name="ext" value="{$thisxtn[0]}">
-		</div>
-		<div>
-			<input type="submit">
-		</div>
-		<div style="margin-top:20px;">
-			{$player}
-		</div>
-	</form>
-	
-End_Of_Html;
+	echo "<form method=\"POST\" action=\"{$_SERVER['PHP_SELF']}?type={$type}&display={$iam}&action={$action}\">";
+	echo "<input type=\"hidden\" name=\"action\" value=\"{$action}\"><div>";
+	echo _("Gabcast Channel Number:");
+	echo "<input size=\"10\" type=\"text\" name=\"channbr\" value=\"{$thisxtn[1]}\"></div><dic>";
+	echo _("Gabcast Channel Password:");
+	echo "<input size=\"10\" type=\"text\" name=\"pin\" value=\"{$thisxtn[2]}\"></div><div>";
+	echo _("Link to Extension/User Number:");
+	echo "<input size=\"10\" type=\"text\" name=\"ext\" value=\"{$thisxtn[0]}\"></div><div>";
+	echo "<input type=\"submit\"></div><div style=\"margin-top:20px;\">";
+	echo "{$player}";
+	echo "</div></form>";
 }
 
 function gabcast_sidebar($sel, $type, $iam) {
@@ -167,14 +149,14 @@ function gabcast_sidebar($sel, $type, $iam) {
 
 function gabcast_player($chanid = false) {
 	if ($chanid) {
-		$title = _("<h4>The latest episodes in channel #{$chanid}").":</h4>";
+		$title = "<h4>".sprintf(_("The latest episodes in channel #%s"),$chanid).":</h4>";
 		$feed = "http://www.gabcast.com/casts/{$chanid}/rss/rss.xml";
 	} else {
-		$title = _("<h4>The latest episodes across all channels").":</h4>";
+		$title = "<h4>"._("The latest episodes across all channels").":</h4>";
 		$feed = "http://www.gabcast.com/casts/feeds/latest.xml";
 	}
 	
-	return $title.'<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="300" height="300" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0"><param name="movie" value="http://www.gabcast.com/mp3play/mp3player.swf?file='.$feed.'&config=http://www.gabcast.com/mp3play/config.php?ini=full.0.l" /><param name="wmode" value="transparent" /><param name="allowScriptAccess" value="always"><embed src="http://www.gabcast.com/mp3play/mp3player.swf?file='.$feed.'&config=http://www.gabcast.com/mp3play/config.php?ini=full.0.l" allowScriptAccess="always" wmode="transparent" width="300" height="300" name="mp3player" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed></object><br><br><div>Feed URL: <a href="'.$feed.'" target=_blank>'.$feed.'</a></div>';
+	return $title.'<object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="300" height="300" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0"><param name="movie" value="http://www.gabcast.com/mp3play/mp3player.swf?file='.$feed.'&config=http://www.gabcast.com/mp3play/config.php?ini=full.0.l" /><param name="wmode" value="transparent" /><param name="allowScriptAccess" value="always"><embed src="http://www.gabcast.com/mp3play/mp3player.swf?file='.$feed.'&config=http://www.gabcast.com/mp3play/config.php?ini=full.0.l" allowScriptAccess="always" wmode="transparent" width="300" height="300" name="mp3player" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed></object><br><br><div>'._('Feed URL: ').'<a href="'.$feed.'" target=_blank>'.$feed.'</a></div>';
 	
 }
 ?>
