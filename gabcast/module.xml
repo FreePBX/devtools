@@ -1,13 +1,14 @@
 <module>
 	<rawname>gabcast</rawname>
 	<name>Gabcast</name>
-	<version>2.5.0</version>
+	<version>2.5.0.1</version>
 	<type>tool</type>
 	<category>Third Party Addon</category>
 	<menuitems>
 		<gabcast>Gabcast</gabcast>
 	</menuitems>
 	<changelog>
+		*2.5.0.1* added localization ability
 		*2.5.0* localization fixes
 		*2.4.0.1* added depends on 2.4.0
 		*2.4.0* add dest registry, fix rnav formating
@@ -20,6 +21,6 @@
 	<depends>
 		<version>2.4.0</version>
 	</depends>
-	<location>release/2.5/gabcast-2.5.0.tgz</location>
-	<md5sum>765d67033603ebab38b76d6695075dd9</md5sum>
+	<location>release/2.5/gabcast-2.5.0.1.tgz</location>
+	<md5sum>14a5c68313c25d48d294b90c13a68401</md5sum>
 </module>
