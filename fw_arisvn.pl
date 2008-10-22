@@ -4,7 +4,8 @@
 # based on the fw_ari xml version number and then run svn log against all updates since
 # fw_ari was last published.
 #
-$rver = "2.5";
+$rver = "2.6";
+$fwbranch = "trunk";
 $fw_ari = "fw_ari";
 
 $moddir = 'fw_ari';
@@ -29,5 +30,5 @@ my $reldir = "release/";
 	#print "CHECKING VERSION WITH: tar -zxOf $filename $moddir/svnversion.txt: ...  ";
 	system("tar -zxOf ".$filename." ".$moddir."/svnversion.txt");
 	print "Geting svn log since that version for $rver : .... \n\n";
-	$svnver = system("svn log http://svn.freepbx.org/freepbx/branches/$rver/amp_conf/htdocs/recordings -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
+	$svnver = system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs/recordings -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
 

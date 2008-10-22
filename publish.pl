@@ -6,8 +6,8 @@
 #
 $debug = 0;
 $checkphp = 1;
-$rver = "2.5";
-$fwbranch = "branches/2.5";
+$rver = "2.6";
+$fwbranch = "trunk";
 $framework = "framework";
 $fw_fop = "fw_fop";
 $fw_ari = "fw_ari";

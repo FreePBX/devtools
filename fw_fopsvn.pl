@@ -5,6 +5,7 @@
 # fw_fop was last published.
 #
 $rver = "2.5";
+$fwbranch = "trunk";
 $fw_fop = "fw_fop";
 
 $moddir = 'fw_fop';
@@ -29,5 +30,5 @@ my $reldir = "release/";
 	#print "CHECKING VERSION WITH: tar -zxOf $filename $moddir/svnversion.txt: ...  ";
 	system("tar -zxOf ".$filename." ".$moddir."/svnversion.txt");
 	print "Geting svn log since that version for $rver : .... \n\n";
-	$svnver = system("svn log http://svn.freepbx.org/freepbx/branches/$rver/amp_conf/htdocs_panel -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
+	$svnver = system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs_panel -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
 
