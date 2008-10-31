@@ -218,22 +218,48 @@ while ($moddir = shift @ARGV) {
 			next if ($x =~ /libfreepbx.install.php/);
 			next if ($x =~ /svnversion.txt/);
 			$files .= "$x ";
+			if (-f $x && $checkphp) {
+				if (system("php -l $x")) {
+					die "FATAL: php syntax error detected in $x\n";
+				}
+			}
 		}
 	} elsif ($moddir =~ /$fw_fop/) {
+		while ($x = shift @arr) {
 			next if ($x =~ /module.xml/);
 			next if ($x =~ /htdocs_panel/);
 			next if ($x =~ /svnversion.txt/);
 			$files .= "$x ";
+			if (-f $x && $checkphp) {
+				if (system("php -l $x")) {
+					die "FATAL: php syntax error detected in $x\n";
+				}
+			}
+		}
 	} elsif ($moddir =~ /$fw_ari/) {
+		while ($x = shift @arr) {
 			next if ($x =~ /module.xml/);
 			next if ($x =~ /htdocs_ari/);
 			next if ($x =~ /svnversion.txt/);
 			$files .= "$x ";
+			if (-f $x && $checkphp) {
+				if (system("php -l $x")) {
+					die "FATAL: php syntax error detected in $x\n";
+				}
+			}
+		}
 	} elsif ($moddir =~ /$fw_langpacks/) {
+		while ($x = shift @arr) {
 			next if ($x =~ /module.xml/);
 			next if ($x =~ /htdocs/);
 			next if ($x =~ /svnversion.txt/);
 			$files .= "$x ";
+			if (-f $x && $checkphp) {
+				if (system("php -l $x")) {
+					die "FATAL: php syntax error detected in $x\n";
+				}
+			}
+		}
 	} else {
 		while ($x = shift @arr) {
 			# Excluding module.xml which gets checked in later..
