@@ -166,15 +166,16 @@ while ($moddir = shift @ARGV) {
 		}
 		foreach my $module ( @modules ) {
 			chomp($module);
-			if (system("rm -rf $fw_langpacks/i18n")) {
-				die "FATAL: failed to remove temp i18n dir\n";
+			if (system("rm -rf $fw_langpacks/i18n-tmp")) {
+				die "FATAL: failed to remove temp i18n-tmp dir\n";
 			}
-			if (!system("svn export $module_url/$module"."i18n $fw_langpacks/i18n 2> /dev/null")) {
+			system("svn export $module_url/$module"."i18n $fw_langpacks/i18n-tmp 2> /dev/null");
+			if (($? != -1) && (-d "$fw_langpacks/i18n-tmp")) {
 				if (system("mkdir $fw_langpacks/htdocs/admin/modules/$module")) {
 					die "FATAL: failed to create htdocs/admin/modules/$module\n";
 				}
-				if (system("mv $fw_langpacks/i18n $fw_langpacks/htdocs/admin/modules/$module")) {
-					die "FATAL: failed to move i18n to htdocs/admin/modules/$module\n";
+				if (system("mv $fw_langpacks/i18n-tmp $fw_langpacks/htdocs/admin/modules/$module/i18n")) {
+					die "FATAL: failed to move i18n-tmp to htdocs/admin/modules/$module/i18n\n";
 				}
 			} else {
 				print "No i18n files for $module"."\n";
