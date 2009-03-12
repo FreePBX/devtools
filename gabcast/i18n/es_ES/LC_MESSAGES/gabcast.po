@@ -1,0 +1,118 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: FreePBX - módulo gabcast module spanish translation\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-10-06 14:25+0200\n"
+"PO-Revision-Date: 2009-01-22 15:57+0100\n"
+"Last-Translator: Juan Asensio Sánchez <okelet@gmail.com>\n"
+"Language-Team: Juan Asensio Sánchez <okelet@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-Country: SPAIN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: functions.inc.php:21
+msgid "Edit Gabcast Settings"
+msgstr "Editar opciones de Gabcast"
+
+#: functions.inc.php:24
+msgid "Add Gabcast Settings"
+msgstr "Añadir opciones de Gabcast"
+
+#: functions.inc.php:60
+#, php-format
+msgid "Gabcast: %s Ext: %s"
+msgstr "Gabcast: %s, Extensión: %s"
+
+#: install.php:4
+#: install.php:8
+msgid "Connect to Gabcast"
+msgstr "Conectar a Gabcast"
+
+#: page.gabcast.php:60
+msgid "This "
+msgstr "Este"
+
+#: page.gabcast.php:62
+msgid "Gabcast is a social broadcasting platform that offers virtual communities, individuals, and organizations an easy way to create and distribute audio content.<br><br>Visit www.gabcast.com for more info."
+msgstr "Gabcast es una plataforma de emisión social que ofrece a comunidades virtuales, individuales y organizaciones una manera sencilla de crear y distribuir contenidos de audio.<br/><br/>Visite la web www.gabcast.com para más información."
+
+#: page.gabcast.php:64
+msgid "module allows you to:"
+msgstr "módulo le permite:"
+
+#: page.gabcast.php:66
+msgid "Link extensions to Gabcast channels. It creates a feature code, which defaults to <u>*422</u> 'gab' - you can change this in"
+msgstr "Asociar extensiones a canales de Gabcast. Crea un código de característica, que por defecto es <u>*422*</u> (gab), puede cambiar este valor en la página de"
+
+#: page.gabcast.php:67
+msgid "Feature Code Admin"
+msgstr "'Administración de códigos de características'"
+
+#: page.gabcast.php:68
+msgid "which allows you to log directly into your Gabcast account.  This is ideal for personal podcasting!"
+msgstr "que le permite acceder directamente a su cuenta de Gabcast. Esta función es ideal para mantener un podcast personal."
+
+#: page.gabcast.php:70
+msgid "Define a Gabcast channel as a Destination for other modules. For example, you can direct a DID or IVR menu option directly to Gabcast. This is ideal for group and public podcasting!"
+msgstr "Definir un canal de Gabcast como destino para otros módulos. Por ejemplo, puede hacer que un DID o un IVR accedan directamente a Gabcast. Esta función es ideal para grupos y mantener un podcast público."
+
+#: page.gabcast.php:84
+msgid "Error: cannot retreive Gabcast info for this extension"
+msgstr "Error: no se pudo obtener la información de Gabcast para esta extensión"
+
+#: page.gabcast.php:94
+msgid "Delete settings"
+msgstr "Eliminar opciones"
+
+#: page.gabcast.php:113
+msgid "You <u>must</u> have a Gabcast account & channel to use this feature. Visit"
+msgstr "<u>Debe</u> tener una cuenta en Gabcast y seleccionar un canal para activar esta característica. Visite"
+
+#: page.gabcast.php:115
+msgid "to sign up. <u>It's a free service</u>!"
+msgstr "para darse de alta.<u>¡Es un servicio gratuito!</u>"
+
+#: page.gabcast.php:121
+msgid "Gabcast Channel Number:"
+msgstr "Número de canal de Gabcast:"
+
+#: page.gabcast.php:123
+msgid "Gabcast Channel Password:"
+msgstr "Contraseña del canal de Gabcast:"
+
+#: page.gabcast.php:125
+msgid "Link to Extension/User Number:"
+msgstr "Asociar al número de extensión/usuario:"
+
+#: page.gabcast.php:135
+msgid "Add Gabcast Channel"
+msgstr "Añadir canal de Gabcast"
+
+#: page.gabcast.php:144
+msgid "Ext"
+msgstr "Extensión"
+
+#: page.gabcast.php:144
+msgid "Chan"
+msgstr "Canal"
+
+#: page.gabcast.php:147
+msgid "Gabcast Configuration"
+msgstr "Configuración de Gabcast"
+
+#: page.gabcast.php:152
+#, php-format
+msgid "The latest episodes in channel #%s"
+msgstr "Últimos episodios en el canal #%s"
+
+#: page.gabcast.php:155
+msgid "The latest episodes across all channels"
+msgstr "Últimos episodios de todos los canales"
+
+#: page.gabcast.php:159
+msgid "Feed URL: "
+msgstr "URL para suscripciones:"
+

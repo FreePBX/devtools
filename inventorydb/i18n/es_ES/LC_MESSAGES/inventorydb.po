@@ -1,0 +1,193 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: FreePBX - módulo inventorydb module spanish translation\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-09-16 14:07+0200\n"
+"PO-Revision-Date: 2009-01-22 17:16+0100\n"
+"Last-Translator: Juan Asensio Sánchez <okelet@gmail.com>\n"
+"Language-Team: Juan Asensio Sánchez <okelet@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-Country: SPAIN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: page.inventorydb.php:88
+msgid "Add"
+msgstr "Añadir"
+
+#: page.inventorydb.php:90
+msgid "inventory"
+msgstr "Inventario"
+
+#: page.inventorydb.php:98
+msgid "deleted"
+msgstr "Eliminado"
+
+#: page.inventorydb.php:103
+msgid "Add a user"
+msgstr "Añadir un usuario"
+
+#: page.inventorydb.php:136
+msgid "Delete inventory"
+msgstr "Eliminar inventario"
+
+#: page.inventorydb.php:139
+#: page.inventorydb.php:155
+msgid "Add inventory"
+msgstr "Añadir inventario"
+
+#: page.inventorydb.php:155
+msgid "Edit inventory"
+msgstr "Editar inventario"
+
+#: page.inventorydb.php:159
+msgid "Employee #"
+msgstr "Número de empleado:"
+
+#: page.inventorydb.php:160
+msgid "Employee Number"
+msgstr "Indique el número de empleado."
+
+#: page.inventorydb.php:171
+msgid "Employee Name"
+msgstr "Nombre del empleado:"
+
+#: page.inventorydb.php:172
+msgid "The Name for the Employee"
+msgstr "Indique el nombre del empleado."
+
+#: page.inventorydb.php:182
+msgid "Building Located"
+msgstr "Oficina:"
+
+#: page.inventorydb.php:183
+msgid "Building where the phone is located"
+msgstr "Indique la oficina donde está el empleado o su teléfono."
+
+#: page.inventorydb.php:192
+msgid "Floor #"
+msgstr "Planta:"
+
+#: page.inventorydb.php:193
+msgid "Floor # phone is on"
+msgstr "Número de planta donde se encuentra el empleado o el teléfono."
+
+#: page.inventorydb.php:202
+msgid "Room #"
+msgstr "Habitación"
+
+#: page.inventorydb.php:203
+msgid "Room phone is in"
+msgstr "Número de habitación donde se encuentra el empleado o el teléfono."
+
+#: page.inventorydb.php:212
+msgid "Floor Section #"
+msgstr "Sección de planta:"
+
+#: page.inventorydb.php:213
+msgid "Floor Section # the phone is in"
+msgstr "Sección de planta donde se encuentra el empleado o el teléfono."
+
+#: page.inventorydb.php:222
+msgid "Cubicle #"
+msgstr "Cubo:"
+
+#: page.inventorydb.php:223
+msgid "Cubicle phone is in"
+msgstr "Cubo donde se encuentra el empleado o teléfono."
+
+#: page.inventorydb.php:232
+msgid "Desk #"
+msgstr "Mesa:"
+
+#: page.inventorydb.php:233
+msgid "Desk Number phone is on"
+msgstr "Mesa donde se encuentra el empleado o el teléfono."
+
+#: page.inventorydb.php:242
+msgid "Extension #"
+msgstr "Extensión:"
+
+#: page.inventorydb.php:243
+msgid "Exten Assigned to the phone"
+msgstr "Extensión del empleado o número de teléfono."
+
+#: page.inventorydb.php:252
+msgid "Phone UserName"
+msgstr "Nombre de usuario del teléfono:"
+
+#: page.inventorydb.php:253
+msgid "Phone Admin Username"
+msgstr "Nombre de usuario para la administración del teléfono."
+
+#: page.inventorydb.php:262
+msgid "Phone Password"
+msgstr "Contraseña del teléfono:"
+
+#: page.inventorydb.php:263
+msgid " Phone Admin Password"
+msgstr "Contraseña de administración del teléfono."
+
+#: page.inventorydb.php:272
+msgid "MAC Address"
+msgstr "Dirección MAC:"
+
+#: page.inventorydb.php:273
+msgid "MAC Address of the phone"
+msgstr "Dirección MAC del teléfono:"
+
+#: page.inventorydb.php:282
+msgid "Serial #"
+msgstr "Número de serie:"
+
+#: page.inventorydb.php:283
+msgid "Serial Number of the phone"
+msgstr "Número de serie del teléfono:"
+
+#: page.inventorydb.php:292
+msgid "Phone/Device"
+msgstr "Teléfono/Dispositivo:"
+
+#: page.inventorydb.php:293
+msgid "Device, example... Linksys PAP-2, Sipura"
+msgstr "Dispositivo; por ejemplo: Linksys PAP2, Sipura, etc."
+
+#: page.inventorydb.php:302
+msgid "Distributed Date"
+msgstr "Fecha de instalación:"
+
+#: page.inventorydb.php:303
+msgid "Distribution Date"
+msgstr "La fecha en la que se instaló el teléfono."
+
+#: page.inventorydb.php:312
+msgid "IP Address"
+msgstr "Dirección IP:"
+
+#: page.inventorydb.php:313
+msgid "IP Address Assigned If not DHCP"
+msgstr "Dirección IP del teléfono en caso de que no utilice DHCP."
+
+#: page.inventorydb.php:322
+#: page.inventorydb.php:323
+msgid "PBX Box Name"
+msgstr "Nombre de la centralita:"
+
+#: page.inventorydb.php:332
+msgid "Extra Info"
+msgstr "Información adicional:"
+
+#: page.inventorydb.php:333
+msgid "Extra Information"
+msgstr "Información adicional."
+
+#: page.inventorydb.php:343
+msgid "Submit Changes"
+msgstr "Enviar cambios"
+
+#: module.xml
+msgid "Inventory"
+msgstr "Inventario"
+
