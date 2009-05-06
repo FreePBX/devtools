@@ -271,7 +271,7 @@ while ($moddir = shift @ARGV) {
 			# do this recursively in the future. Also - checks all files now but php -l seems to be ok with that.
 			#
 			if (-f $x && $checkphp) {
-				if (system("php -l $x")) {
+				if (!($x =~ /.*\.jar/) && system("php -l $x") ) {
 					die "FATAL: php syntax error detected in $x\n";
 				}
 			}
