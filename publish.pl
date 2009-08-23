@@ -291,8 +291,17 @@ while ($moddir = shift @ARGV) {
 	$md5 = <MD5>;
 	close MD5;
 	($md5sum, $null) = split(/ /, $md5);
-	$newxml =~ s/<md5sum>.+<\/md5sum>/<md5sum>$md5sum<\/md5sum>/;
-	$newxml =~ s/<location>.+<\/location>/<location>$reldir$rver\/$filename<\/location>/;
+
+       unless ($newxml =~ s/<md5sum>.*<\/md5sum>/<md5sum>$md5sum<\/md5sum>/)
+       {
+               $newxml =~ s|</module>|<md5sum>$md5sum></md5sum>\n</module>|;
+       }
+
+       unless ($newxml =~ s/<location>.*<\/location>/<location>$reldir$rver\/$filename<\/location>/)
+       {
+               $newxml =~ s|</module>|<location>$reldir$rver></location>\n</module>|;
+       }
+
 	open FH, ">$moddir/module.xml";
 	print FH $newxml;
 	close FH;
