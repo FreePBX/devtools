@@ -4,7 +4,7 @@
 # based on the fw_langpacks xml version number and then run svn log against all updates since
 # fw_langpacks was last published.
 #
-$rver = "2.5";
+$rver = "2.6";
 $fwbranch = "branches/2.6";
 $fw_langpacks = "fw_langpacks";
 

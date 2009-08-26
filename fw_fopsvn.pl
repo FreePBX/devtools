@@ -4,7 +4,7 @@
 # based on the fw_fop xml version number and then run svn log against all updates since
 # fw_fop was last published.
 #
-$rver = "2.5";
+$rver = "2.6";
 $fwbranch = "branches/2.6";
 $fw_fop = "fw_fop";
 
