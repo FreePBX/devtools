@@ -5,7 +5,7 @@
 # fw_fop was last published.
 #
 $rver = "2.7";
-$fwbranch = "trunk";
+$fwbranch = "branches/2.7";
 $fw_fop = "fw_fop";
 
 $moddir = 'fw_fop';

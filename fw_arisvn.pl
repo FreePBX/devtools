@@ -5,7 +5,7 @@
 # fw_ari was last published.
 #
 $rver = "2.7";
-$fwbranch = "trunk";
+$fwbranch = "branches/2.7";
 $fw_ari = "fw_ari";
 
 $moddir = 'fw_ari';
