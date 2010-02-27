@@ -31,7 +31,7 @@ do
 	echo -e "}\n?>\n" >> $modules${modules%%/}.i18n.php
 	echo "Creating ${modules%%/}.pot file, extracting text strings"
 	# Save the file as a temp file
-	find ${modules%%/}/*.php | xargs xgettext -L PHP -o ${modules%%/}/i18n/${modules%%/}.tmp --keyword=_ -
+	find ${modules%%/}/*.php | xargs xgettext --no-location -L PHP -o ${modules%%/}/i18n/${modules%%/}.tmp --keyword=_ -
 	# Now add the copyright and the license info to the.pot file
 	# Again, could be done better, but I lack the time and really need this out now
 	echo "# This file is part of FreePBX." > ${modules%%/}/i18n/${modules%%/}.pot
