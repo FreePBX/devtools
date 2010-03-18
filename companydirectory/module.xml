@@ -1,0 +1,21 @@
+<module>
+	<rawname>companydirectory</rawname>
+	<name>Company Directory</name>
+	<version>2.7.0.0</version>
+	<publisher>Schmoozecom.com</publisher>
+	<license>GPLv2+</license>
+	<type>tool</type>
+	<category>System Administration</category>
+	<menuitems>
+		<companydirectory>Company Directory</companydirectory>
+	</menuitems>
+	<depends>
+		<version>2.5.0alpha1</version>
+		<module>recordings ge 3.3.8</module>
+	</depends>
+	<changelog>
+	*2.7.0.0* Initial release
+	</changelog>
+	<location>release/2.6/callback-2.6.0.1.tgz</location>
+	<md5sum>2d4b2db4ccd5fda557e62bab095c528e</md5sum>
+</module>
