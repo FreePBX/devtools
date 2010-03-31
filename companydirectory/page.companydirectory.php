@@ -1,6 +1,6 @@
 <?php
 
-//check for ajax request and prosses that imideatly
+//check for ajax request and process that immediately 
 if(isset($_REQUEST['ajaxgettr'])){//got ajax request
 	$opts=explode('|',$_REQUEST['ajaxgettr']);
 	echo companydirectory_draw_entires_tr($opts[1],'',$opts[0],$opts[2]);
@@ -25,7 +25,7 @@ if($action=='' && $id==''){
 
 <script type="text/javascript">
 $(document).ready(function(){
-	//show/hide add buttin/dropdown
+	//show/hide add button/dropdown
 	$('#addbut').click(function(){
 		$(this).fadeOut(250,
 		function(){
@@ -43,7 +43,7 @@ $(document).ready(function(){
 	})		
 });
 
-//add a new entrie to the table
+//add a new entry to the table
 function addrow(user){
 	$('#addusersel').val('');//reset select box
 	console.log(user)
