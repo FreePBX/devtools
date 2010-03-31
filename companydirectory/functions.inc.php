@@ -148,9 +148,9 @@ function companydirectory_draw_entires($id){
 	return $html;
 }
 
-//used to add row's the the entries table
+//used to add row's the entry table
 function companydirectory_draw_entires_tr($name='',$audio='',$num='',$id=''){
-	global $directory_draw_recordings_list;//make gloabl, so its only drawn once
+	global $directory_draw_recordings_list;//make global, so its only drawn once
 	if(!$directory_draw_recordings_list){$directory_draw_recordings_list=recordings_list();}
 	if(!$id){$id=rand(100000,999999);}
 	$audio='<select name="entries['.$id.'][audio]">';
