@@ -1,4 +1,5 @@
 <?php
+
 //check for ajax request and prosses that imideatly
 if(isset($_REQUEST['ajaxgettr'])){//got ajax request
 	$opts=explode('|',$_REQUEST['ajaxgettr']);
@@ -47,12 +48,12 @@ function addrow(user){
 	$('#addusersel').val('');//reset select box
 	console.log(user)
 	$.ajax({
-  url: location.href,
-  data: 'ajaxgettr='+user,
-  success: function(data) {
-    $('.result').html(data);
-    $('#dir_entires_tbl').last().append(data);
-  }
+	  url: location.href,
+	  data: 'ajaxgettr='+user+'&quietmode=1&skip_astman=1',
+	  success: function(data) {
+	    $('.result').html(data);
+	    $('#dir_entires_tbl').last().append(data);
+	  }
 });
 
 }
