@@ -38,7 +38,7 @@ function companydirectory_configpageload() {
 		$currentcomponent->addguielem($section, new gui_hidden('id', $dir['id']));
 		$currentcomponent->addguielem($section, new gui_hidden('action', 'edit'));
 		//draw the entries part of the table. A bit hacky perhaps, but hey - it works!
-		$currentcomponent->addguielem('Directory_Entries', new guielement('rawhtml', companydirectory_draw_entires($_REQUEST['id']), ''));
+		$currentcomponent->addguielem('Directory Entries', new guielement('rawhtml', companydirectory_draw_entires($_REQUEST['id']), ''));
 	}
 }
 
@@ -137,7 +137,7 @@ function companydirectory_draw_entires($id){
 		$newuser.='<option value="'.$user[0].'|'.$user[1].'">('.$user[0].') '.$user[1].'</option>';
 	}
 	$newuser.='</select>';
-	$html.='<tfoot><tr><td id="addbut"><a href="#" class="info"><input type="image" src="images/core_add.png" name="image" style="border:none;"><span>'._('Add new entries.').'</span></a></td><td id="addrow">'.$newuser.'</td></tr></tfoot>';
+	$html.='<tfoot><tr><td id="addbut"><a href="#" class="info"><input type="image" src="images/core_add.png" name="image" style="border:none;"><span>'._('Add new entry.').'</span></a></td><td id="addrow">'.$newuser.'</td></tr></tfoot>';
 	$html.='<tbody>';
 	$entries=companydirectory_get_dir_entries($id);
 	$arraynum=1;
