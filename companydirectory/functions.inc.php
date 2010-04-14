@@ -5,7 +5,7 @@ function companydirectory_configpageload() {
 		$currentcomponent->addguielem('_top', new gui_pageheading('title', _('Company Directory')), 0);
 					
 		$dir=companydirectory_get_dir_details($_REQUEST['id']);
-		//delete link, dont show if we dont have an id (i.e. directory wasnt created yet
+		//delete link, dont show if we dont have an id (i.e. directory wasnt created yet)
 		if($dir['id']){
 			$label=sprintf(_("Delete Company Directory %s"),$dir['dirname']?$dir['dirname']:$dir['id']);
 			$label='<span><img width="16" height="16" border="0" title="'.$label.'" alt="" src="images/core_delete.png"/>&nbsp;'.$label.'</span>';
@@ -37,18 +37,19 @@ function companydirectory_configpageload() {
 		$currentcomponent->addguielem($section, new gui_drawselects('invalid_destination', 0, $dir['invalid_destination'], _('Invalid Destination'), _('Destination to send the call to after Invalid Recording is played.'), false));
 		$currentcomponent->addguielem($section, new gui_hidden('id', $dir['id']));
 		$currentcomponent->addguielem($section, new gui_hidden('action', 'edit'));
+		
 		//draw the entries part of the table. A bit hacky perhaps, but hey - it works!
-		$currentcomponent->addguielem('Directory Entries', new guielement('rawhtml', companydirectory_draw_entires($_REQUEST['id']), ''));
+		$currentcomponent->addguielem('Directory_Entries', new guielement('rawhtml', companydirectory_draw_entires($_REQUEST['id']), ''));
+
 	}
 }
 
 function companydirectory_configpageinit($pagename) {
 	global $currentcomponent;
 	if($pagename=='companydirectory'){
-		$currentcomponent->addprocessfunc('companydirectory_configprocess',1);
-		$currentcomponent->addprocessfunc('companydirectory_configpageload',1);
+		$currentcomponent->addprocessfunc('companydirectory_configprocess');
+		$currentcomponent->addguifunc('companydirectory_configpageload');
 	}
-	//$currentcomponent->addprocessfunc('companydirectory_shpwpage',5);
 }
 
 
@@ -68,20 +69,22 @@ function companydirectory_configprocess(){
 		$entries=(($entries)?array_values($entries):'');//reset keys
 	
 		switch($action){
-		case 'edit':
-			//get real dest
-			$vars['invalid_destination']=$_REQUEST[$_REQUEST[$_REQUEST['invalid_destination']].str_replace('goto','',$_REQUEST['invalid_destination'])];
-			companydirectory_save_dir_details($vars);
-			//if there was no id set, get the latest one that was saved
-			if($vars['id']==''){
-				$sql=(($amp_conf["AMPDBENGINE"]=="sqlite3")?'SELECT last_insert_rowid()':'SELECT LAST_INSERT_ID()');
-				$vars['id']=$db->getOne($sql);
-			}
-			companydirectory_save_dir_entries($vars['id'],$entries);
-		break;
-		case 'delete':
-			companydirectory_delete($vars['id']);
-		break;
+			case 'edit':
+				//get real dest
+				$vars['invalid_destination']=$_REQUEST[$_REQUEST[$_REQUEST['invalid_destination']].str_replace('goto','',$_REQUEST['invalid_destination'])];
+				companydirectory_save_dir_details($vars);
+				//if there was no id set, get the latest one that was saved
+				if($vars['id']==''){
+					$sql=(($amp_conf["AMPDBENGINE"]=="sqlite3")?'SELECT last_insert_rowid()':'SELECT LAST_INSERT_ID()');
+					$vars['id']=$db->getOne($sql);
+				}
+				companydirectory_save_dir_entries($vars['id'],$entries);
+				redirect_standard('id');
+			break;
+			case 'delete':
+				companydirectory_delete($vars['id']);
+				redirect_standard();
+			break;
 		}
 	}
 }
