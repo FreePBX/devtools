@@ -91,7 +91,7 @@ function companydirectory_configprocess(){
 
 function companydirectory_get_dir_entries($id){
 	global $db;
-	$sql='SELECT * FROM directory_entries WHERE ID = ?';
+	$sql='SELECT * FROM directory_entries WHERE ID = ? ORDER BY name';
 	$results=$db->getAll($sql,array($id),DB_FETCHMODE_ASSOC);
 	return $results;
 }
@@ -156,20 +156,21 @@ function companydirectory_draw_entires_tr($name='',$audio='',$num='',$id=''){
 	global $directory_draw_recordings_list;//make global, so its only drawn once
 	if(!$directory_draw_recordings_list){$directory_draw_recordings_list=recordings_list();}
 	if(!$id){$id=rand(100000,999999);}
-	$audio='<select name="entries['.$id.'][audio]">';
-	$audio.='<option value="vm" '.(($audio=='vm')?'SELECTED':'').'>'._('Voicemail Greeting').'</option>';
-	$audio.='<option value="tts" '.(($audio=='vm')?'SELECTED':'').'>'._('Text to Speech').'</option>';
-	$audio.='<option value="spell" '.(($audio=='vm')?'SELECTED':'').'>'._('Spell Name').'</option>';
-	$audio.='<optgroup label="'._('System Recordings:').'">';
-	foreach($directory_draw_recordings_list as $r){
-		$audio.='<option value="'.$r['id'].'" '.(($audio==$r['id'])?'SELECTED':'').'>'.$r['displayname'].'</option>';
+	$select='<select name="entries['.$id.'][audio]">';
+	$select.='<option value="vm" '.(($audio=='vm')?'SELECTED':'').'>'._('Voicemail Greeting').'</option>';
+	$select.='<option value="tts" '.(($audio=='tts')?'SELECTED':'').'>'._('Text to Speech').'</option>';
+	$select.='<option value="spell" '.(($audio=='spell')?'SELECTED':'').'>'._('Spell Name').'</option>';
+	$select.='<optgroup label="'._('System Recordings:').'">';
+	
+	foreach($directory_draw_recordings_list as $r){dbug('$directory_draw_recordings_list',$r);
+		$select.='<option value="'.$r['id'].'" '.(($audio==$r['id'])?'SELECTED':'').'>'.$r['displayname'].'</option>';
 	}
-	$audio.='</select>';
+	$select.='</select>';
 
 	
 	$delete='<img src="images/trash.png" style="cursor:pointer;" alt="'._('remove').'" title="'._('Click here to remove this pattern').'" onclick="$(\'.entrie'.$id.'\').fadeOut(500,function(){$(this).remove()})">';
 		
-	$html='<tr class="entrie'.$id.'"><td><input type="text" name="entries['.$id.'][name]" value="'.$name.'" /></td><td>'.$audio.'</td><td><input type="text" name="entries['.$id.'][num]" value="'.$num.'" /></td><td>'.$delete.'</td></tr>';
+	$html='<tr class="entrie'.$id.'"><td><input type="text" name="entries['.$id.'][name]" value="'.$name.'" /></td><td>'.$select.'</td><td><input type="text" name="entries['.$id.'][num]" value="'.$num.'" /></td><td>'.$delete.'</td></tr>';
 	return $html;
 }
 
