@@ -17,7 +17,7 @@ if (! function_exists("outn")) {
 
 $autoincrement = (($amp_conf["AMPDBENGINE"] == "sqlite") || ($amp_conf["AMPDBENGINE"] == "sqlite3")) ? "AUTOINCREMENT":"AUTO_INCREMENT";
 
-outn(_("Adding directory_details table..."));
+outn(_('Adding directory_details table...'));
 
 $sql = "CREATE TABLE directory_details (
     id INT NOT NULL PRIMARY KEY $autoincrement,
@@ -35,10 +35,12 @@ $sql = "CREATE TABLE directory_details (
 
 $check = $db->query($sql);
 if (DB::IsError($check)) {
-	die_freepbx("Can not create `directory_details` table" .  $check->getMessage() .  "\n");
+  out(_('failed'));
+	out(_('Can not create `directory_details` table: ') . $check->getMessage());
+  return false;
 }
-
-outn(_("Adding directory_entries table..."));
+out(_('ok'));
+outn(_('Adding directory_entries table...'));
 
 $sql = "CREATE TABLE directory_entries (
     id INT NOT NULL PRIMARY KEY,
@@ -50,7 +52,9 @@ $sql = "CREATE TABLE directory_entries (
 
 $check = $db->query($sql);
 if (DB::IsError($check)) {
-	die_freepbx("Can not create `directory_entries` table" .  $check->getMessage() .  "\n");
+  out(_('failed'));
+	out(_('Can not create `directory_entries` table: ') . $check->getMessage());
 }
+out(_('ok'));
 
 ?>
