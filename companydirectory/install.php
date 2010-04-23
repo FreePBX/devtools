@@ -23,13 +23,13 @@ $sql = "CREATE TABLE directory_details (
     id INT NOT NULL PRIMARY KEY $autoincrement,
     dirname varchar(50),
     description varchar(150),    
-    announcement varchar(50),
-    valid_recording varchar(50),
+    announcement INT,
+    valid_recording INT,
     callid_prefix varchar(10),
     alert_info varchar(50),
     repeat_loops varchar(3),
-    repeat_recording varchar(50),
-    invalid_recording varchar(50),
+    repeat_recording INT,
+    invalid_recording INT,
     invalid_destination varchar(50)
 )";
 
