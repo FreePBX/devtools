@@ -16,9 +16,10 @@ function companydirectory_configpageload() {
 		$section = _('Directory Options');
 		
 		//build recordings select list
-		$currentcomponent->addoptlistitem('recordings', '', _('None'));
+		$currentcomponent->addoptlistitem('recordings', 'default', _('None'));
+		$currentcomponent->addoptlistitem('recordings', $r['id'], _('Default'));
 		foreach(recordings_list() as $r){
-			$currentcomponent->addoptlistitem('recordings', $r['id'], _($r['displayname']));
+			$currentcomponent->addoptlistitem('recordings', $r['id'], $r['displayname']);
 		}
 		//build repeat_loops select list and defualt it to 3
 		for($i=0; $i <11; $i++){
