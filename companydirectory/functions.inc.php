@@ -134,7 +134,7 @@ function companydirectory_draw_entires($id){
 	$html.='<table id="dir_entires_tbl">';
 	//$html.='<th>Name</th><th>Name Announcement</th><th>Dial</th>';
 	$newuser='<select id="addusersel">';
-	$newuser.='<option value="" selected></option>';
+	$newuser.='<option value="none" selected> == Chose One == </option>';
 	$newuser.='<option value="">Custom</option>';
 	foreach(core_users_list() as $user){
 		$newuser.='<option value="'.$user[0].'|'.$user[1].'">('.$user[0].') '.$user[1].'</option>';

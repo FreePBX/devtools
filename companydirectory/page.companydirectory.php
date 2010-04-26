@@ -27,6 +27,7 @@ if($action=='' && $id==''){
 $(document).ready(function(){
 	//show/hide add button/dropdown
 	$('#addbut').click(function(){
+		$('#addusersel').val('none');//reset select box
 		$(this).fadeOut(250,
 		function(){
 			$('#addrow').fadeIn(250);
@@ -38,15 +39,15 @@ $(document).ready(function(){
 		function(){
 			$('#addbut').not("span").fadeIn(250).find("span").hide();
 		});
-		addrow($('#addusersel').val());
+		if($('#addusersel').val()!='none'){
+			addrow($('#addusersel').val());
+		}
 		return false;
 	})		
 });
 
 //add a new entry to the table
 function addrow(user){
-	$('#addusersel').val('');//reset select box
-	console.log(user)
 	$.ajax({
 	  url: location.href,
 	  data: 'ajaxgettr='+user+'&quietmode=1&skip_astman=1',
