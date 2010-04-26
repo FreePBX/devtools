@@ -113,7 +113,15 @@ class company_dir{
 			break;
 			default:
 				if(is_numeric($con['audio'])){
-				//do stuff
+					$sql='SELECT filename from recordings where id = ?';
+					$rec=$this->db->getOne($sql, array($con['audio']));
+					$rec=explode('&',$rec);
+					while(!$ret){
+						foreach($rec as $r){
+							$this->dbug('playing back',$r);	
+							$ret=$this->agi->stream_file($r,$keys);
+						}
+					}
 				}
 			break; 
 		}

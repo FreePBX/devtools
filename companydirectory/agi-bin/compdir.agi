@@ -39,29 +39,27 @@ while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries
 
 	//act based on the amount of matches
 	if($matches > 1 && $matches < 9){//todo: decided how many is the max
-		//playback entires
 		//draw up variable of valid key presses
 		$validkeys='';
 		for($i=1;$i<count($matches)+1;$i++){$validkeys.=$i;}
-		dbug('do something -- playback entreis');
+		
+		//playback entires
 		$matches=$dir->search($search);
-		//dbug('playing $matches',$matches);
-		//if(count($matches)>1){
-			foreach($matches as $idx => $match){
-				while(empty($ret['data'])){
-					$ret=$dir->getKeypress('for',$validkeys,0);
-					$ret=$dir->readContact($matches[$idx],$validkeys,0);
-					$ret=$dir->getKeypress('press',$validkeys,0);
-					$ret=$dir->agi->say_digits($idx+1);
-					//dbug('user is: ',$match);
-					break;
-				}
-				if($ret['data']){
-					//call person $macthes[$ret-1];
-					dbug('CALL MR.',$macthes[$ret-1]);
-					break 2;
-				}
+		foreach($matches as $idx => $match){
+			while(empty($ret['data'])){
+				$ret=$dir->getKeypress('for',$validkeys,0);
+				$ret=$dir->readContact($matches[$idx],$validkeys,0);
+				$ret=$dir->getKeypress('press',$validkeys,0);
+				$ret=$dir->agi->say_digits($idx+1);
+				//dbug('user is: ',$match);
+				break;
 			}
+			if($ret['data']){
+				//call person $macthes[$ret-1];
+				dbug('CALL MR.',$macthes[$ret-1]);
+				break 2;
+			}
+		}
 		$dir->wait_for_digit(10000);
 	}elseif($matches==1){
 		//call person $macthes[0];
