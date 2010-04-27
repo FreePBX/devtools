@@ -1,18 +1,18 @@
 #!/usr/bin/env php
 <?php
-
+	echo '+++ZZZ+++';
 require_once(dirname(__FILE__).'/compdir.lib.php');
 $loopcounter1=$loopcounter2=0;
 $search=array();
-$dir=new company_dir(2);//todo: get variable dynamiclay from dialpaln
+$dir=new company_dir();
 
 $dir->agi->stream_file('dir-welcome');//say hello
-while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries dir options
+while($loopcounter1 < $dir->dir['repeat_loops']){
 	//get inital search term
-	while($loopcounter2 < 3 && !$matches ){//todo: make < 3 more dynamic, based on Invalid Retries dir options
+	while($loopcounter2 < $dir->dir['repeat_loops'] && !$matches ){
 		//get any number of digits, terminated by timeout or #
 		unset($buffer);
-		$search=$dir->agi->fastpass_get_data($buffer, 'first-three-letters-entry',3000,3);
+		$search=$dir->agi->fastpass_get_data($buffer, $dir->dir['announcement'],3000,3);
 		$search=$search['result'];
 		$matches=$dir->search($search,1);
 		$loopcounter2++;
@@ -27,7 +27,7 @@ while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries
 	$matchesloop=0;
 	
 	//prompt the caller for more info if there are too many results (and he didnt terminate with #)
-	while($matches > 1 && $matchesloop < 3 && substr($search,-1)!='#'){//todo: > 1 a more realistic number for paganation (maybe 9?); matches loop shouldnt be hardcoded to < 3
+	while($matches > 1 && $matchesloop < $dir->dir['repeat_loops'] && substr($search,-1)!='#'){
 		$press=$dir->getKeypress('dir-enter-more-letters', '234567890#',3000);
 		if(!empty($press['result']) || $press==0){
 			$search.=$press['result'];
@@ -46,19 +46,14 @@ while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries
 		//playback entires
 		$matches=$dir->search($search);
 		foreach($matches as $idx => $match){
-			while(empty($ret['data'])){
-				$ret=$dir->getKeypress('for',$validkeys,0);
-				$ret=$dir->readContact($matches[$idx],$validkeys,0);
-				$ret=$dir->getKeypress('press',$validkeys,0);
-				$ret=$dir->agi->say_digits($idx+1);
-				//dbug('user is: ',$match);
-				break;
-			}
-			if($ret['data']){
-				//call person $macthes[$ret-1];
-				dbug('CALL MR.',$macthes[$ret-1]);
-				break 2;
-			}
+			$ret=$dir->getKeypress('for',$validkeys,0);if(trim($ret['result'])){break;}
+			$ret=$dir->readContact($matches[$idx],$validkeys,0);if(trim($ret['result'])){break;}
+			$ret=$dir->getKeypress('press',$validkeys,0);if(trim($ret['result'])){break;}
+			$ret=$dir->agi->say_digits($idx+1);if(trim($ret['result'])){break;}
+		}
+		if(trim($ret['result'])){
+			$dir->agi->goto_dest('from-internal',$matches[chr($ret['result'])-1]['dial'],'1');
+			exit;
 		}
 		$dir->wait_for_digit(10000);
 	}elseif($matches==1){
@@ -66,12 +61,11 @@ while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries
 		$matches=$dir->search($search);
 		$matches=$matches[0];
 		$dir->readContact($matches,$validkeys,0);
-		dbug('CALL MR.',$matches);
-		break;
+		dbug('CALL2 MR.',$matches);
+		$dir->agi->goto_dest('from-internal',$matches['dial'],'1');
+		exit;
 	}else{
-		//TODO: playback Invalid Retries Recording
-		dbug('do something -- loop');
-		$dir->agi->stream_file('demo-nomatch');
+		$dir->agi->stream_file($dir->dir['repeat_recording']);
 		$loopcounter1++;
 		$search=$matches=$loopcounter2=0;
 	}
@@ -79,10 +73,17 @@ while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries
 
 if($loopcounter1){
 	//do something if we are exiting due to to many tries
-	$dir->agi->stream_file('goodbye');
+	$dir->agi->stream_file($dir->dir['invalid_recording']);
+	if($dir->agi_get_var('IVR_CONTEXT')){
+		$dir->agi->goto_dest('${IVR_CONTEXT}','return','1');
+		exit;
+	}else{
+		$dir->agi->goto_dest($dir->dir['invalid_destination'],'return','1');
+		exit;
+	}
 }
-$dir->agi->stream_file('goodbye');
+$dir->agi->stream_file($dir->dir['invalid_recording']);
 
-//pointer function so that we dont have to write $dir-> every time we want to call dbug from here
+//pointer function so that we dont have to write '$dir->' every time we want to call dbug from here
 function dbug(){global $dir;$a=func_get_args();switch(func_num_args()){case 1:$dir->dbug($a[0]);break;case 2:$dir->dbug($a[0],$a[1]);break;case 3:$dir->dbug($a[0],$a[1],$a[2]);break;}}
 ?>

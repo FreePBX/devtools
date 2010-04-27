@@ -9,17 +9,21 @@ class company_dir{
 	var $ami;
 	//pear::db database object handel
 	var $db;
+	//options of the directory that we are currently working with
+	var $dir;
 	//the current directory that we are working with
 	var $directory;
 	//string we are searching for
 	var $searchstring;
 	
 	//this function is run by php automaticly when the class is initalized
-	function __construct($dir){
-		$this->directory=$dir;
-		$this->agi=$this->__construct_agi();	
-		$this->ami=$this->__construct_ami();
+	function __construct(){
+		$this->agi=$this->__construct_agi();
+		//$this->ami=$this->__construct_ami();
 		$this->db=$this->__construct_db();
+		//$this->agivars=$this->__construct_inital_vars();
+		$this->directory=$this->agivar['dir'];
+		$this->dir=$this->__construct_dir_opts();
 	}
 	
 	//get agi handel/inital agi vars, called by __construct()
@@ -39,14 +43,21 @@ class company_dir{
 				unset($opts[$key]);
 			}
 		}
-
+		
+		array_shift($_SERVER['argv']);
+		foreach($_SERVER['argv'] as $arg){
+			$arg=explode('=',$arg);
+			//remove leading '--'
+			if(substr($arg['0'],0,2) == '--'){$arg['0']=substr($arg['0'],2);}
+			$opts[$arg['0']]=isset($arg['1'])?$arg['1']:null;
+		}
 		$this->agivar=$opts;
 		return $agi;
 	}
 	
 	//get ami handel, called by __construct()
 	function __construct_ami(){
-		require_once('/var/lib/asterisk/agi-bin/phpagi-asmanager.php');//todo: remove hardcoded path
+		require_once($this->agi_get_var('ASTAGIDIR').'/phpagi-asmanager.php');//todo: remove hardcoded path
 		$ami=new AGI_AsteriskManager();
 		return $ami;
 	}	
@@ -62,6 +73,20 @@ class company_dir{
 		return $db;
 	}
 	
+	//get options associated with the current dir
+	function __construct_dir_opts(){
+		$sql='SELECT * FROM directory_details WHERE ID = ?';
+		$row=$this->db->getRow($sql,array($this->directory),DB_FETCHMODE_ASSOC);
+		
+		//set defualt if keys are blank
+		if(!$row['announcement']){$row['announcement']='first-three-letters-entry';}
+		if(!$row['valid_recording']){$row['valid_recording']='first-three-letters-entry';}
+		if(!$row['repeat_recording']){$row['repeat_recording']='demo-nomatch';}
+		if(!$row['invalid_recording']){$row['invalid_recording']='goodbye';}
+		
+		return $row;
+	}
+
 	//get a channel varibale	
 	function agi_get_var($var){
 		$ret=$this->agi->get_variable($var);
@@ -106,6 +131,7 @@ class company_dir{
 							$ret=$this->agi->wait_for_digit(750);
 						break;					
 					}
+					if(trim($ret['result'])){break;}
 				}
 			break;
 			case 'tts':
@@ -118,9 +144,9 @@ class company_dir{
 					$rec=explode('&',$rec);
 					while(!$ret){
 						foreach($rec as $r){
-							$this->dbug('playing back',$r);	
 							$ret=$this->agi->stream_file($r,$keys);
 						}
+						if(trim($ret['result'])){break;}
 					}
 				}
 			break; 
