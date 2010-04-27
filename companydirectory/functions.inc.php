@@ -36,6 +36,7 @@ function companydirectory_configpageload() {
 		$currentcomponent->addguielem($section, new gui_selectbox('repeat_recording', $currentcomponent->getoptlist('recordings'), $dir['repeat_recording'], 'Invalid Retry  Recording', 'Prompt to be played when an invalid/unmatched response is received, before prompting the caller to try again', false));
 		$currentcomponent->addguielem($section, new gui_selectbox('invalid_recording', $currentcomponent->getoptlist('recordings'), $dir['invalid_recording'], 'Invalid Recording', 'Prompt to be played before sending the caller to an alternate destination due to receiving the maximum amount of invalid/unmatched responses (as determaind by Invalid Retries)', false));
 		$currentcomponent->addguielem($section, new gui_drawselects('invalid_destination', 0, $dir['invalid_destination'], _('Invalid Destination'), _('Destination to send the call to after Invalid Recording is played.'), false));
+		$currentcomponent->addguielem($section, new gui_checkbox('retivr', $dir['retivr'], 'Return to IVR', 'When selected, if the call passed through an anr that had "Return to IVR" selected, the call will be returned there instead of the Invalid destination.',true));
 		$currentcomponent->addguielem($section, new gui_hidden('id', $dir['id']));
 		$currentcomponent->addguielem($section, new gui_hidden('action', 'edit'));
 		
@@ -59,8 +60,9 @@ function companydirectory_configprocess(){
 	if($_REQUEST['display']=='companydirectory'){
 		global $db,$amp_conf;
 		//get variables for directory_details
-		$requestvars=array('id','dirname','description','announcement','valid_recording','callid_prefix',
-										'alert_info','repeat_loops','repeat_recording','invalid_recording','invalid_destination');
+		$requestvars=array('id','dirname','description','announcement','valid_recording',
+												'callid_prefix','alert_info','repeat_loops','repeat_recording',
+												'invalid_recording','invalid_destination','retivr');
 		foreach($requestvars as $var){
 			$vars[$var]=isset($_REQUEST[$var])?$_REQUEST[$var]:'';
 		}
@@ -164,7 +166,7 @@ function companydirectory_draw_entires_tr($name='',$audio='',$num='',$id=''){
 	$select.='<option value="spell" '.(($audio=='spell')?'SELECTED':'').'>'._('Spell Name').'</option>';
 	$select.='<optgroup label="'._('System Recordings:').'">';
 	
-	foreach($directory_draw_recordings_list as $r){dbug('$directory_draw_recordings_list',$r);
+	foreach($directory_draw_recordings_list as $r){
 		$select.='<option value="'.$r['id'].'" '.(($audio==$r['id'])?'SELECTED':'').'>'.$r['displayname'].'</option>';
 	}
 	$select.='</select>';
@@ -201,11 +203,12 @@ function companydirectory_draw_entires_all_users(){
 
 function companydirectory_save_dir_details($vals){
 	global $db;
-	$sql='REPLACE INTO directory_details VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
+	$sql='REPLACE INTO directory_details VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
 	$foo=$db->query($sql,$vals);
 	if (DB::IsError($foo)){
     dbug($foo->getDebugInfo());
 	}
+	dbug($db->last_query);
 }
 
 function companydirectory_save_dir_entries($id,$entries){
