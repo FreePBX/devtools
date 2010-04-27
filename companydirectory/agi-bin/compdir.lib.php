@@ -9,22 +9,17 @@ class company_dir{
 	var $ami;
 	//pear::db database object handel
 	var $db;
-	//options of the directory that we are currently working with
-	var $dir;
 	//the current directory that we are working with
 	var $directory;
 	//string we are searching for
 	var $searchstring;
 	
 	//this function is run by php automaticly when the class is initalized
-	function __construct(){
+	function __construct($dir){
+		$this->directory=$dir;
 		$this->agi=$this->__construct_agi();	
-		//$this->ami=$this->__construct_ami();
+		$this->ami=$this->__construct_ami();
 		$this->db=$this->__construct_db();
-		//$this->agivars=$this->__construct_inital_vars();
-		$this->directory=$this->agivars['dir'];
-		$this->dir=$this->__construct_dir_opts();
-		$this->dbug('dir_opts',$this->agivars);
 	}
 	
 	//get agi handel/inital agi vars, called by __construct()
@@ -44,21 +39,14 @@ class company_dir{
 				unset($opts[$key]);
 			}
 		}
-		
-		array_shift($_SERVER['argv']);
-		foreach($_SERVER['argv'] as $arg){
-			$arg=explode('=',$arg);
-			//remove leading '--'
-			if(substr($arg['0'],0,2) == '--'){$arg['0']=substr($arg['0'],2);}
-			$opts[$arg['0']]=isset($arg['1'])?$arg['1']:null;
-		}
+
 		$this->agivar=$opts;
 		return $agi;
 	}
 	
 	//get ami handel, called by __construct()
 	function __construct_ami(){
-		require_once($this->agi_get_var('ASTAGIDIR').'/phpagi-asmanager.php');//todo: remove hardcoded path
+		require_once('/var/lib/asterisk/agi-bin/phpagi-asmanager.php');//todo: remove hardcoded path
 		$ami=new AGI_AsteriskManager();
 		return $ami;
 	}	
@@ -74,26 +62,6 @@ class company_dir{
 		return $db;
 	}
 	
-	//get options associated with the current dir
-	function __construct_dir_opts(){
-		$sql='SELECT * FROM directory_details WHERE ID = ?';
-		$row=$this->db->getRow($sql,array($this->directory),DB_FETCHMODE_ASSOC);
-		$this->dbug($this->db->last_query);
-		return $row;
-	}
-/*	
-	//get inital variables passed to the agi, called by __construct()
-	function __construct_inital_vars(){
-		array_shift($_SERVER['argv']);
-		foreach($_SERVER['argv'] as $arg){
-			$arg=explode('=',$arg);
-			//remove leading '--'
-			if(substr($arg['0'],0,2) == '--'){$arg['0']=substr($arg['0'],2);}
-			$opts[$arg['0']]=isset($arg['1'])?$arg['1']:null;
-		}
-		return $opts;
-	}
-*/
 	//get a channel varibale	
 	function agi_get_var($var){
 		$ret=$this->agi->get_variable($var);
