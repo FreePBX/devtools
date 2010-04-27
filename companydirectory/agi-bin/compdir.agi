@@ -4,7 +4,7 @@
 require_once(dirname(__FILE__).'/compdir.lib.php');
 $loopcounter1=$loopcounter2=0;
 $search=array();
-$dir=new company_dir(2);//todo: get variable dynamiclay from dialpaln
+$dir=new company_dir();
 
 $dir->agi->stream_file('dir-welcome');//say hello
 while($loopcounter1 < 3){//todo: make < 3 more dynamic, based on Invalid Retries dir options
