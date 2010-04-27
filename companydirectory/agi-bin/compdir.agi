@@ -53,7 +53,6 @@ while($loopcounter1 < $dir->dir['repeat_loops']){
 		}
 		if(trim($ret['result'])){
 			$dir->agi->goto_dest('from-internal',$matches[chr($ret['result'])-1]['dial'],'1');
-			exit;
 		}
 		$dir->wait_for_digit(10000);
 	}elseif($matches==1){
@@ -63,7 +62,6 @@ while($loopcounter1 < $dir->dir['repeat_loops']){
 		$dir->readContact($matches,$validkeys,0);
 		dbug('CALL2 MR.',$matches);
 		$dir->agi->goto_dest('from-internal',$matches['dial'],'1');
-		exit;
 	}else{
 		$dir->agi->stream_file($dir->dir['repeat_recording']);
 		$loopcounter1++;
