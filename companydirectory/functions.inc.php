@@ -136,7 +136,8 @@ function companydirectory_draw_entires($id){
 	//$html.='<th>Name</th><th>Name Announcement</th><th>Dial</th>';
 	$newuser='<select id="addusersel">';
 	$newuser.='<option value="none" selected> == '._('Chose One').' == </option>';
-	$newuser.='<option value="">Custom</option>';
+	$newuser.='<option value="all">'._('All Users').'</option>';
+	$newuser.='<option value="">'._('Custom').'</option>';
 	foreach(core_users_list() as $user){
 		$newuser.='<option value="'.$user[0].'|'.$user[1].'">('.$user[0].') '.$user[1].'</option>';
 	}
@@ -172,6 +173,29 @@ function companydirectory_draw_entires_tr($name='',$audio='',$num='',$id=''){
 	$delete='<img src="images/trash.png" style="cursor:pointer;" alt="'._('remove').'" title="'._('Click here to remove this pattern').'" onclick="$(\'.entrie'.$id.'\').fadeOut(500,function(){$(this).remove()})">';
 		
 	$html='<tr class="entrie'.$id.'"><td><input type="text" name="entries['.$id.'][name]" value="'.$name.'" /></td><td>'.$select.'</td><td><input type="text" name="entries['.$id.'][num]" value="'.$num.'" /></td><td>'.$delete.'</td></tr>';
+	return $html;
+}
+
+//used to add ALL USERS to the entry table
+function companydirectory_draw_entires_all_users(){
+	$html='';
+	//build select box (except for first line)
+	$select='<option value="vm">'._('Voicemail Greeting').'</option>';
+	$select.='<option value="tts">'._('Text to Speech').'</option>';
+	$select.='<option value="spell">'._('Spell Name').'</option>';
+	$select.='<optgroup label="'._('System Recordings:').'">';
+	foreach(recordings_list() as $r){
+		$select.='<option value="'.$r['id'].'" >'.$r['displayname'].'</option>';
+	}
+	$select.='</select>';
+	
+	foreach(core_users_list() as $user){
+		$id=time().rand(000,999);
+		$select='<select name="entries['.$id.'][audio]">'.$select;
+		$delete='<img src="images/trash.png" style="cursor:pointer;" alt="'._('remove').'" title="'._('Click here to remove this pattern').'" onclick="$(\'.entrie'.$id.'\').fadeOut(500,function(){$(this).remove()})">';
+		$html.='<tr class="entrie'.$id.'"><td><input type="text" name="entries['.$id.'][name]" value="'.$user[1].'" /></td><td>'.$select.'</td><td><input type="text" name="entries['.$id.'][num]" value="'.$user[0].'" /></td><td>'.$delete.'</td></tr>';
+	}
+	dbug('all users',$html);
 	return $html;
 }
 

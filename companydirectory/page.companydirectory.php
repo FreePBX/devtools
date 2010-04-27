@@ -2,10 +2,15 @@
 
 //check for ajax request and process that immediately 
 if(isset($_REQUEST['ajaxgettr'])){//got ajax request
-	$opts=explode('|',$_REQUEST['ajaxgettr']);
-	echo companydirectory_draw_entires_tr($opts[1],'',$opts[0],$opts[2]);
+	if($_REQUEST['ajaxgettr']=='all'){
+			echo companydirectory_draw_entires_all_users();
+	}else{
+		$opts=explode('|',$_REQUEST['ajaxgettr']);
+		echo companydirectory_draw_entires_tr($opts[1],'',$opts[0],$opts[2]);
+	}
 	exit;
 }
+
 //get vars
 $requestvars=array('id','action','entries','newentries');
 foreach($requestvars as $var){
