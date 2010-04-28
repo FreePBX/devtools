@@ -92,6 +92,22 @@ function companydirectory_configprocess(){
 	}
 }
 
+function companydirectory_get_config($engine) {
+	global $ext,$db;
+	switch ($engine) {
+		case 'asterisk':
+			$sql='SELECT id,dirname FROM directory_details ORDER BY dirname';
+			$results=$db->getAll($sql,DB_FETCHMODE_ASSOC);
+			if($results){
+				$ext->addInclude('from-internal-additional', 'directory');
+				foreach ($results as $row) {
+					$ext->add('directory',$row['id'], '', new ext_agi('directory.agi|dir='.$row['id']));
+				}
+			}
+		break;
+	}
+}
+
 function companydirectory_get_dir_entries($id){
 	global $db;
 	$sql='SELECT * FROM directory_entries WHERE ID = ? ORDER BY name';
@@ -112,6 +128,18 @@ function companydirectory_delete($id){
 	$db->query($sql,array($id));
 	$sql='DELETE FROM directory_entries WHERE id = ?';
 	$db->query($sql,array($id));
+}
+
+function companydirectory_destinations(){
+	global $db;
+	$sql='SELECT id,dirname FROM directory_details ORDER BY dirname';
+	$results=$db->getAll($sql,DB_FETCHMODE_ASSOC);
+
+	foreach($results as $row){
+		$row['dirname']=($row['dirname'])?$row['dirname']:'Directory '.$row['id'] ;
+		$extens[] = array('destination' => 'directory,' . $row['id'] . ',1', 'description' => $row['dirname'], 'category' => _('Company Directory'));
+	}
+	return isset($extens)?$extens:null;
 }
 
 function companydirectory_drawListMenu(){

@@ -1,6 +1,5 @@
 #!/usr/bin/env php
 <?php
-	echo '+++ZZZ+++';
 require_once(dirname(__FILE__).'/compdir.lib.php');
 $loopcounter1=$loopcounter2=0;
 $search=array();
@@ -13,14 +12,12 @@ while($loopcounter1 < $dir->dir['repeat_loops']){
 		//get any number of digits, terminated by timeout or #
 		unset($buffer);
 		$search=$dir->agi->fastpass_get_data($buffer, $dir->dir['announcement'],3000,3);
-		$search=$search['result'];
+		$search=$search['result'];//being set so we can use it later
 		$matches=$dir->search($search,1);
 		$loopcounter2++;
-		/* TODO: play Invalid Retry Recording */
 	}
 	//hangup if we failed to receive anything meanigfull
 	if($loopcounter2 == 3){//seem like we ran out of tries... 
-		/*TODO: play Invalid Recording*/
 		$dir->agi->stream_file('sorry-youre-having-problems');
 		break;
 	}
@@ -52,16 +49,13 @@ while($loopcounter1 < $dir->dir['repeat_loops']){
 			$ret=$dir->agi->say_digits($idx+1);if(trim($ret['result'])){break;}
 		}
 		if(trim($ret['result'])){
-			$dir->agi->goto_dest('from-internal',$matches[chr($ret['result'])-1]['dial'],'1');
+			call($matches[chr($ret['result'])-1]);
 		}
 		$dir->wait_for_digit(10000);
 	}elseif($matches==1){
 		//call person $macthes[0];
 		$matches=$dir->search($search);
-		$matches=$matches[0];
-		$dir->readContact($matches,$validkeys,0);
-		dbug('CALL2 MR.',$matches);
-		$dir->agi->goto_dest('from-internal',$matches['dial'],'1');
+		call($matches[0]);
 	}else{
 		$dir->agi->stream_file($dir->dir['repeat_recording']);
 		$loopcounter1++;
@@ -74,13 +68,25 @@ if($loopcounter1){
 	$dir->agi->stream_file($dir->dir['invalid_recording']);
 	if($dir->agi_get_var('IVR_CONTEXT')){
 		$dir->agi->goto_dest('${IVR_CONTEXT}','return','1');
-		exit;
 	}else{
 		$dir->agi->goto_dest($dir->dir['invalid_destination'],'return','1');
-		exit;
 	}
 }
+
 $dir->agi->stream_file($dir->dir['invalid_recording']);
+
+function call($contact){
+	global $dir;
+	$dir->readContact($contact,$validkeys,0);
+	if($dir->dir['alert_info']){
+		$dir->agi->set_alertinfo($dir->dir['alert_info']);
+	}
+	if($dir->dir['callid_prefix']){
+		$dir->agi->set_variable('CALLERID(name)',$dir->dir['callid_prefix'].$dir->dir['calleridname']);
+	}
+	
+	$dir->agi->goto_dest('from-internal',$contact['dial'],'1');
+}
 
 //pointer function so that we dont have to write '$dir->' every time we want to call dbug from here
 function dbug(){global $dir;$a=func_get_args();switch(func_num_args()){case 1:$dir->dbug($a[0]);break;case 2:$dir->dbug($a[0],$a[1]);break;case 3:$dir->dbug($a[0],$a[1],$a[2]);break;}}
