@@ -16,6 +16,6 @@
 	<changelog>
 	*2.8.0.0* Initial release
 	</changelog>
-	<location>release/2./.tgz</location>
-	<md5sum>2d4b2db4e62bab095c528e</md5sum>
+	<location>release/2.8/companydirectory-2.8.0beta1.tgz</location>
+	<md5sum>8c05eadbb5c2aa4efba1b8558355bf7b</md5sum>
 </module>
