@@ -101,7 +101,7 @@ function companydirectory_get_config($engine) {
 			if($results){
 				$ext->addInclude('from-internal-additional', 'directory');
 				foreach ($results as $row) {
-					$ext->add('directory',$row['id'], '', new ext_agi('directory.agi|dir='.$row['id']));
+					$ext->add('directory',$row['id'], '', new ext_agi('directory.agi,dir='.$row['id']));
 				}
 			}
 		break;
