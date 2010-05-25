@@ -5,7 +5,7 @@
 # framework was last published.
 #
 $rver = "2.8";
-$fwbranch = "trunk";
+$fwbranch = "branches/2.8";
 $framework = "framework";
 
 $moddir = 'framework';
