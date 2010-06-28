@@ -87,6 +87,9 @@ while ($moddir = shift @ARGV) {
 		if (system("rm -rf $framework/bin/retrieve_op_conf_from_mysql.pl")) {
 			die "FATAL: failed to trim bin/retrieve_op_conf_from_mysql.pl\n";
 		}
+		if (system("rm -rf $framework/bin/retrieve_op_conf_from_mysql.php")) {
+			die "FATAL: failed to trim bin/retrieve_op_conf_from_mysql.php\n";
+		}
 	}
 	if ($moddir =~ /$fw_fop/) {
 		if (system("rm -rf $fw_fop/bin $fw_fop/htdocs_panel")) {
@@ -103,6 +106,9 @@ while ($moddir = shift @ARGV) {
 		}
 		if (system("mv $fw_fop/tmp/retrieve_op_conf_from_mysql.pl $fw_fop/bin")) {
 			die "FATAL: failed to mv retrieve_op_conf_from_mysql.pl to $fw_fop/bin\n";
+		}
+		if (system("mv $fw_fop/tmp/retrieve_op_conf_from_mysql.php $fw_fop/bin")) {
+			die "FATAL: failed to mv retrieve_op_conf_from_mysql.php to $fw_fop/bin\n";
 		}
 		if (system("rm -rf $fw_fop/tmp")) {
 			die "FATAL: failed to remove $fw_fop/tmp\n";
