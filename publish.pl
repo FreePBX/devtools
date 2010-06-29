@@ -4,6 +4,18 @@
 #              and module.xml modifications made since these can be reverted. Review carefully if you care concerned that it will
 #              lose work.
 #
+system("which md5sum"); # typical linux format
+if ($? == 0) {
+		$md5_command = 'md5sum';
+} else {
+	system("which md5"); # OSX format
+	if ($? == 0) {
+		$md5_command = 'md5 -r';
+	} else {
+		die "no md5sum command\n";
+	}
+}
+
 $debug = 0;
 $checkphp = 1;
 $rver = "2.8";
@@ -293,7 +305,7 @@ while ($moddir = shift @ARGV) {
 	$filename = "$rawname-$vers.tgz";
 	system("tar zcf $filename --exclude .svn $rawname");
 	# Update the md5 info
-	open MD5, "md5sum $filename|";
+	open MD5, "$md5_command $filename|";
 	$md5 = <MD5>;
 	close MD5;
 	($md5sum, $null) = split(/ /, $md5);
