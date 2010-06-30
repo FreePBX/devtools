@@ -96,9 +96,6 @@ while ($moddir = shift @ARGV) {
 		if (system("rm -rf $framework/htdocs/admin/modules/_cache")) {
 			die "FATAL: failed to trim modules/_cache\n";
 		}
-		if (system("rm -rf $framework/bin/retrieve_op_conf_from_mysql.pl")) {
-			die "FATAL: failed to trim bin/retrieve_op_conf_from_mysql.pl\n";
-		}
 		if (system("rm -rf $framework/bin/retrieve_op_conf_from_mysql.php")) {
 			die "FATAL: failed to trim bin/retrieve_op_conf_from_mysql.php\n";
 		}
@@ -115,9 +112,6 @@ while ($moddir = shift @ARGV) {
 		}
 		if (system("mkdir $fw_fop/bin")) {
 			die "FATAL: failed to create $fw_fop/bin\n";
-		}
-		if (system("mv $fw_fop/tmp/retrieve_op_conf_from_mysql.pl $fw_fop/bin")) {
-			die "FATAL: failed to mv retrieve_op_conf_from_mysql.pl to $fw_fop/bin\n";
 		}
 		if (system("mv $fw_fop/tmp/retrieve_op_conf_from_mysql.php $fw_fop/bin")) {
 			die "FATAL: failed to mv retrieve_op_conf_from_mysql.php to $fw_fop/bin\n";
