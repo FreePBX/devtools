@@ -31,4 +31,4 @@ my $reldir = "release/";
 	system("tar -zxOf ".$filename." ".$moddir."/svnversion.txt");
 	print "Geting svn log since that version for $rver : .... \n\n";
 	$svnver = system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs_panel -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
-
+	$svnver = system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/bin/retrieve_op_conf_from_mysql.php -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
