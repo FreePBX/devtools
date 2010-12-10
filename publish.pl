@@ -29,6 +29,10 @@ my $reldir = "release/";
 
 while ($moddir = shift @ARGV) {
 	next if (!-d $moddir);
+	# Check the XML integrity using the FreePBX XML parser
+	if (system("./check_xml.php $moddir")) {
+		die "Fatal syntax error with $moddir module.xml file, aborting\n";
+	}
 	if ($moddir =~ /$framework/) {
 
 		# Framework module is special case. We export and pull in all the files of framework that we are going to want to udpate. For now this is
