@@ -19,7 +19,7 @@ if ($? == 0) {
 $debug = 0;
 $checkphp = 1;
 $rver = "2.9";
-$fwbranch = "trunk";
+$fwbranch = "branches/2.9";
 $framework = "framework";
 $fw_fop = "fw_fop";
 $fw_ari = "fw_ari";
