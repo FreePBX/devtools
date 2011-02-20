@@ -30,9 +30,9 @@ my $reldir = "release/";
 	#print "CHECKING VERSION WITH: tar -zxOf $filename $moddir/svnversion.txt: ...  ";
 	system("tar -zxOf ".$filename." ".$moddir."/svnversion.txt");
 	print "Geting svn log of language updates since that version for $rver : .... \n\n";
-	system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs/recordings/locale -v -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD | grep 'htdocs/recordings/locale'");
-	system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs/admin -v -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD | grep 'i18n/' | grep 'htdocs/admin'");
-	system("svn log http://svn.freepbx.org/modules/branches/$rver -v -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD | grep 'i18n/' | grep 'modules/branches'");
+	system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs/recordings/locale -v -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION:// | tr -cd '0-9'`:HEAD | grep 'htdocs/recordings/locale'");
+	system("svn log http://svn.freepbx.org/freepbx/$fwbranch/amp_conf/htdocs/admin -v -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION:// | tr -cd '0-9'`:HEAD | grep 'i18n/' | grep 'htdocs/admin'");
+	system("svn log http://svn.freepbx.org/modules/branches/$rver -v -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION:// | tr -cd '0-9'`:HEAD | grep 'i18n/' | grep 'modules/branches'");
 
 
 	# Test calls

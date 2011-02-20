@@ -30,5 +30,4 @@ my $reldir = "release/";
 	#print "CHECKING VERSION WITH: tar -zxOf $filename $moddir/svnversion.txt: ...  ";
 	system("tar -zxOf ".$filename." ".$moddir."/svnversion.txt");
 	print "Geting svn log since that version for $rver : .... \n\n";
-	$svnver = system("svn log http://svn.freepbx.org/freepbx/$fwbranch -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION://`:HEAD");
-
+	$svnver = system("svn log http://svn.freepbx.org/freepbx/$fwbranch -r `tar -zxOf ".$filename." ".$moddir."/svnversion.txt | sed -e s/SVN\\\ VERSION:// | tr -cd '0-9'`:HEAD");
