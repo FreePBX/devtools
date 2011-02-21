@@ -97,6 +97,9 @@ while ($moddir = shift @ARGV) {
 		if (system("rm -rf $framework/htdocs/index.html")) {
 			die "FATAL: failed to trim htdocs/index.html\n";
 		}
+		if (system("rm -rf $framework/htdocs/robots.txt")) {
+			die "FATAL: failed to trim htdocs/robots.txt\n";
+		}
 		if (system("rm -rf $framework/htdocs/admin/modules/_cache")) {
 			die "FATAL: failed to trim modules/_cache\n";
 		}
