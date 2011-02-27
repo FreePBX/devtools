@@ -304,7 +304,7 @@ while ($moddir = shift @ARGV) {
 	chdir("..");
 	# Now we know the version. Create the tar.gz
 	$filename = "$rawname-$vers.tgz";
-	system("tar zcf $filename --exclude .svn $rawname");
+	system("tar zcf $filename --exclude '.*' $rawname");
 	# Update the md5 info
 	open MD5, "$md5_command $filename|";
 	$md5 = <MD5>;
