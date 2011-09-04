@@ -18,8 +18,8 @@ if ($? == 0) {
 
 $debug = 0;
 $checkphp = 1;
-$rver = "2.9";
-$fwbranch = "branches/2.9";
+$rver = "2.10";
+$fwbranch = "branches/2.10";
 $framework = "framework";
 $fw_fop = "fw_fop";
 $fw_ari = "fw_ari";
