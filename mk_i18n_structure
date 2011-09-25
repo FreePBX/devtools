@@ -10,19 +10,33 @@
 # have been placed
 
 for i in *; do
+	#dont create structure for these modules
+	[ $i = 'fw_ari' ] || [ $i = 'core' ] || [ $i = 'fw_fop' ] && continue
 	echo $i:
-	if [ -d $i ] && [ -a ${2}/${i}.mo ] && [ -a ${2}/${i}.po ]; then
+	if [ -d $i ]; then
+		#make i18n directory if it doesnt exists
 		if [ ! -d ${i}/i18n ]; then
 			svn mkdir ${i}/i18n
 		fi
+		#make directry for requested lanugage
 		if [ ! -d ${i}/i18n/$1 ]; then
-			svn mkdir ${i}/i18n/$1
-			svn mkdir ${i}/i18n/$1/LC_MESSAGES
+			svn mkdir ${i}/i18n/$1/LC_MESSAGES -p
 		fi
-		mv $2/$i.mo $i/i18n/$1/LC_MESSAGES/
-		mv $2/$i.po $i/i18n/$1/LC_MESSAGES/
-		svn add $i/i18n/$1/LC_MESSAGES/$i.mo
-		svn add $i/i18n/$1/LC_MESSAGES/$i.po
+		#copy pot file if it doens already exists
+		if [ ! -e ${i}/i18n/$1/LC_MESSAGES/$i.po ]; then
+			svn cp ${i}/i18n/$i.pot ${i}/i18n/$1/LC_MESSAGES/$i.po
+		#update the file if it dose exists
+		else
+			msgmerge -U ${i}/i18n/$1/LC_MESSAGES/$i.po ${i}/i18n/$i.pot
+		fi
+		if  [ -a ${2}/${i}.mo ] && [ -a ${2}/${i}.po ]; then
+			mv $2/$i.mo $i/i18n/$1/LC_MESSAGES/
+			mv $2/$i.po $i/i18n/$1/LC_MESSAGES/
+			svn add $i/i18n/$1/LC_MESSAGES/$i.mo
+			svn add $i/i18n/$1/LC_MESSAGES/$i.po
+			#now update the .po so that it includes all the latest strings
+			msgmerge -U ${i}/i18n/$1/LC_MESSAGES/$i.po ${i}/i18n/$i.pot
+		fi
 	fi
 done
 

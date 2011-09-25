@@ -1,5 +1,5 @@
 #! /bin/sh
-# Copyright (c) 2008, 2010 Mikael Carlsson
+# Copyright (c) 2008, 20i0 Mikael Carlsson
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -14,21 +14,24 @@
 # For this script to work you need to so svn co for for branch and for modules and
 # install this in the same tree so that the script can do all extraction at once.
 #
-
-    echo "Module $1"
-        for j in $1/i18n/*; do
+for i in *; do
+	#dont do anything for these modules
+	[ $i = 'fw_ari' ] || [ $i = 'core' ] || [ $i = 'fw_fop' ] && continue
+    echo "Module $i"
+        for j in $i/i18n/*; do
             echo "Found language $j"
             if [ -d ${j}/LC_MESSAGES ]; then
                 echo "Language $j"
-                if [ -f ${j}/LC_MESSAGES/$1.po ]; then
-                    echo "Found $1.po for language $j"
+                if [ -f ${j}/LC_MESSAGES/$i.po ]; then
+                    echo "Found $i.po for language $j"
                     # Merge the .po file from the .pot file
-                    msgmerge -N -U ${j}/LC_MESSAGES/$1.po $1/i18n/$1.pot
+                    msgmerge -N -U ${j}/LC_MESSAGES/$i.po $i/i18n/$i.pot
                     # Remove the .po~ file
-                    rm ${j}/LC_MESSAGES/$1.po~
+                    rm ${j}/LC_MESSAGES/$i.po~
                     # And compile the .po to .mo
-                    msgfmt -v ${j}/LC_MESSAGES/$1.po -o ${j}/LC_MESSAGES/$1.mo
+                    msgfmt -v ${j}/LC_MESSAGES/$i.po -o ${j}/LC_MESSAGES/$i.mo
                 fi
             fi
         done
+done
 
