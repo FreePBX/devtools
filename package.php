@@ -1,7 +1,6 @@
 #!/usr/bin/php -q
 <?php
 
-
 //get cli opts
 $longopts = array(
 	"modules:",
@@ -62,7 +61,9 @@ $vars['svn_path']		= 'http://svn.freepbx.org/freepbx';
 if (!$vars['modules']) {
 	die('No modules specified. Please specify them one with the -m option (use multiple switches for more than one module)');
 }
+
 //print_r($vars);
+
 //ensure the directory is up to date
 run_cmd('svn up');
 
@@ -160,7 +161,7 @@ foreach ($vars['modules'] as $mod) {
 	//move tarbal to relase dir
 	run_cmd('mv ' . $filename . ' ../../release/' . $vars['rver']);
 	
-	//add tarball to repository
+	//add tarball to release repository
 	run_cmd('svn add ../../release/' . $vars['rver'] . '/' . $filename);
 	
 	//set mietype of tarball
