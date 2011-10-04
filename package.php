@@ -85,6 +85,18 @@ foreach ($vars['modules'] as $mod) {
 	$parser = new xml2ModuleArray($xml);
 	$xmlarray = $parser->parseAdvanced($xml);
 	
+	//include module specifc hook, if present
+	if (file_exists($mod . '/' . 'package_hook.php')) {
+		echo 'Running ' . $mod . '/' . 'package_hook.php...' . PHP_EOL;
+		include($mod . '/' . 'package_hook.php');
+	}
+	
+	//include any global hooks, if present
+	if (file_exists('package_hook.php')) {
+		echo 'Running ' . 'package_hook.php...' . PHP_EOL;
+		include('package_hook.php');
+	}
+	
 	//TODO: not sure how to detect a broken xml --MB
 	if (!true) {
 		echo $mod . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
@@ -118,16 +130,6 @@ foreach ($vars['modules'] as $mod) {
 				}
 			}
 		}
-	}
-	
-	//include module specifc hook, if present
-	if (file_exists($mod . '/' . 'package_hook.php')) {
-		include($mod . '/' . 'package_hook.php');
-	}
-	
-	//include any global hooks, if present
-	if (file_exists('package_hook.php')) {
-		include('package_hook.php');
 	}
 	
 	//check in out standing files
