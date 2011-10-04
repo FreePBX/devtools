@@ -67,6 +67,7 @@ run_cmd('svn up');
 
 foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
+	$tar_dir	= $mod;
 	$files 		=
 	$filename	=
 	$md5		=
@@ -81,6 +82,7 @@ foreach ($vars['modules'] as $mod) {
 	include_once('xml2Array.class.php');
 	$parser = new xml2ModuleArray($xml);
 	$xmlarray = $parser->parseAdvanced($xml);
+	
 	//TODO: not sure how to detect a broken xml --MB
 	if (!true) {
 		echo $mod . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
@@ -103,7 +105,7 @@ foreach ($vars['modules'] as $mod) {
 		$ver = $version[1];
 	}
 	
-	//check php files for syntaxt errors
+	//check php files for syntax errors
 	if ($vars['checkphp']) {
 		$files = scandirr($mod, true);
 		foreach ($files as $f) {
@@ -115,18 +117,27 @@ foreach ($vars['modules'] as $mod) {
 			}
 		}
 	}
-
-	//check in out standing files
-	if (run_cmd('svn st ' . $mod . '|wc -l') > 0) {
-		run_cmd('svn ci -m "Auto Check-in of any outstanding patches in ' . $mod . '" ' . $mod);
+	
+	//include module specifc hook, if present
+	if (file_exists($mod . '/' . 'package_hook.php')) {
+		include($mod . '/' . 'package_hook.php');
 	}
 	
+	//include any global hooks, if present
+	if (file_exists('package_hook.php')) {
+		include('package_hook.php');
+	}
+	
+	//check in out standing files
+	if (run_cmd('svn st ' . $mod . '|wc -l') > 0) {
+		run_cmd('svn ci -m "Auto Check-in of any outstanding changes in ' . $mod . '" ' . $mod);
+	}
 	
 	//set tarball name var
 	$filename = $rawname . '-' . $ver . '.tgz';
 	
 	//build tarball
-	run_cmd('tar zcf ' . $filename . ' ' . $mod . ' --exclude ".*" -C ' . $mod );
+	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir . ' --exclude ".*" -C ' . $tar_dir);
 	
 	//update md5 sum
 	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
