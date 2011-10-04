@@ -69,6 +69,7 @@ foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
 	$files 		=
 	$filename	=
+	$md5		=
 	$xml 		=
 	$rawname	=
 	$ver 		= '';
@@ -116,7 +117,7 @@ foreach ($vars['modules'] as $mod) {
 	}
 
 	//check in out standing files
-	if (run_cmd('svn st ' . $mod . '|wc -l') > 1) {
+	if (run_cmd('svn st ' . $mod . '|wc -l') > 0) {
 		run_cmd('svn ci -m "Auto Check-in of any outstanding patches in ' . $mod . '" ' . $mod);
 	}
 	
@@ -128,7 +129,13 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('tar zcf ' . $filename . ' ' . $mod . ' --exclude ".*" -C ' . $mod );
 	
 	//update md5 sum
-	//TODO!
+	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
+	run_cmd('sed -i "s|<md5sum>.*</md5sum>|<md5sum>' . $md5 . '</md5sum>|" ' 
+			. $mod . '/module.xml');
+	
+	//update location
+	run_cmd('sed -i "s|<location>.*</location>|<location>release/' . $vars['rver'] . '/' . $filename . '</location>|" ' 
+			. $mod . '/module.xml');
 	
 	//move tarbal to relase dir
 	run_cmd('mv ' . $filename . ' ../../release/' . $vars['rver']);
@@ -144,8 +151,11 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod);
 	
 	//check in new tarball and module.xml
-	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod . '/module.xml'
+	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod 
 					. ' -m"Module package script: ' . $rawname . ' ' . $ver . '"');
+					
+	
+	echo $mod . ' version ' . $ver . ' has ben sucsessfuly packaged!' . PHP_EOL;
 	
 }
 
