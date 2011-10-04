@@ -69,13 +69,14 @@ run_cmd('svn up');
 foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
 	$tar_dir	= $mod;
-	$exclude	=
+	$exclude[]	= '.*';
 	$files 		=
 	$filename	=
 	$md5		=
 	$xml 		=
 	$rawname	=
-	$ver 		= '';
+	$ver 		= 
+	$x			= '';
 	
 	echo 'Packaging ' . $mod . '...' . PHP_EOL;
 	$xml = file_get_contents($mod . '/module.xml');
@@ -141,7 +142,11 @@ foreach ($vars['modules'] as $mod) {
 	$filename = $rawname . '-' . $ver . '.tgz';
 	
 	//build tarball
-	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir . ' --exclude ".*" ' . $exclude . ' -C ' . $tar_dir);
+	
+	foreach ($exclude as $ex) {
+		$x .= ' --exclude="' . $ex . '"';
+	}
+	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir . $x . ' -C ' . $tar_dir);
 	
 	//update md5 sum
 	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
