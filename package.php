@@ -52,10 +52,11 @@ if (!$vars['md5'] = run_cmd('which md5sum')) {
 //set up some other settings
 $vars['rver'] 			= '2.10';
 $vars['fwbranch'] 		= 'branches/2.10';
-$vars['framework']		= 'framework';
+$vars['fw']				= 'framework';
 $vars['fw_ari']			= 'fw_ari';
 $vars['fw_langpacks']	= 'fw_langpacks';
 $vars['reldir']			= 'reldir';
+$vars['svn_path']		= 'http://svn.freepbx.org/freepbx';
 
 //ensure we have modules to package
 if (!$vars['modules']) {
@@ -68,6 +69,7 @@ run_cmd('svn up');
 foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
 	$tar_dir	= $mod;
+	$exclude	=
 	$files 		=
 	$filename	=
 	$md5		=
@@ -137,7 +139,7 @@ foreach ($vars['modules'] as $mod) {
 	$filename = $rawname . '-' . $ver . '.tgz';
 	
 	//build tarball
-	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir . ' --exclude ".*" -C ' . $tar_dir);
+	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir . ' --exclude ".*" ' . $exclude . ' -C ' . $tar_dir);
 	
 	//update md5 sum
 	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
