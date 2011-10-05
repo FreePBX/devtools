@@ -1,5 +1,20 @@
 #!/usr/bin/php -q
 <?php
+/*
+ * Copyright 2011 by Schmooze Com., Inc.
+ * By installing, copying, downloading, distributing, inspecting or using the 
+ * materials provided herewith, you agree to all of the terms of use as outlined
+ * in our End User Agreement which can be found and reviewed at 
+ * http://freepbxdistro.org/signup.php?view=tos
+ *
+ * @author mbrevda@schmoozecom.com
+ *
+ * options:
+ *		-m module name to be packaged. You can pass more than one name
+ *		-d debug mode - will echo the commands and not run them
+ *		-v verbosity - will echo out the commands AND run them
+ *
+ */
 
 //get cli opts
 $longopts = array(
@@ -9,6 +24,16 @@ $longopts = array(
 	'verbose::'
 );
 $vars = getopt('m:d::L::v::');
+
+
+//set up some other settings
+$vars['rver'] 		= '2.10';
+$vars['fwbranch'] 	= 'branches/2.10';
+$vars['fw']			= 'framework';
+$vars['fw_ari']		= 'fw_ari';
+$vars['fw_lang']	= 'fw_langpacks';
+$vars['reldir']		= 'reldir';
+$vars['svn_path']	= 'http://svn.freepbx.org';
 
 //move cli args to longopts for clarity throught the script
 //note: once we depend on 5.3, we can refactor this so that either short
@@ -49,15 +74,6 @@ if (!$vars['md5'] = run_cmd('which md5sum')) {
 		$vars['md5'] = 'md5 -r';
 	}
 }
-
-//set up some other settings
-$vars['rver'] 			= '2.10';
-$vars['fwbranch'] 		= 'branches/2.10';
-$vars['fw']				= 'framework';
-$vars['fw_ari']			= 'fw_ari';
-$vars['fw_lang']		= 'fw_langpacks';
-$vars['reldir']			= 'reldir';
-$vars['svn_path']		= 'http://svn.freepbx.org';
 
 //ensure we have modules to package
 if (!$vars['modules']) {

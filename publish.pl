@@ -4,6 +4,7 @@
 #              and module.xml modifications made since these can be reverted. Review carefully if you care concerned that it will
 #              lose work.
 #
+die "[ERROR] This script has been depreciated. Please use package.php to package modules";
 system("which md5sum"); # typical linux format
 if ($? == 0) {
 		$md5_command = 'md5sum';
