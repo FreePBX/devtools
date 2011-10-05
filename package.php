@@ -11,6 +11,8 @@ $longopts = array(
 $vars = getopt('m:d::L::v::');
 
 //move cli args to longopts for clarity throught the script
+//note: once we depend on 5.3, we can refactor this so that either short
+//or long work. For now, short will overwrite the long
 if (isset($vars['m'])) {
 	$vars['modules'] = (array) $vars['m'];
 	unset($vars['m']);
@@ -53,9 +55,9 @@ $vars['rver'] 			= '2.10';
 $vars['fwbranch'] 		= 'branches/2.10';
 $vars['fw']				= 'framework';
 $vars['fw_ari']			= 'fw_ari';
-$vars['fw_langpacks']	= 'fw_langpacks';
+$vars['fw_lang']		= 'fw_langpacks';
 $vars['reldir']			= 'reldir';
-$vars['svn_path']		= 'http://svn.freepbx.org/freepbx';
+$vars['svn_path']		= 'http://svn.freepbx.org';
 
 //ensure we have modules to package
 if (!$vars['modules']) {
@@ -64,8 +66,9 @@ if (!$vars['modules']) {
 
 //print_r($vars);
 
-//ensure the directory is up to date
+//ensure the module and relase directorys are up to date
 run_cmd('svn up');
+run_cmd('svn up ../../release/' . $vars['rver']);
 
 foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
