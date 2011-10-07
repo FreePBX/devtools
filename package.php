@@ -119,7 +119,10 @@ foreach ($vars['modules'] as $mod) {
 	}
 	
 	//TODO: not sure how to detect a broken xml --MB
-	if (!true) {
+	//This is fixed now. It will detect broken xml -- tm1000
+	$xml_contents = file_get_contents($mod . '/' . 'module.xml');
+	@$xml_loaded_contents = simplexml_load_string($xml_contents);
+	if($xml_loaded_contents===FALSE) {
 		echo $mod . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
 		continue;
 	}
@@ -169,14 +172,30 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir . $x . ' -C ' . $tar_dir);
 	
 	//update md5 sum
+	$module_xml = file_get_contents($mod . '/' . 'module.xml');
+	if(file_exists($filename)) {
+		$md5 = md5_file($filename);
+		$module_xml = preg_replace('/<md5sum>(.*)<\/md5sum>/i','<md5sum>'.$md5.'</md5sum>',$module_xml);
+	} else {
+		echo "No Tarball Package found (in debug mode?)" . PHP_EOL;
+	}
+	/* OLD
 	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
 	run_cmd('sed -i "s|<md5sum>.*</md5sum>|<md5sum>' . $md5 . '</md5sum>|" ' 
 			. $mod . '/module.xml');
-	
+	*/
+
 	//update location
+	/* OLD
 	run_cmd('sed -i "s|<location>.*</location>|<location>release/' . $vars['rver'] . '/' . $filename . '</location>|" ' 
 			. $mod . '/module.xml');
-	
+	*/
+	if(file_exists($filename)) {
+                $module_xml = preg_replace('/<location>(.*)<\/location>/i','<location>' . $vars['rver'] . '/' . $filename . '</location>',$module_xml);
+        }
+
+	file_put_contents($mod . '/' . 'module.xml', $module_xml);
+
 	//move tarbal to relase dir
 	run_cmd('mv ' . $filename . ' ../../release/' . $vars['rver']);
 	
