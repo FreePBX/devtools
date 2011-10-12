@@ -148,18 +148,21 @@ foreach ($vars['modules'] as $mod) {
 	}
 	
 	//check php files for syntax errors
-	if ($vars['checkphp']) {
-		//get a recursivle list of all files
-		$files = scandirr($mod, true);
-		foreach ($files as $f) {
-			//if its a php file, test it
-			if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
-				if (!system('php -l ' . $f)) {
-					echo('syntaxt error detected in ' . $f . ',' .  $mod . ' won\'t be packaged' . PHP_EOL);
-					continue 2;
-				}
+	$bail = false;
+	$files = scandirr($mod, true);
+	foreach ($files as $f) {
+		if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
+			$ret_val = 0;
+			system('php -l ' . $f, $ret_val);
+			if ($ret_val != 0) {
+				echo('syntax error detected in ' . $f . ',' .  $mod . ' won\'t be packaged' . PHP_EOL);
+				$bail=true; // finish scanning all files before bailing
 			}
 		}
+	}
+	if ($bail && $vars['checkphp']) {
+		echo('syntax error detecteded in ' .  $mod . ' skipping packaging going to next' . PHP_EOL);
+		continue;
 	}
 	
 	//check in any out standing files
@@ -268,10 +271,9 @@ function scandirr($dir, $absolute = false) {
 	return $list;
 }
 
-//runs systems commands, or echo's them
-function run_cmd($cmd, $quite = false) {
+function run_cmd($cmd, $quiet = false) {
 	global $vars;
-	$quite = $quite ? ' > /dev/null' : '';
+	$quiet = $quiet ? ' > /dev/null' : '';
 
 	if ($vars['debug']) {
 		echo $cmd . PHP_EOL;
@@ -280,9 +282,9 @@ function run_cmd($cmd, $quite = false) {
 		$bt = debug_backtrace();
 		echo PHP_EOL . '+' . $bt[0]["file"] . ':' . $bt[0]["line"] . PHP_EOL;
 		echo "\t" . $cmd . PHP_EOL;
-		return system($cmd . $quite);
+		return system($cmd . $quiet);
 	} else {
-		return system($cmd . $quite);
+		return system($cmd . $quiet);
 	}
 }
 
@@ -314,4 +316,5 @@ function check_xml($mod, $xml) {
 	
 	return array($rawname, $ver);
 }
+
 ?>
