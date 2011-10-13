@@ -98,6 +98,7 @@ foreach ($vars['modules'] as $mod) {
 	$rawname	=
 	$ver 		= 
 	$x			= '';
+	$file_scan_exclude_list = array();
 	
 	echo 'Packaging ' . $mod . '...' . PHP_EOL;
 	if (!file_exists($mod . '/module.xml')) {
@@ -113,6 +114,13 @@ foreach ($vars['modules'] as $mod) {
 	if ($rawname == false || $ver == false) {
 		continue;
 	}
+	// Run xml script through the exact method that FreePBX currently uses. There have
+	// been cases where XML is valid but this method still fails so it won't be caught
+	// with the proper XML checer, better here then breaking the online repository
+	//
+	include_once('xml2Array.class.php');
+	$parser = new xml2ModuleArray($xml);
+	$xmlarray = $parser->parseAdvanced($xml);
 	
 	//include module specifc hook, if present
 	if (file_exists($mod . '/' . 'package_hook.php')) {
@@ -149,7 +157,7 @@ foreach ($vars['modules'] as $mod) {
 	
 	//check php files for syntax errors
 	$bail = false;
-	$files = scandirr($mod, true);
+	$files = scandirr($mod, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
 		if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
 			$ret_val = 0;
@@ -187,13 +195,21 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('tar zcf ' . $filename . ' ' . $x . ' ' . $tar_dir_path . ' ' . $tar_dir);
 	
 	//update md5 sum
-	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
-	run_cmd('sed -i "s|<md5sum>.*</md5sum>|<md5sum>' . $md5 . '</md5sum>|" ' 
-			. $mod . '/module.xml');
+	$module_xml = file_get_contents($mod . '/' . 'module.xml');
+	if(file_exists($filename)) {
+		$md5 = md5_file($filename);
+		$module_xml = preg_replace('/<md5sum>(.*)<\/md5sum>/i','<md5sum>'.$md5.'</md5sum>',$module_xml);
+	} else {
+		echo "No Tarball Package found (in debug mode?)" . PHP_EOL;
+	}
 	
 	//update location
-	run_cmd('sed -i "s|<location>.*</location>|<location>release/' . $vars['rver'] . '/' . $filename . '</location>|" ' 
-			. $mod . '/module.xml');
+	if(file_exists($filename)) {
+		$module_xml = preg_replace('/<location>(.*)<\/location>/i','<location>' . $vars['rver'] . '/' . $filename . '</location>',$module_xml);
+	}
+
+	file_put_contents($mod . '/' . 'module.xml', $module_xml);
+
 	
 	//move tarbal to relase dir
 	run_cmd('mv ' . $filename . ' ../../release/' . $vars['rver'] . '/');
@@ -228,12 +244,13 @@ foreach ($vars['modules'] as $mod) {
  * returns a hierarchical array representing the directory structure
  *
  * @pram string - directory to scan
- * @pram strin - retirn absolute paths
+ * @pram string - return absolute paths
+ * @pram array - list of excluded files/directories to ignore
  * @returns array
  *
  * @author Moshe Brevda mbrevda => gmail ~ com
  */
-function scandirr($dir, $absolute = false) {
+function scandirr($dir, $absolute = false, $exclude_list=array()) {
 	$list = array();
 	if ($absolute) {
 		global $list;
@@ -241,19 +258,22 @@ function scandirr($dir, $absolute = false) {
 	
 	
 	//get directory contents
+	if (!empty($exclude_list) && in_array(basename($dir), $exclude_list)) {
+		return $list;
+	}
 	foreach (scandir($dir) as $d) {
 		
 		//ignore any of the files in the array
-		if (in_array($d, array('.', '..'))) {
+		if (in_array($d, array('.', '..', '.svn')) || (!empty($exclude_list) && in_array($d, $exclude_list))) {
 			continue;
 		}
 		
 		//if current file ($d) is a directory, call scandirr
 		if (is_dir($dir . '/' . $d)) {
 			if ($absolute) {
-				scandirr($dir . '/' . $d, $absolute);
+				scandirr($dir . '/' . $d, $absolute, $exclude_list);
 			} else {
-				$list[$d] = scandirr($dir . '/' . $d, $absolute);
+				$list[$d] = scandirr($dir . '/' . $d, $absolute, $exclude_list);
 			}
 			
 		
@@ -264,7 +284,6 @@ function scandirr($dir, $absolute = false) {
 			} else {
 				$list[] = $d;
 			}
-			
 		}
 	}
 
