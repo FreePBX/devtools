@@ -1,0 +1,26 @@
+<module>
+	<rawname>versionupgrade</rawname>
+	<name>2.10 Upgrade Tool</name>
+	<version>2.9.0beta1.1</version>
+	<changelog>
+		*2.9.0beta1.1* #5396
+		*2.9.0beta1.0* update for 2.10 upgrade
+	</changelog>
+	<description>
+		This module allows the current version to be upgraded to the next major version. For example, if the current version is 2.7.X it will bump up to the latest 2.8.X version available after finsished. Using an example of 2.7.0 as the current version, it provides a button that will bump up the major version number to 2.8.0alpha0 which has the effect of directing Module Admin to use the 2.8 repository. Doing such will then allow the user to upgrade all require modules and framework to enable 2.8. Installing the module is safe and will provide more details about how to upgrade. You will have ample opportunity to decide if you want to do the upgrade after installation.
+	</description>
+	<type>tool</type>
+	<menuitems>
+		<versionupgrade1 display="versionupgrade" type="tool" category="Admin" sort="10">2.10 Upgrade Tool</versionupgrade1>
+		<versionupgrade2 display="versionupgrade" type="setup" category="Admin" sort="10">2.10 Upgrade Tool</versionupgrade2>
+	</menuitems>
+	<depends>
+		<version>lt 2.10.0alpha1</version>
+		<version>ge 2.9.0</version>
+		<module>framework ge 2.9.0</module>
+		<module>fw_ari</module>
+	</depends>
+	<category>Admin</category>
+	<location>release/2.9/versionupgrade-2.9.0beta1.1.tgz</location>
+	<md5sum>642900e24f01a732adc040aa2eb45480</md5sum>
+</module>

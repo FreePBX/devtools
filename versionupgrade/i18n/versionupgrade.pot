@@ -1,0 +1,117 @@
+# This file is part of FreePBX.
+# Copyright Bandwidth.com (2009)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-08-28 12:38+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: page.versionupgrade.php:34
+msgid "2.6 Upgrade Module"
+msgstr ""
+
+#: page.versionupgrade.php:35
+msgid "Current Version Info (Updated each stage of upgrade process):"
+msgstr ""
+
+#: page.versionupgrade.php:40
+msgid "FreePBX Base Version:"
+msgstr ""
+
+#: page.versionupgrade.php:48
+msgid "FreePBX Framework Version:"
+msgstr ""
+
+#: page.versionupgrade.php:56
+msgid "FreePBX Core Version:"
+msgstr ""
+
+#: page.versionupgrade.php:66
+#, php-format
+msgid ""
+"<h2 align='center' style='color:red'>WARNING - YOU WILL BE UPGRADED TO "
+"VERSION 2.6</h2><p>This module will allow you to upgrade to FreePBX version "
+"2.6 from the current version, %s, that you are running.</p><p>The upgrade "
+"process is a simple but multi-step process that you should complete all at "
+"one time. As always when upgrading a system, it is advisable that you "
+"complete this process when the system is not actively being used.</p>The "
+"steps you will take are:<ol><li>Press the upgrade button below.</li><li>Go "
+"to Module Admin, check for online updates, and upgrade the <b>FreePBX "
+"Framework</b> module ONLY from the online repository which will now be "
+"connected to version 2.6.</li><li>Now, Check for online updates again and "
+"upgrade all other modules that have upgrades available. If you get "
+"dependency warnings, just repeat the process until all your modules have "
+"been upgraded.</li><li>Now press the Apply Configuration bar.</li></"
+"ol><p>Once you have completed these step you will be upgraded to the new 2.6 "
+"version and you may disable or remove this module if it does not do so "
+"automatically.</p>"
+msgstr ""
+
+#: page.versionupgrade.php:77
+msgid "UPGRADE NOW"
+msgstr ""
+
+#: page.versionupgrade.php:91
+msgid ""
+"You are about to upgrade your system to FreePBX 2.6. You can not reverse "
+"this process. Do you want to continue?"
+msgstr ""
+
+#: page.versionupgrade.php:104
+#, php-format
+msgid ""
+"<p>You appear to have partially upgraded to version 2.6, your current "
+"version number is %s. The remaining steps you should take are:</p><ol><li>Go "
+"to Module Admin, press check for online updates, and upgrade the <b>FreePBX "
+"Framework</b> module from the online repository. Do not upgrade other "
+"modules.</li><li>Check for online updates again and upgrade all other "
+"modules that have upgrades available. If you get dependency warnings, simply "
+"repeat the process until all modules are upgraded.</li><li>Press the Apply "
+"Configuration Changes bar.</li></ol><p>Once you have completed these steps "
+"you will be upgraded to the new 2.6 version and you may disable or remove "
+"this module if it it does not do so automatically.</p>"
+msgstr ""
+
+#: page.versionupgrade.php:108
+#, php-format
+msgid ""
+"<p>You appear to have upgraded Framework to version 2.6, your current "
+"version number is %s. You still need to upgrade the Core Module and any "
+"other modules that show upgrades available. The remaining steps you should "
+"take are:</p><ol><li>Check for online updates again and upgrade all other "
+"modules that have upgrades available including Core. If you get dependency "
+"warnings simply repeat the process until all modules are upgraded.</"
+"li><li>Press the Apply Configuration Changes bar.</li></ol><p>Once you have "
+"completed these steps you will be upgraded to the new 2.6 version and you "
+"may disable or remove this module if it it does not do so automatically.</p>"
+msgstr ""
+
+#: page.versionupgrade.php:115
+#, php-format
+msgid ""
+"You have successfully upgraded to FreePBX version %s. If this module has not "
+"been automatically disabled you should go to Module Admin and disabled or "
+"uninstall this module at this time"
+msgstr ""
