@@ -184,7 +184,7 @@ foreach ($vars['modules'] as $mod) {
 	$tar_dir        = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))? array_pop($tar_dir_path) : $mod;
 	$tar_dir_path   = (is_array($tar_dir_path) && (count($tar_dir_path) > 1)) 
 					? ' -C /' . implode('/', $tar_dir_path) : '';
-	run_cmd('tar zcf ' . $filename . ' ' . $tar_dir_path . ' ' . $tar_dir . $x );
+	run_cmd('tar zcf ' . $filename . ' ' . $x . ' ' . $tar_dir_path . ' ' . $tar_dir);
 	
 	//update md5 sum
 	list($md5) = preg_split('/\s+/', run_cmd($vars['md5'] . ' ' . $filename));
