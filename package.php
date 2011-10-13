@@ -282,10 +282,11 @@ function run_cmd($cmd, $quiet = false) {
 		$bt = debug_backtrace();
 		echo PHP_EOL . '+' . $bt[0]["file"] . ':' . $bt[0]["line"] . PHP_EOL;
 		echo "\t" . $cmd . PHP_EOL;
-		return system($cmd . $quiet);
+		system($cmd . $quiet, $ret_val);
 	} else {
-		return system($cmd . $quiet);
+		system($cmd . $quiet, $ret_val);
 	}
+	return ($ret_val == 0);
 }
 
 //test xml file for validity and extract some info from it
