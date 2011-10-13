@@ -205,7 +205,7 @@ foreach ($vars['modules'] as $mod) {
 	
 	//update location
 	if(file_exists($filename)) {
-		$module_xml = preg_replace('/<location>(.*)<\/location>/i','<location>' . $vars['rver'] . '/' . $filename . '</location>',$module_xml);
+		$module_xml = preg_replace('/<location>(.*)<\/location>/i','<location>release/' . $vars['rver'] . '/' . $filename . '</location>',$module_xml);
 	}
 
 	file_put_contents($mod . '/' . 'module.xml', $module_xml);
