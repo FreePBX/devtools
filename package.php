@@ -234,7 +234,7 @@ foreach ($vars['modules'] as $mod) {
 			run_cmd('rm -rf ' . $f);
 		}
 	}*/
-	echo $mod . ' version ' . $ver . ' has been sucsessfuly packaged!' . PHP_EOL;
+	echo $mod . ' version ' . $ver . ' has been successfully packaged!' . PHP_EOL;
 	
 }
 
