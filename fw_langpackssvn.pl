@@ -5,7 +5,7 @@
 # fw_langpacks was last published.
 #
 $rver = "2.10";
-$fwbranch = "branches/2.9";
+$fwbranch = "branches/2.10";
 $fw_langpacks = "fw_langpacks";
 
 $moddir = 'fw_langpacks';

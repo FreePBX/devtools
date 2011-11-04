@@ -12,7 +12,10 @@ do
 		echo ================================== $NAME START =========================================
 		echo SVN LOG: $NAME
 		#svn log --stop-on-copy $NAME
-		svn log -v -r $lastpublish:HEAD $NAME
+		echo ----------FILE MODS-----------
+		svn log -v -r $lastpublish:HEAD $NAME | grep -v 'i18n' | grep $NAME
+		echo ----------LOG ENTRIES---------
+		svn log -r $lastpublish:HEAD $NAME 
 		echo
 		echo ================================== $NAME STOP ==========================================
 		echo
