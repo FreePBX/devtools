@@ -89,7 +89,8 @@ run_cmd('svn up ../../release/' . $vars['rver']);
 
 foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
-	$tar_dir	= $mod;
+	$mod_dir	= dirname(__FILE__) . '/' . $mod;
+	$tar_dir	= $mod_dir;
 	$exclude[]	= '.*';
 	$files 		=
 	$filename	=
@@ -101,11 +102,11 @@ foreach ($vars['modules'] as $mod) {
 	$file_scan_exclude_list = array();
 	
 	echo 'Packaging ' . $mod . '...' . PHP_EOL;
-	if (!file_exists($mod . '/module.xml')) {
-		echo $mod . '/module.xml dose not exists, ' . $mod . ' will not be built!' . PHP_EOL;
+	if (!file_exists($mod_dir . '/module.xml')) {
+		echo $mod_dir . '/module.xml dose not exists, ' . $mod . ' will not be built!' . PHP_EOL;
 		continue;
 	}
-	$xml = file_get_contents($mod . '/module.xml');
+	$xml = file_get_contents($mod_dir . '/module.xml');
 	
 	//test xml file and get some of its values
 	list($rawname, $ver) = check_xml($mod, $xml);
@@ -123,12 +124,12 @@ foreach ($vars['modules'] as $mod) {
 	$xmlarray = $parser->parseAdvanced($xml);
 	
 	//include module specifc hook, if present
-	if (file_exists($mod . '/' . 'package_hook.php')) {
-		echo 'Running ' . $mod . '/' . 'package_hook.php...' . PHP_EOL;
+	if (file_exists($mod_dir . '/' . 'package_hook.php')) {
+		echo 'Running ' . $mod_dir . '/' . 'package_hook.php...' . PHP_EOL;
 		
 		//test include so that includes can return false and prevent further execution if it fail
-		if (!include($mod . '/' . 'package_hook.php')) {
-			echo '[FATAL] retrurned from ' . $mod . '/' . 'package_hook.php with an error, ' 
+		if (!include($mod_dir . '/' . 'package_hook.php')) {
+			echo '[FATAL] retrurned from ' . $mod_dir . '/' . 'package_hook.php with an error, ' 
 				. $mod . ' wont be built' . PHP_EOL;
 				continue;
 		}
@@ -156,26 +157,25 @@ foreach ($vars['modules'] as $mod) {
 	}
 	
 	//check php files for syntax errors
-	$bail = false;
-	$files = scandirr($mod, true, $file_scan_exclude_list);
-	foreach ($files as $f) {
-		if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
-			$ret_val = 0;
-			system('php -l ' . $f, $ret_val);
-			if ($ret_val != 0) {
-				echo('syntax error detected in ' . $f . ',' .  $mod . ' won\'t be packaged' . PHP_EOL);
-				$bail=true; // finish scanning all files before bailing
+	if ($vars['checkphp']) {
+		var_dump($tar_dir);
+		$files = scandirr($tar_dir, true, $file_scan_exclude_list);
+		foreach ($files as $f) {
+			if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
+				$ret_val = 0;
+				system('php -l ' . $f, $ret_val);
+				if ($ret_val != 0) {
+					echo('syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL);
+					continue 2;
+				}
 			}
 		}
-	}
-	if ($bail && $vars['checkphp']) {
-		echo('syntax error detecteded in ' .  $mod . ' skipping packaging going to next' . PHP_EOL);
-		continue;
+		unset($files, $list);
 	}
 	
 	//check in any out standing files
-	if (run_cmd('svn st ' . $mod . '|wc -l') > 0) {
-		run_cmd('svn ci -m "Auto Check-in of any outstanding changes in ' . $mod . '" ' . $mod);
+	if (run_cmd('svn st ' . $mod_dir . '|wc -l') > 0) {
+		run_cmd('svn ci -m "Auto Check-in of any outstanding changes in ' . $mod . '" ' . $mod_dir);
 	}
 	
 	//set tarball name var
@@ -189,13 +189,13 @@ foreach ($vars['modules'] as $mod) {
 	//if our tar path isnt were we currently are now (i.e. one level up from the module ot be packaged)
 	//tell tar to change directoires (-C) to one level above
 	$tar_dir_path   = explode('/', trim($tar_dir, '/'));
-	$tar_dir        = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))? array_pop($tar_dir_path) : $mod;
+	$tar_dir        = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))? array_pop($tar_dir_path) : $mod_dir;
 	$tar_dir_path   = (is_array($tar_dir_path) && (count($tar_dir_path) > 1)) 
 					? ' -C /' . implode('/', $tar_dir_path) : '';
 	run_cmd('tar zcf ' . $filename . ' ' . $x . ' ' . $tar_dir_path . ' ' . $tar_dir);
 	
 	//update md5 sum
-	$module_xml = file_get_contents($mod . '/' . 'module.xml');
+	$module_xml = file_get_contents($mod_dir . '/' . 'module.xml');
 	if(file_exists($filename)) {
 		$md5 = md5_file($filename);
 		$module_xml = preg_replace('/<md5sum>(.*)<\/md5sum>/i','<md5sum>'.$md5.'</md5sum>',$module_xml);
@@ -208,7 +208,7 @@ foreach ($vars['modules'] as $mod) {
 		$module_xml = preg_replace('/<location>(.*)<\/location>/i','<location>release/' . $vars['rver'] . '/' . $filename . '</location>',$module_xml);
 	}
 
-	file_put_contents($mod . '/' . 'module.xml', $module_xml);
+	file_put_contents($mod_dir . '/' . 'module.xml', $module_xml);
 
 	
 	//move tarbal to relase dir
@@ -221,20 +221,20 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('svn ps svn:mime-type application/tgz ../../release/' . $vars['rver'] . '/' . $filename);
 	
 	//set latpublished property
-	$lastpub = run_cmd('svn info ' . $mod . ' | grep Revision: | awk \'{print $2}\'');
-	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod);
+	$lastpub = run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'');
+	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod_dir);
 	
 	//check in new tarball and module.xml
-	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod 
+	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir 
 					. ' -m"Module package script: ' . $rawname . ' ' . $ver . '"');
 					
 	//cleanup any remaining files
-/*	foreach($vars['rm_files'] as $f) {
+	foreach($vars['rm_files'] as $f) {
 		if (file_exists($f)) {
-			run_cmd('rm -rf ' . $f);
+			//run_cmd('rm -rf ' . $f);
 		}
-	}*/
-	echo $mod . ' version ' . $ver . ' has been successfully packaged!' . PHP_EOL;
+	}
+	echo $mod . ' version ' . $ver . ' has been sucsessfuly packaged!' . PHP_EOL;
 	
 }
 
@@ -310,17 +310,18 @@ function run_cmd($cmd, $quiet = false) {
 
 //test xml file for validity and extract some info from it
 function check_xml($mod, $xml) {
+	global $mod_dir;
 	//check the xml script integrity
-	$xml_contents = file_get_contents($mod . '/' . 'module.xml');
+	$xml_contents = file_get_contents($mod_dir . '/' . 'module.xml');
 	$xml_loaded_contents = simplexml_load_string($xml_contents);
 	if($xml_loaded_contents === FALSE) { 
-		echo $mod . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
+		echo $mod_dir . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
 		return array(false, false);
 	}
 	
 	//check that module name is set in module.xml
 	if (!preg_match('/<rawname>(.*?)<\/rawname>/', $xml, $rawname)) {
-		echo $mod . '/module.xml is missing a module name, ' . $mod . ' won\'t be packaged' . PHP_EOL;
+		echo $mod_dir . '/module.xml is missing a module name, ' . $mod . ' won\'t be packaged' . PHP_EOL;
 		$rawname = false;
 	} else {
 		$rawname = $rawname[1];
@@ -328,7 +329,7 @@ function check_xml($mod, $xml) {
 	
 	//check that module version is set in module.xml
 	if (!preg_match('/<version>(.*?)<\/version>/', $xml, $version)) {
-		echo $mod . '/module.xml is missing a version number, ' . $mod . ' won\'t be packaged' . PHP_EOL;
+		echo $mod_dir . '/module.xml is missing a version number, ' . $mod . ' won\'t be packaged' . PHP_EOL;
 		$ver = false;
 	} else {
 		$ver = $version[1];
