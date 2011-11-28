@@ -35,6 +35,7 @@ $vars['fw_lang']	= 'fw_langpacks';
 $vars['reldir']		= 'reldir';
 $vars['svn_path']	= 'http://svn.freepbx.org';
 $vars['rm_files']	= array(); //files that will be deleted after the script completes
+$vars['php_-l']		= 'php -l';
 
 //move cli args to longopts for clarity throught the script
 //note: once we depend on 5.3, we can refactor this so that either short
@@ -159,12 +160,12 @@ foreach ($vars['modules'] as $mod) {
 	//check php files for syntax errors
 	if ($vars['checkphp']) {
 		var_dump($tar_dir);
-		$files = scandirr($tar_dir, true, $file_scan_exclude_list);
+		$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
 		foreach ($files as $f) {
 			if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
 				$ret_val = 0;
-				system('php -l ' . $f, $ret_val);
-				if ($ret_val != 0) {
+				
+				if (!run_cmd($vars['php_-l'] . ' ' . $f)) {
 					echo('syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL);
 					continue 2;
 				}
@@ -239,7 +240,7 @@ foreach ($vars['modules'] as $mod) {
 }
 
 /**
- * function scandirr
+ * function package_scandirr
  * scans a directory just like scandir(), only recursively
  * returns a hierarchical array representing the directory structure
  *
@@ -250,7 +251,7 @@ foreach ($vars['modules'] as $mod) {
  *
  * @author Moshe Brevda mbrevda => gmail ~ com
  */
-function scandirr($dir, $absolute = false, $exclude_list=array()) {
+function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 	$list = array();
 	if ($absolute) {
 		global $list;
@@ -268,12 +269,12 @@ function scandirr($dir, $absolute = false, $exclude_list=array()) {
 			continue;
 		}
 		
-		//if current file ($d) is a directory, call scandirr
+		//if current file ($d) is a directory, call package_scandirr
 		if (is_dir($dir . '/' . $d)) {
 			if ($absolute) {
-				scandirr($dir . '/' . $d, $absolute, $exclude_list);
+				package_scandirr($dir . '/' . $d, $absolute, $exclude_list);
 			} else {
-				$list[$d] = scandirr($dir . '/' . $d, $absolute, $exclude_list);
+				$list[$d] = package_scandirr($dir . '/' . $d, $absolute, $exclude_list);
 			}
 			
 		
