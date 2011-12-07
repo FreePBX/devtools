@@ -68,18 +68,9 @@ if (isset($vars['v'])) {
 	$vars['verbose'] = false;
 }
 
-//find location of md5 command
-if (!$vars['md5'] = run_cmd('which md5sum')) {
-	if (!run_cmd('which md5')) {
-		die("no md5sum command\n");
-	} else {
-		$vars['md5'] = 'md5 -r';
-	}
-}
-
 //ensure we have modules to package
 if (!$vars['modules']) {
-	die('No modules specified. Please specify them one with the -m option (use multiple switches for more than one module)');
+	die("No modules specified. Please specify them one with the -m option (use multiple switches for more than one module)\n");
 }
 
 //print_r($vars);
