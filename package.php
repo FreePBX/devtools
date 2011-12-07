@@ -36,6 +36,7 @@ $vars['reldir']		= 'reldir';
 $vars['svn_path']	= 'http://svn.freepbx.org';
 $vars['rm_files']	= array(); //files that will be deleted after the script completes
 $vars['php_-l']		= 'php -l';
+$vars['php_extens']	= array('php', 'agi'); //extens to be considered as php for syntax checking
 
 //move cli args to longopts for clarity throught the script
 //note: once we depend on 5.3, we can refactor this so that either short
@@ -154,7 +155,7 @@ foreach ($vars['modules'] as $mod) {
 	$bail = false;
 	$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
-		if (pathinfo($f, PATHINFO_EXTENSION) == 'php' || pathinfo($f, PATHINFO_EXTENSION) == 'agi') {
+		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
 			if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, false, true)) {
 				echo('syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL);
 				$bail=true; // finish scanning all files before bailing
