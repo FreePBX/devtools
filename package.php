@@ -149,24 +149,25 @@ foreach ($vars['modules'] as $mod) {
 	}
 	
 	//check php files for syntax errors
-	if ($vars['checkphp']) {
-		var_dump($tar_dir);
-		$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
-		foreach ($files as $f) {
-			if (pathinfo($f, PATHINFO_EXTENSION) == 'php') {
-				$ret_val = 0;
-				
-				if (!run_cmd($vars['php_-l'] . ' ' . $f)) {
-					echo('syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL);
-					continue 2;
-				}
+	$bail = false;
+	$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
+	foreach ($files as $f) {
+		if (pathinfo($f, PATHINFO_EXTENSION) == 'php' || pathinfo($f, PATHINFO_EXTENSION) == 'agi') {
+			if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, false, true)) {
+				echo('syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL);
+				$bail=true; // finish scanning all files before bailing
 			}
 		}
-		unset($files, $list);
+	}
+	unset($files, $list);
+	if ($bail && $vars['checkphp']) {
+		echo('syntax error detecteded in ' .  $mod . ' skipping packaging going to next' . PHP_EOL);
+		continue;
 	}
 	
 	//check in any out standing files
-	if (run_cmd('svn st ' . $mod_dir . '|wc -l') > 0) {
+	run_cmd('svn st ' . $mod_dir . '|wc -l', $lines);
+	if ( $lines > 0) {
 		run_cmd('svn ci -m "Auto Check-in of any outstanding changes in ' . $mod . '" ' . $mod_dir);
 	}
 	
@@ -213,7 +214,7 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('svn ps svn:mime-type application/tgz ../../release/' . $vars['rver'] . '/' . $filename);
 	
 	//set latpublished property
-	$lastpub = run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'');
+	run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'', $lastpub, false, true);
 	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod_dir);
 	
 	//check in new tarball and module.xml
@@ -282,20 +283,24 @@ function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 	return $list;
 }
 
-function run_cmd($cmd, $quiet = false) {
+// if $duplex set to true and in debug mode, it will echo the command AND run it
+function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
 	global $vars;
 	$quiet = $quiet ? ' > /dev/null' : '';
 
 	if ($vars['debug']) {
 		echo $cmd . PHP_EOL;
-		return true;
-	} elseif($vars['verbose']) {
+		if (!$duplex) {
+			return true;
+		}
+	}
+	if ($vars['verbose']) {
 		$bt = debug_backtrace();
 		echo PHP_EOL . '+' . $bt[0]["file"] . ':' . $bt[0]["line"] . PHP_EOL;
 		echo "\t" . $cmd . PHP_EOL;
-		system($cmd . $quiet, $ret_val);
+		$outline = system($cmd . $quiet, $ret_val);
 	} else {
-		system($cmd . $quiet, $ret_val);
+		$outline = system($cmd . $quiet, $ret_val);
 	}
 	return ($ret_val == 0);
 }
