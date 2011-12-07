@@ -76,7 +76,9 @@ if (!$vars['modules']) {
 //print_r($vars);
 
 //ensure the module and relase directorys are up to date
+echo "svn up on main dir\n";
 run_cmd('svn up');
+echo "svn up on release dir\n";
 run_cmd('svn up ../../release/' . $vars['rver']);
 
 foreach ($vars['modules'] as $mod) {
@@ -217,6 +219,9 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'', $lastpub, false, true);
 	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod_dir);
 	
+	// appears we need to do an svn up here or it fails, maybe because of the propset above?
+	run_cmd('svn up ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir);
+
 	//check in new tarball and module.xml
 	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir 
 					. ' -m"Module package script: ' . $rawname . ' ' . $ver . '"');
