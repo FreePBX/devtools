@@ -86,7 +86,10 @@ foreach ($vars['modules'] as $mod) {
 	$mod 		= trim($mod, '/');
 	$mod_dir	= dirname(__FILE__) . '/' . $mod;
 	$tar_dir	= $mod_dir;
-	$exclude[]	= '.*';
+	//files/dirs to be excluded from tar
+	$exclude	= array();
+	//argument to find for additional files/dirs to be excluded from tar
+	$exclude_find_arg = '\( -iname ".*" ! -iname ".htaccess" \)';
 	$files 		=
 	$filename	=
 	$md5		=
@@ -177,6 +180,22 @@ foreach ($vars['modules'] as $mod) {
 	//set tarball name var
 	$filename = $rawname . '-' . $ver . '.tgz';
 	
+	//add to exclude array, all '.*' except .htaccess
+	$exclude_raw = array();
+	exec('find ' . $mod_dir . ' ' .  $exclude_find_arg , $exclude_raw, $ret);
+
+	if ($ret) {
+		die("something went wrong with fund command looking for .* files to exclude");
+	}
+	foreach ($exclude_raw as $name) {
+		$exclude[] = basename($name);
+	}
+	$exclude = array_unique($exclude);
+	if ($vars['verbose'] || $vars['debug']) {
+		echo "excluding patterns:\n";
+		print_r($exclude);
+	}
+
 	//build tarball
 	foreach ($exclude as $ex) {
 		$x .= ' --exclude="' . $ex . '"';
