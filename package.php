@@ -18,13 +18,23 @@
 
 //get cli opts
 $longopts = array(
-	"modules:",
-	"debug::",
-	"checkphp::",
+	'bump::',
+	'checkphp::',
+	'debug::',
+	'help::',
+	'log::',
+	'modules:',
+	'msg::',
+	're::',
 	'verbose::'
 );
-$vars = getopt('m:d::L::v::');
+$vars = getopt('m:d::L::v::', $longopts);
 
+
+if (isset($vars['d']) || isset($vars['L'])) {
+	echo package_show_help(true);
+	sleep(3);
+}
 
 //set up some other settings
 $vars['rver'] 		= '2.10';
@@ -37,41 +47,116 @@ $vars['svn_path']	= 'http://svn.freepbx.org';
 $vars['rm_files']	= array(); //files that will be deleted after the script completes
 $vars['php_-l']		= 'php -l';
 $vars['php_extens']	= array('php', 'agi'); //extens to be considered as php for syntax checking
+$final_status		= array();//status message to be printed after script is run
 
 //move cli args to longopts for clarity throught the script
 //note: once we depend on 5.3, we can refactor this so that either short
 //or long work. For now, short will overwrite the long
 if (isset($vars['m'])) {
 	$vars['modules'] = (array) $vars['m'];
+	sort($vars['modules']);
 	unset($vars['m']);
+} elseif(isset($vars['modules'])) {
+	$vars['modules'] = (array) $vars['modules'];
+	sort($vars['modules']);
 } else {
 	$vars['modules'] = false;
+}
+//set all modules if --modules was set to *
+if (isset($vars['modules']) && is_array($vars['modules']) && in_array('*', $vars['modules'])) {
+	$vars['modules'] = array();
+	$ls = scandir(dirname(__FILE__));
+	foreach($ls as $item) {
+		if (strpos($item, '.') !== 0 && is_dir($item)) {
+			$vars['modules'][] = $item;
+		}
+	}
+	sort($vars['modules']);
+}
+
+if (isset($vars['bump']) && $vars['debug'] != 'false') {
+	$vars['bump'] = ctype_digit($vars['bump']) ? $vars['bump'] : true;
+} else {
+	$vars['bump'] = false;
 }
 
 if (isset($vars['d'])) {
 	$vars['debug'] = true;
 	unset($vars['d']);
+} elseif (isset($vars['debug']) && $vars['debug'] != 'false') {
+	$vars['debug'] = true;
 } else {
 	$vars['debug'] = false;
+}
+
+if (isset($vars['help']) && $vars['help'] != 'help') {
+	$vars['help'] = true;
+} else {
+	$vars['help'] = false;
 }
 
 if (isset($vars['L'])) {
 	$vars['checkphp'] = false;
 	unset($vars['L']);
-} else {
+} elseif (isset($vars['checkphp']) && $vars['checkphp'] != 'false') {
 	$vars['checkphp'] = true;
 }
 
+if (isset($vars['log']) && $vars['log'] != 'log') {
+	$vars['log'] = true;
+} else {
+	$vars['log'] = false;
+}
+
 if (isset($vars['v'])) {
-	$vars['verbose'] =  true;
+	$vars['verbose'] = true;
 	unset($vars['L']);
+} elseif (isset($vars['verbose']) && $vars['verbose'] != 'false') {
+	$vars['verbose'] = true;
 } else {
 	$vars['verbose'] = false;
 }
 
+//set re
+//move re to an array if there are commas as part of the value
+/*if (isset($vars['re']) && strpos($vars['re'], ',') !== false) {
+	$vars['re'] = explode(',', $vars['re']);
+}*///while a nice idea, this is inconsistant with the rest of the script. use multiple --re options insread
+if (isset($vars['re'])) {
+	switch (true) {
+		case is_array($vars['re']):
+			foreach ($vars['re'] as $k => $v) {
+				if ($v) {
+					$vars['re'][$k] = '#' . preg_replace("/[^0-9]/", '', $v);
+				} else {
+					unset($vars['re'][$k]);
+				}
+			}
+			$vars['re'] = 're ' . implode(', ' . $vars['re']) . ' ';
+			break;
+		case is_string($vars['re']):
+			$vars['re'] = 're #' . preg_replace("/[^0-9]/", '', $vars['re']) . ' ';
+			break;
+		default:
+			break;
+	}
+} else {
+	$vars['re'] = '';
+}
+
+$vars['msg'] = isset($vars['msg']) ? trim($vars['msg']) . ' ' : '';
+$vars['msg'] = $vars['re'] ? $vars['re'] . '- ' . $vars['msg'] : '';
+
+//if help was requested, show help and exit
+if ($vars['help']) {
+	echo package_show_help();
+	exit();
+}
 //ensure we have modules to package
 if (!$vars['modules']) {
-	die("No modules specified. Please specify them one with the -m option (use multiple switches for more than one module)\n");
+	die("No modules specified. Please specify at least one module" . PHP_EOL);
+	echo package_show_help();
+	exit();
 }
 
 //print_r($vars);
@@ -99,6 +184,7 @@ foreach ($vars['modules'] as $mod) {
 	$x			= '';
 	$file_scan_exclude_list = array();
 	
+	
 	echo 'Packaging ' . $mod . '...' . PHP_EOL;
 	if (!file_exists($mod_dir . '/module.xml')) {
 		echo $mod_dir . '/module.xml dose not exists, ' . $mod . ' will not be built!' . PHP_EOL;
@@ -121,15 +207,30 @@ foreach ($vars['modules'] as $mod) {
 	$parser = new xml2ModuleArray($xml);
 	$xmlarray = $parser->parseAdvanced($xml);
 	
+	//bump version if requested, and reset $ver
+	if ($vars['bump']) {
+		package_bump_version($mod, $vars['bump']);
+		//test xml file and get some of its values
+		list($rawname, $ver) = check_xml($mod, $xml);
+		$vars['log'] = true;
+	}
+	
+	//add changelog if requested
+	if ($vars['log']) {
+		$msg = $vars['msg'] ? $vars['msg'] : 'Packaging of ver ' . $ver;
+		package_update_changelog($mod, $msg);
+	}
+	
 	//include module specifc hook, if present
 	if (file_exists($mod_dir . '/' . 'package_hook.php')) {
 		echo 'Running ' . $mod_dir . '/' . 'package_hook.php...' . PHP_EOL;
 		
 		//test include so that includes can return false and prevent further execution if it fail
 		if (!include($mod_dir . '/' . 'package_hook.php')) {
-			echo '[FATAL] retrurned from ' . $mod_dir . '/' . 'package_hook.php with an error, ' 
+			$final_status[$mod] = '[FATAL] retrurned from ' . $mod_dir . '/' . 'package_hook.php with an error, ' 
 				. $mod . ' wont be built' . PHP_EOL;
-				continue;
+			echo $final_status[$mod];
+			continue;
 		}
 	}
 	
@@ -139,9 +240,10 @@ foreach ($vars['modules'] as $mod) {
 		
 		//test include so that includes can return false and prevent further execution if it fail
 		if (!include('package_hook.php')) {
-			echo '[FATAL] retrurned from  package_hook.php with an error, ' 
+			$final_status[$mod] = '[FATAL] retrurned from  package_hook.php with an error, ' 
 				. $mod . ' wont be built' . PHP_EOL;
-				continue;
+			 echo $final_status[$mod];
+			continue;
 		}
 	}
 	
@@ -180,7 +282,7 @@ foreach ($vars['modules'] as $mod) {
 	//check in any out standing files
 	run_cmd('svn st ' . $mod_dir . '|wc -l', $lines);
 	if ( $lines > 0) {
-		run_cmd('svn ci -m "Auto Check-in of any outstanding changes in ' . $mod . '" ' . $mod_dir);
+		run_cmd('svn ci -m "[Auto Check-in of any outstanding changes in ' . $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
 	}
 	
 	//set tarball name var
@@ -199,7 +301,7 @@ foreach ($vars['modules'] as $mod) {
 	$exclude = array_unique($exclude);
 	if ($vars['verbose'] || $vars['debug']) {
 		echo "excluding patterns:\n";
-		print_r($exclude);
+		//print_r($exclude);
 	}
 
 	//build tarball
@@ -251,16 +353,25 @@ foreach ($vars['modules'] as $mod) {
 
 	//check in new tarball and module.xml
 	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir 
-					. ' -m"Module package script: ' . $rawname . ' ' . $ver . '"');
+					. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' . $vars['msg'] . '"');
 					
 	//cleanup any remaining files
 	foreach($vars['rm_files'] as $f) {
 		if (file_exists($f)) {
-			//run_cmd('rm -rf ' . $f);
+			run_cmd('rm -rf ' . $f);
 		}
 	}
-	echo $mod . ' version ' . $ver . ' has been sucsessfuly packaged!' . PHP_EOL;
+	$final_status[$mod] = $mod . ' version ' . $ver . ' has been sucsessfuly packaged!' . PHP_EOL;
+	echo $final_status[$mod];
 	
+}
+
+//print report
+echo PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL;
+echo 'Package Script Report:' . PHP_EOL;
+echo '---------------------' . PHP_EOL;
+foreach ($final_status as $mod => $status) {
+	echo $status;
 }
 
 /**
@@ -315,6 +426,78 @@ function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 	return $list;
 }
 
+//auto-bump module version, bumps last part by defualt
+function package_bump_version($mod, $pos = '') {
+	global $mod_dir, $vars;
+	$xml = simplexml_load_file($mod_dir . '/module.xml');
+	$ver = explode('.', (string) $xml->version);
+	
+	//if $pos === true, reset it
+	if ($pos === true) {
+		$pos = '';
+	}
+	//pick last part if requested part isn't found
+	if (!isset($ver[$pos - 1])) {
+		$pos = count($ver);	
+	}
+	$pos = $pos - 1; //array start at 0, but people will count from 1.
+
+	//if we have only digits in this part, add 1
+	if (ctype_digit($ver[$pos])) {
+		$ver[$pos] = $ver[$pos] + 1;
+	} else {//find last groupe of digits and +1 them
+		$num = preg_split('/[0-9]+$/', $ver[$pos], 1);
+		$replace = strrpos($ver[$pos], $num);
+		$num = $num[0] + 1;
+		$ver[$pos] = substr($ver[$pos], 0, $replace -1) . $num;
+	}
+	
+	echo 'Bumping ' . $mod . '\s verison to ' . (string) $xml->version . PHP_EOL;
+	
+	$xml->version = implode('.', $ver);
+	
+	if ($vars['debug'] || $vars['verbose']) {
+		echo 'Writing to ' . $mod_dir . '/module.xml :' . PHP_EOL;
+		echo $xml->asXML();
+	}
+	if (!$vars['debug']) {
+		file_put_contents($mod_dir . '/module.xml', $xml->asXML());
+	}
+
+	return true;
+}
+
+//update module's changelog
+function package_update_changelog($mod, $msg) {
+	global $mod_dir, $vars, $ver;
+	$xml = simplexml_load_file($mod_dir . '/module.xml');
+	$log = explode("\n", (string) $xml->changelog);
+	
+	//firt element is ususally blank, remove it
+	array_shift($log);
+	
+	//prune to last 5 entreis
+	$log = array_slice($log, 0, 4);
+	array_unshift($log, $ver . ' ' . $msg);
+	
+	echo 'Adding to ' . $mod . '\s changelog: ' . $ver . ' ' . $msg;
+	
+	$xml->changelog = "\n\t\t" . trim(implode("\n", $log)) . "\n\t";
+	
+	if ($vars['verbose']) {
+		echo 'Writing to ' . $mod_dir . '/module.xml :' . PHP_EOL;
+	}
+	if ($vars['debug']) {
+		echo 'Writing to ' . $mod_dir . '/module.xml :' . PHP_EOL;
+		echo $xml->asXML();
+	}
+	if (!$vars['debug']) {
+		file_put_contents($mod_dir . '/module.xml', $xml->asXML());
+	}
+
+	return true;
+}
+
 // if $duplex set to true and in debug mode, it will echo the command AND run it
 function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
 	global $vars;
@@ -367,4 +550,62 @@ function check_xml($mod, $xml) {
 	return array($rawname, $ver);
 }
 
+//show help menu
+function package_show_help($short = false) {
+	$final = '';
+	$ret[] = 'Package.php';
+	$ret[] = '-----------';
+	$ret[] = '';
+	if ($short) {
+		$ret[] = 'SHORT OPS HAVE BEEN DEPRICATED - PLEASE USE ONLY LONG OPTS!';
+	}
+	$ret[] = 'Short options MUST come after all the long options, or the long options will be ignored';
+	$ret[] = '';
+	
+	//args
+	$ret[] = array('--bump', 'Bump a modules version. You can specify the "octet" by adding a position '
+				. 'I.e. --bump=2 will turn 3.4.5.6 in to 3.5.5.6. Leaving the position blank will bump the last "octet"');
+	$ret[] = array('--debug = false', 'Debug only - just run through the command but don\'t make any changes');
+	$ret[] = array('--checkphp = true', 'Run PHP syntaxt check on php files (php -l <file name>)');
+	$ret[] = array('--help', 'Show this menu and exit');
+	$ret[] = array('--log', 'Update module.xml\'s changelog.');
+	$ret[] = array('-m, --modules', 'Modules to be packaged. One module per --module argument, or * for all');
+	$ret[] = array('--msg', 'Optional commit message.');
+	$ret[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
+	$ret[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
+	
+	$ret[] = '';
+	
+	//generate formated help message
+	foreach ($ret as $r) {
+		if (is_array($r)) {
+			//pad the option
+			$option = '  ' . str_pad($r[0], 20);
+			
+			//explode the definition to manageable chunks
+			$def = explode('§', wordwrap($r[1], 55, "§", true));
+			
+			//split definition in to chucks 
+			//and pad the with whitespace 20 chars to the left stating from the second line
+			if (count($def) > 1) {
+				$first = array_shift($def);
+				foreach ($def as $my => $item) {
+					$def[$my] = str_pad('', 22) . $item . PHP_EOL;
+				}
+			} elseif (count($def) == 1) {
+				$first = implode($def);
+				$def = array();
+			} else {
+				$first = '';
+				$def = array();
+			}
+			
+			$definition = $first . PHP_EOL . implode($def);
+			$final .= $option . $definition;
+		} else {
+			$final .=  $r . PHP_EOL;
+		}
+	}
+	return $final;
+}
 ?>
