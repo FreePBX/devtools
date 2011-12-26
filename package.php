@@ -154,22 +154,28 @@ foreach ($vars['modules'] as $mod) {
 		continue;
 	}
 	
-	//check php files for syntax errors
-	$bail = false;
-	$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
-	foreach ($files as $f) {
-		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
-			if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, false, true)) {
-				echo('syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL);
-				$bail=true; // finish scanning all files before bailing
+	//check php files for syntax errors if requested
+	if ($vars['checkphp']) {
+		
+		//get list of files
+		$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
+		foreach ($files as $f) {
+			if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
+				if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, false, true)) {
+					//add errors to array
+					$syntaxt_errors[] = 'syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL;
+				}
 			}
 		}
+		unset($files, $list);
+		
+		if (isset($syntaxt_errors)) {
+			$final_status[$mod] = implode(PHP_EOL, $syntaxt_errors);
+			echo $final_status[$mod];
+			continue;
+		}
 	}
-	unset($files, $list);
-	if ($bail && $vars['checkphp']) {
-		echo('syntax error detecteded in ' .  $mod . ' skipping packaging going to next' . PHP_EOL);
-		continue;
-	}
+
 	
 	//check in any out standing files
 	run_cmd('svn st ' . $mod_dir . '|wc -l', $lines);
@@ -240,7 +246,8 @@ foreach ($vars['modules'] as $mod) {
 	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod_dir);
 	
 	// appears we need to do an svn up here or it fails, maybe because of the propset above?
-	run_cmd('svn up ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir);
+	//Lets reaserch this more, SHMZ hasn't found this nesesary -MB
+	//run_cmd('svn up ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir);
 
 	//check in new tarball and module.xml
 	run_cmd('svn ci ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir 
