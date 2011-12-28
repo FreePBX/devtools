@@ -42,7 +42,6 @@ $vars['fwbranch'] 	= 'branches/2.10';
 $vars['fw']			= 'framework';
 $vars['fw_ari']		= 'fw_ari';
 $vars['fw_lang']	= 'fw_langpacks';
-$vars['reldir']		= 'reldir';
 $vars['svn_path']	= 'http://svn.freepbx.org';
 $vars['rm_files']	= array(); //files that will be deleted after the script completes
 $vars['php_-l']		= 'php -l';
@@ -123,7 +122,7 @@ if (isset($vars['v'])) {
 //move re to an array if there are commas as part of the value
 /*if (isset($vars['re']) && strpos($vars['re'], ',') !== false) {
 	$vars['re'] = explode(',', $vars['re']);
-}*///while a nice idea, this is inconsistant with the rest of the script. use multiple --re options insread
+}*///while a nice idea, this is inconsistant with the rest of the script. use multiple --re options instead
 if (isset($vars['re'])) {
 	switch (true) {
 		case is_array($vars['re']):
@@ -160,10 +159,36 @@ if (!$vars['module']) {
 	exit();
 }
 
-//print_r($vars);
+/*
+ * FreePBX supports devlopment with a file structure basically as followes:
+ * framework/
+ *			...
+ *			admin/
+ *				modules/ <--- svn switch'ed to the modules directory
+ *
+ * modules/
+ *		branches/
+ *			...
+ *
+ * While we can checkin and package a module from either directory, we can only
+ * check in tarballs to modules/release/...
+ * Here we attempt to auto-detect the release/ directory, and fail if we can't find it
+ * NOTE: you still need to have the entire freepbx shebang in place to check in modules!
+ */
+if (is_dir('../../release/')) {//modules directory
+	$vars['reldir'] = '../../release/' . $vars['rver'];
+} elseif(is_dir('../../../../../../modules/release/')) {//trunk
+		$vars['reldir'] = '../../../../../../modules/release/' . $vars['rver'];
+} elseif(is_dir('../../../../../../../modules/release/')) {//framewokr branches
+	$vars['reldir'] = '../../../../../../../modules/release/' . $vars['rver'];
+} else {
+	echo 'FATAL: release directory not found!' . PHP_EOL;
+	exit();
+}
+//print_r($vars);exit();
 
 //ensure the module and release directorys are up to date
-run_cmd('svn up ../../release/' . $vars['rver'] . ' . ');
+run_cmd('svn up ' . $vars['reldir'] . ' . ');
 
 foreach ($vars['module'] as $mod) {
 	$mod 		= trim($mod, '/');
@@ -332,13 +357,13 @@ foreach ($vars['module'] as $mod) {
 
 	
 	//move tarbal to relase dir
-	run_cmd('mv ' . $filename . ' ../../release/' . $vars['rver'] . '/');
+	run_cmd('mv ' . $filename . ' ' . $vars['reldir'] . '/');
 	
 	//add tarball to release repository
-	run_cmd('svn add ../../release/' . $vars['rver'] . '/' . $filename);
+	run_cmd('svn add ' . $vars['reldir'] . '/' . $filename);
 	
 	//set mimetype of tarball
-	run_cmd('svn ps svn:mime-type application/tgz ../../release/' . $vars['rver'] . '/' . $filename);
+	run_cmd('svn ps svn:mime-type application/tgz ' . $vars['reldir'] . '/' . $filename);
 	
 	//set latpublished property
 	run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'', $lastpub, false, true);
@@ -347,10 +372,10 @@ foreach ($vars['module'] as $mod) {
 	// appears we need to do an svn up here or it fails, maybe because of the propset above?
 	//Lets reaserch this more, SHMZ hasn't found this nesesary -MB
 	//+1 although I dont (either) get why -MB
-	run_cmd('svn up ../../release/' . $vars['rver'] . '/' . $filename . ' ' . $mod_dir);
+	run_cmd('svn up ' . $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
 
 	//check in new tarball and module.xml
-	run_cmd('svn ci ' . $mod_dir . ' ../../release/' . $vars['rver'] . '/' . $filename 
+	run_cmd('svn ci ' . $mod_dir . ' ' . $vars['reldir'] . '/' . $filename 
 					. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' . $vars['msg'] . '"');
 					
 	//cleanup any remaining files
