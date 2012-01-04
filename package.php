@@ -99,7 +99,7 @@ if (isset($vars['help']) && $vars['help'] != 'help') {
 if (isset($vars['L'])) {
 	$vars['checkphp'] = false;
 	unset($vars['L']);
-} elseif (isset($vars['checkphp']) && $vars['checkphp'] != 'false') {
+} elseif (!isset($vars['checkphp']) || isset($vars['checkphp']) && $vars['checkphp'] != 'false') {
 	$vars['checkphp'] = true;
 }
 
@@ -118,6 +118,7 @@ if (isset($vars['v'])) {
 	$vars['verbose'] = false;
 }
 
+$vars['svn_q'] = $vars['debug'] || $vars['verbose'] ? '' : ' --quiet ';
 //set re
 //move re to an array if there are commas as part of the value
 /*if (isset($vars['re']) && strpos($vars['re'], ',') !== false) {
@@ -188,7 +189,7 @@ if (is_dir('../../release/')) {//modules directory
 //print_r($vars);exit();
 
 //ensure the module and release directorys are up to date
-run_cmd('svn up ' . $vars['reldir'] . ' . ');
+run_cmd('svn up ' . $vars['svn_q'] . $vars['reldir'] . ' . ');
 
 foreach ($vars['module'] as $mod) {
 	$mod 		= trim($mod, '/');
@@ -304,7 +305,7 @@ foreach ($vars['module'] as $mod) {
 	//check in any out standing files
 	run_cmd('svn st ' . $mod_dir . '|wc -l', $lines);
 	if ( $lines > 0) {
-		run_cmd('svn ci -m "[Auto Check-in of any outstanding changes in ' . $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
+		run_cmd('svn ci ' . $vars['svn_q'] . '-m "[Auto Check-in of any outstanding changes in ' . $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
 	}
 	
 	//set tarball name var
@@ -360,22 +361,22 @@ foreach ($vars['module'] as $mod) {
 	run_cmd('mv ' . $filename . ' ' . $vars['reldir'] . '/');
 	
 	//add tarball to release repository
-	run_cmd('svn add ' . $vars['reldir'] . '/' . $filename);
+	run_cmd('svn add ' . $vars['reldir'] . '/' . $filename . ' ' . $vars['svn_q']);
 	
 	//set mimetype of tarball
-	run_cmd('svn ps svn:mime-type application/tgz ' . $vars['reldir'] . '/' . $filename);
+	run_cmd('svn ps svn:mime-type application/tgz ' . $vars['reldir'] . '/' . $filename . ' ' . $vars['svn_q']);
 	
 	//set latpublished property
 	run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'', $lastpub, false, true);
-	run_cmd('svn ps lastpublish ' . $lastpub . ' ' . $mod_dir);
+	run_cmd('svn ps lastpublish ' . $vars['svn_q'] . $lastpub . ' ' . $mod_dir);
 	
 	// appears we need to do an svn up here or it fails, maybe because of the propset above?
 	//Lets reaserch this more, SHMZ hasn't found this nesesary -MB
 	//+1 although I dont (either) get why -MB
-	run_cmd('svn up ' . $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
+	run_cmd('svn up ' . $vars['svn_q'] . $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
 
 	//check in new tarball and module.xml
-	run_cmd('svn ci ' . $mod_dir . ' ' . $vars['reldir'] . '/' . $filename 
+	run_cmd('svn ci ' . $vars['svn_q'] . $mod_dir . ' ' . $vars['reldir'] . '/' . $filename 
 					. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' . $vars['msg'] . '"');
 					
 	//cleanup any remaining files
@@ -390,7 +391,7 @@ foreach ($vars['module'] as $mod) {
 }
 
 //print report
-echo PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL;
+echo PHP_EOL . PHP_EOL . PHP_EOL;
 echo 'Package Script Report:' . PHP_EOL;
 echo '---------------------' . PHP_EOL;
 foreach ($final_status as $mod => $status) {
