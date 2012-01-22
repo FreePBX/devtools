@@ -246,7 +246,9 @@ foreach ($vars['module'] as $mod) {
 	
 	//include module specifc hook, if present
 	if (file_exists($mod_dir . '/' . 'package_hook.php')) {
-		echo 'Running ' . $mod_dir . '/' . 'package_hook.php...' . PHP_EOL;
+		if ($vars['debug'] || $vars['verbose']) {
+			echo 'Running ' . $mod_dir . '/' . 'package_hook.php...' . PHP_EOL;
+		}
 		
 		//test include so that includes can return false and prevent further execution if it fail
 		if (!include($mod_dir . '/' . 'package_hook.php')) {
@@ -259,7 +261,9 @@ foreach ($vars['module'] as $mod) {
 	
 	//include any global hooks, if present
 	if (file_exists('package_hook.php')) {
-		echo 'Running ' . 'package_hook.php...' . PHP_EOL;
+		if ($vars['debug'] || $vars['verbose']) {
+			echo 'Running ' . 'package_hook.php...' . PHP_EOL;
+		}
 		
 		//test include so that includes can return false and prevent further execution if it fail
 		if (!include('package_hook.php')) {
@@ -280,13 +284,12 @@ foreach ($vars['module'] as $mod) {
 	}
 	
 	//check php files for syntax errors if requested
-	if ($vars['checkphp']) {
-		
+	if ($vars['checkphp']) {	
 		//get list of files
 		$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
 		foreach ($files as $f) {
 			if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
-				if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, false, true)) {
+				if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, (!$vars['debug'] && !$vars['verbose']), true)) {
 					//add errors to array
 					$syntaxt_errors[] = 'syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL;
 				}
@@ -303,10 +306,9 @@ foreach ($vars['module'] as $mod) {
 
 	
 	//check in any out standing files
-	run_cmd('svn st ' . $mod_dir . '|wc -l', $lines);
-	if ( $lines > 0) {
-		run_cmd('svn ci ' . $vars['svn_q'] . '-m "[Auto Check-in of any outstanding changes in ' . $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
-	}
+	run_cmd('svn ci ' . $vars['svn_q'] . '-m "[Auto Checking in outstanding changes in ' 
+			. $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
+
 	
 	//set tarball name var
 	$filename = $rawname . '-' . $ver . '.tgz';
@@ -367,8 +369,9 @@ foreach ($vars['module'] as $mod) {
 	run_cmd('svn ps svn:mime-type application/tgz ' . $vars['reldir'] . '/' . $filename . ' ' . $vars['svn_q']);
 	
 	//set latpublished property
-	run_cmd('svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'', $lastpub, false, true);
-	run_cmd('svn ps lastpublish ' . $vars['svn_q'] . $lastpub . ' ' . $mod_dir);
+	run_cmd('svn ps lastpublish ' . $vars['svn_q'] 
+			. '`svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'`' 
+			. ' ' . $mod_dir);
 	
 	// appears we need to do an svn up here or it fails, maybe because of the propset above?
 	//Lets reaserch this more, SHMZ hasn't found this nesesary -MB
@@ -476,7 +479,9 @@ function package_bump_version($mod, $pos = '') {
 		$ver[$pos] = substr($ver[$pos], 0, $replace -1) . $num;
 	}
 	
-	echo 'Bumping ' . $mod . '\s verison to ' . implode('.', $ver) . PHP_EOL;
+	if ($vars['verbose']) {
+		echo 'Bumping ' . $mod . 's verison to ' . implode('.', $ver) . PHP_EOL;
+	}
 	
 	$xml->version = implode('.', $ver);
 	
@@ -505,10 +510,23 @@ function package_update_changelog($mod, $msg) {
 	
 	//prune to last 5 entreis
 	$log = array_slice($log, 0, 4);
+	
+	//if the current message is already the last, dont duplicate it
+	if ($log[0] == $ver . ' ' . $msg) {
+		if ($vars['verbose'] || $vars['debug']) {
+			echo 'No need to update changelag - last entry matches proposed entry';
+			return true;
+		}
+	}
+	
+	//add new mesage
 	array_unshift($log, $ver . ' ' . $msg);
 	
-	echo 'Adding to ' . $mod . '\s changelog: ' . $ver . ' ' . $msg;
+	if ($vars['verbose']) {
+		echo 'Adding to ' . $mod . 's changelog: ' . $ver . ' ' . $msg;
+	}
 	
+	//fold changelog array back in to xml
 	$xml->changelog = "\n\t\t" . trim(implode("\n", $log)) . "\n\t";
 	
 	if ($vars['verbose']) {
@@ -522,6 +540,7 @@ function package_update_changelog($mod, $msg) {
 		echo 'Writing to ' . $mod_dir . '/module.xml :' . PHP_EOL;
 		echo $xml;
 	}
+	
 	if (!$vars['debug']) {
 		file_put_contents($mod_dir . '/module.xml', $xml);
 	}
