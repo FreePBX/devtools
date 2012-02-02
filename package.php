@@ -1,10 +1,7 @@
 #!/usr/bin/php -q
 <?php
-/*
- * Copyright 2011-2012 by Schmooze Com., Inc.
- *
- * @author mbrevda@schmoozecom.com
- *
+/**
+ * Copyright 2011 by Schmooze Com., Inc.
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -15,13 +12,10 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
- */
-
-/*
+ * @author mbrevda => gmail ! com
+ *
  * options:
- *		-m module name to be packaged. You can pass more than one name
- *		-d debug mode - will echo the commands and not run them
- *		-v verbosity - will echo out the commands AND run them
+ *	run with --help for options
  *
  */
 
@@ -37,7 +31,7 @@ $longopts = array(
 	're::',
 	'verbose::'
 );
-$vars = getopt('m:d::L::v::', $longopts);
+$vars = getopt('m:d::L::v::c::', $longopts);
 
 
 if (isset($vars['d']) || isset($vars['L'])) {
@@ -130,9 +124,6 @@ if (isset($vars['v'])) {
 $vars['svn_q'] = $vars['debug'] || $vars['verbose'] ? '' : ' --quiet ';
 //set re
 //move re to an array if there are commas as part of the value
-/*if (isset($vars['re']) && strpos($vars['re'], ',') !== false) {
-	$vars['re'] = explode(',', $vars['re']);
-}*///while a nice idea, this is inconsistant with the rest of the script. use multiple --re options instead
 if (isset($vars['re'])) {
 	switch (true) {
 		case is_array($vars['re']):
@@ -156,6 +147,28 @@ if (isset($vars['re'])) {
 
 $vars['msg'] = isset($vars['msg']) ? trim($vars['msg']) . ' ' : '';
 $vars['msg'] = $vars['re'] ? $vars['re'] . '- ' . $vars['msg'] : $vars['msg'];
+
+if (isset($vars['c'])) {
+	echo 'Username: ';
+	$vars['username'] = trim(shell_exec('read -afoo; echo $foo'));
+	if (!$vars['username']) {
+		echo 'invalid username';
+		exit(1);
+	}
+	
+	echo 'Password: ';
+	$vars['password'] = trim(shell_exec('read -s -afoo; echo $foo'));
+	if (!$vars['password']) {
+		echo 'invalid password';
+		exit(1);
+	}
+	
+	//c = credentials
+	$vars['svn_c'] = ' --username ' . $vars['username'] 
+					. ' --password ' . $vars['password'] . ' '; 
+} else {
+	$vars['svn_c'] = '';
+}
 
 //if help was requested, show help and exit
 if ($vars['help']) {
@@ -198,7 +211,8 @@ if (is_dir('../../release/')) {//modules directory
 //print_r($vars);exit();
 
 //ensure the module and release directorys are up to date
-run_cmd('svn up ' . $vars['svn_q'] . $vars['reldir'] . ' . ');
+echo 'Updating svn...' . PHP_EOL;
+run_cmd('svn up ' . $vars['svn_c'] . $vars['svn_q'] . $vars['reldir'] . ' . ');
 
 foreach ($vars['module'] as $mod) {
 	$mod 		= trim($mod, '/');
@@ -315,7 +329,10 @@ foreach ($vars['module'] as $mod) {
 
 	
 	//check in any out standing files
-	run_cmd('svn ci ' . $vars['svn_q'] . '-m "[Auto Checking in outstanding changes in ' 
+	run_cmd('svn ci ' 
+			. $vars['svn_c'] 
+			. $vars['svn_q'] 
+			. '-m "[Auto Checking in outstanding changes in ' 
 			. $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
 
 	
@@ -375,26 +392,44 @@ foreach ($vars['module'] as $mod) {
 	run_cmd('svn add ' . $vars['reldir'] . '/' . $filename . ' ' . $vars['svn_q']);
 	
 	//set mimetype of tarball
-	run_cmd('svn ps svn:mime-type application/tgz ' . $vars['reldir'] . '/' . $filename . ' ' . $vars['svn_q']);
+	run_cmd('svn ps svn:mime-type application/tgz ' 
+			. $vars['reldir'] . '/' . $filename 
+			. ' ' . $vars['svn_q'] . $vars['svn_c']);
 	
-	//lastpublished seems to be off, let's make sure we svn up before extracting the revision just in case something above
-	//has pushed it out
-	run_cmd('svn up ' . $vars['svn_q'] . $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
-
+	//lastpublished seems to be off, let's make sure we svn up before extracting the 
+	//revision just in case something above has pushed it out
+	run_cmd('svn up ' . $vars['svn_q'] . $vars['svn_c'] 
+			. $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
+	
+	
 	//set latpublished property
-	run_cmd('svn ps lastpublish ' . $vars['svn_q'] 
-			. '`svn info ' . $mod_dir . ' | grep Revision: | awk \'{print $2}\'`' 
+	run_cmd('svn ps lastpublish ' . $vars['svn_q'] . $vars['svn_c']
+			. '`svn info ' 
+				. $vars['svn_c'] . $mod_dir 
+				. ' | grep Revision: | awk \'{print $2}\'`' 
 			. ' ' . $mod_dir);
 	
 	// appears we need to do an svn up here or it fails, maybe because of the propset above?
-	//Lets reaserch this more, SHMZ hasn't found this nesesary -MB
-	//+1 although I dont (either) get why -MB
-	//? does the svn up just prior to the ps help this?
-	run_cmd('svn up ' . $vars['svn_q'] . $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
+	//TODO: see if this can be avoided
+	run_cmd('svn up ' 
+			. $vars['svn_c'] 
+			. $vars['svn_q'] 
+			. $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
 
-	//check in new tarball and module.xml, should also get prop checked in
-	run_cmd('svn ci ' . $vars['svn_q'] . $mod_dir . ' ' . $vars['reldir'] . '/' . $filename 
-					. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' . $vars['msg'] . '"');
+	//check in new module.xml
+	run_cmd('svn ci ' 
+			. $vars['svn_c']
+			. $vars['svn_q'] . $mod_dir 
+			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
+			. $vars['msg'] . '"');
+	
+	//check in tarball
+	run_cmd('svn ci ' 
+			. $vars['svn_c']
+			. $vars['svn_q'] 
+			. $vars['reldir'] . '/' . $filename 
+			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
+			. $vars['msg'] . '"');
 					
 	//cleanup any remaining files
 	foreach($vars['rm_files'] as $f) {
@@ -402,7 +437,8 @@ foreach ($vars['module'] as $mod) {
 			run_cmd('rm -rf ' . $f);
 		}
 	}
-	$final_status[$mod] = $mod . ' version ' . $ver . ' has been sucsessfuly packaged!' . PHP_EOL;
+	$final_status[$mod] = $mod . ' version ' . $ver 
+						. ' has been sucsessfuly packaged!' . PHP_EOL;
 	echo $final_status[$mod];
 	
 }
@@ -523,10 +559,7 @@ function package_update_changelog($mod, $msg) {
 	array_shift($log);
 	
 	//prune to last 5 entreis
-	//TODO: if we are to do this make it configurable
-	/*
 	$log = array_slice($log, 0, 4);
-	 */
 	
 	//if the current message is already the last, dont duplicate it
 	if ($log[0] == $ver . ' ' . $msg) {
@@ -537,7 +570,7 @@ function package_update_changelog($mod, $msg) {
 	}
 	
 	//add new mesage
-	array_unshift($log, '*' . $ver . '*' . ' ' . $msg);
+	array_unshift($log, $ver . ' ' . $msg);
 	
 	if ($vars['verbose']) {
 		echo 'Adding to ' . $mod . 's changelog: ' . $ver . ' ' . $msg;
@@ -629,8 +662,9 @@ function package_show_help($short = false) {
 	//args
 	$ret[] = array('--bump', 'Bump a modules version. You can specify the "octet" by adding a position '
 				. 'I.e. --bump=2 will turn 3.4.5.6 in to 3.5.5.6. Leaving the position blank will bump the last "octet"');
-	$ret[] = array('--debug = false', 'Debug only - just run through the command but don\'t make any changes');
-	$ret[] = array('--checkphp = true', 'Run PHP syntaxt check on php files (php -l <file name>)');
+	$ret[] = array('--debug=false', 'Debug only - just run through the command but don\'t make any changes');
+	$ret[] = array('--checkphp=true', 'Run PHP syntaxt check on php files (php -l <file name>)');
+	$ret[] = array('-c', 'Prompt for svn credentials to be used for all svn calls');
 	$ret[] = array('--help', 'Show this menu and exit');
 	$ret[] = array('--log', 'Update module.xml\'s changelog.');
 	$ret[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples), or * for all');
@@ -649,7 +683,7 @@ function package_show_help($short = false) {
 			//explode the definition to manageable chunks
 			$def = explode('§', wordwrap($r[1], 55, "§", true));
 			 
-			//and pad the with whitespace 20 chars to the left stating from the second line
+			//and pad the def with whitespace 20 chars to the left stating from the second line
 			if (count($def) > 1) {
 				$first = array_shift($def);
 				foreach ($def as $my => $item) {
