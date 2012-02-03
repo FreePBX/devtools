@@ -396,6 +396,14 @@ foreach ($vars['module'] as $mod) {
 			. $vars['reldir'] . '/' . $filename 
 			. ' ' . $vars['svn_q'] . $vars['svn_c']);
 	
+	//check in tarball
+	run_cmd('svn ci ' 
+			. $vars['svn_c']
+			. $vars['svn_q'] 
+			. $vars['reldir'] . '/' . $filename 
+			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
+			. $vars['msg'] . '"');
+					
 	//lastpublished seems to be off, let's make sure we svn up before extracting the 
 	//revision just in case something above has pushed it out
 	run_cmd('svn up ' . $vars['svn_q'] . $vars['svn_c'] 
@@ -423,14 +431,6 @@ foreach ($vars['module'] as $mod) {
 			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
 			. $vars['msg'] . '"');
 	
-	//check in tarball
-	run_cmd('svn ci ' 
-			. $vars['svn_c']
-			. $vars['svn_q'] 
-			. $vars['reldir'] . '/' . $filename 
-			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
-			. $vars['msg'] . '"');
-					
 	//cleanup any remaining files
 	foreach($vars['rm_files'] as $f) {
 		if (file_exists($f)) {
