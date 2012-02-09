@@ -559,7 +559,11 @@ function package_update_changelog($mod, $msg) {
 	array_shift($log);
 	
 	//prune to last 5 entreis
+	/* If pruning is to be added it should be configurable, please leave unless making that change
+	 * as Bryan suggested, we may want to have it auto-prune comments from previous versions though
+	 *
 	$log = array_slice($log, 0, 4);
+	 */
 	
 	//if the current message is already the last, dont duplicate it
 	if ($log[0] == $ver . ' ' . $msg) {
@@ -570,7 +574,8 @@ function package_update_changelog($mod, $msg) {
 	}
 	
 	//add new mesage
-	array_unshift($log, $ver . ' ' . $msg);
+	array_unshift($log, '*' . $ver . '*' . ' ' . $msg);
+
 	
 	if ($vars['verbose']) {
 		echo 'Adding to ' . $mod . 's changelog: ' . $ver . ' ' . $msg;
