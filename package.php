@@ -439,7 +439,7 @@ foreach ($vars['module'] as $mod) {
 	}
 	$final_status[$mod] = $mod . ' version ' . $ver 
 						. ' has been sucsessfuly packaged!' . PHP_EOL;
-	echo $final_status[$mod];
+	echo PHP_EOL . $final_status[$mod];
 	
 }
 
