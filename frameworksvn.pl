@@ -4,8 +4,8 @@
 # based on the framework xml version number and then run svn log against all updates since
 # framework was last published.
 #
-$rver = "2.10";
-$fwbranch = "branches/2.10";
+$rver = "2.11";
+$fwbranch = "trunk";
 $framework = "framework";
 
 $moddir = 'framework';

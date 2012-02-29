@@ -4,8 +4,8 @@
 # based on the fw_ari xml version number and then run svn log against all updates since
 # fw_ari was last published.
 #
-$rver = "2.10";
-$fwbranch = "branches/2.10";
+$rver = "2.11";
+$fwbranch = "trunk";
 $fw_ari = "fw_ari";
 
 $moddir = 'fw_ari';

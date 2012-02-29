@@ -40,8 +40,8 @@ if (isset($vars['d']) || isset($vars['L'])) {
 }
 
 //set up some other settings
-$vars['rver'] 		= '2.10';
-$vars['fwbranch'] 	= 'branches/2.10';
+$vars['rver'] 		= '2.11';
+$vars['fwbranch'] 	= 'trunk';
 $vars['fw']			= 'framework';
 $vars['fw_ari']		= 'fw_ari';
 $vars['fw_lang']	= 'fw_langpacks';
