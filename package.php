@@ -166,6 +166,7 @@ if (isset($vars['c'])) {
 	//c = credentials
 	$vars['svn_c'] = ' --username ' . $vars['username'] 
 					. ' --password ' . $vars['password'] . ' '; 
+	echo PHP_EOL;
 } else {
 	$vars['svn_c'] = '';
 }
