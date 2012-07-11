@@ -28,6 +28,7 @@ $longopts = array(
 	'log::',
 	'module:',
 	'msg::',
+	'publish::',
 	're::',
 	'verbose::'
 );
@@ -50,6 +51,7 @@ $vars['rm_files']	= array(); //files that will be deleted after the script compl
 $vars['php_-l']		= 'php -l';
 $vars['php_extens']	= array('php', 'agi'); //extens to be considered as php for syntax checking
 $final_status		= array();//status message to be printed after script is run
+$successful_mods	= array();//only lists successfully packaged modules
 
 //move cli args to longopts for clarity throught the script
 //note: once we depend on 5.3, we can refactor this so that either short
@@ -122,6 +124,21 @@ if (isset($vars['v'])) {
 }
 
 $vars['svn_q'] = $vars['debug'] || $vars['verbose'] ? '' : ' --quiet ';
+
+//check to see if this an interactive session
+exec('test -t 0', $ret, $vars['interactive']);
+$vars['interactive'] = !$vars['interactive'];
+
+//set publish to true if requested, but always false if the file doesnt exists
+if (isset($vars['publish'])) {
+	if (file_exists(dirname(__FILE__) . '/pkg_publish.php')) {
+		$vars['publish'] = true;
+	} else {
+		$vars['publish'] = false;
+	}
+} elseif (!file_exists(dirname(__FILE__) . '/pkg_publish.php')) {
+	$vars['publish'] = false;
+}
 //set re
 //move re to an array if there are commas as part of the value
 if (isset($vars['re'])) {
@@ -148,7 +165,7 @@ if (isset($vars['re'])) {
 $vars['msg'] = isset($vars['msg']) ? trim($vars['msg']) . ' ' : '';
 $vars['msg'] = $vars['re'] ? $vars['re'] . '- ' . $vars['msg'] : $vars['msg'];
 
-if (isset($vars['c'])) {
+if (isset($vars['c']) && $vars['interactive']) {
 	echo 'Username: ';
 	$vars['username'] = trim(shell_exec('read -afoo; echo $foo'));
 	if (!$vars['username']) {
@@ -440,6 +457,7 @@ foreach ($vars['module'] as $mod) {
 	}
 	$final_status[$mod] = $mod . ' version ' . $ver 
 						. ' has been sucsessfuly packaged!' . PHP_EOL;
+	$successful_mods[] = $mod;
 	echo PHP_EOL . $final_status[$mod];
 	
 }
@@ -447,9 +465,31 @@ foreach ($vars['module'] as $mod) {
 //print report
 echo PHP_EOL . PHP_EOL . PHP_EOL;
 echo 'Package Script Report:' . PHP_EOL;
-echo '---------------------' . PHP_EOL;
+echo '----------------------' . PHP_EOL;
 foreach ($final_status as $mod => $status) {
 	echo $status;
+}
+echo '----------------------' . PHP_EOL . PHP_EOL;
+
+
+//publish
+if ($successful_mods && !isset($vars['publish']) && $vars['interactive']) {
+	echo 'Would you like to publish the packaged modules?' . PHP_EOL;
+	$res = trim(shell_exec('read -afoo -n1 -t5 -p"(y/n)"; echo $foo'));
+	switch (strtolower($res)) {
+		case 'y':
+		$vars['publish'] = true;
+			break;
+		case 'n':
+		default:
+			$vars['publish'] = false;
+			break;
+	}
+	echo PHP_EOL;
+}
+
+if (isset($vars['publish']) && $vars['publish']) {
+	include(dirname(__FILE__) . '/pkg_publish.php');
 }
 
 /**
@@ -675,6 +715,7 @@ function package_show_help($short = false) {
 	$ret[] = array('--log', 'Update module.xml\'s changelog.');
 	$ret[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples), or * for all');
 	$ret[] = array('--msg', 'Optional commit message.');
+	$ret[] = array('--publish', 'Run publish scripts when done packaging.');
 	$ret[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
 	$ret[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
 	

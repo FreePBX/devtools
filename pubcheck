@@ -1,0 +1,45 @@
+#!/usr/bin/php
+<?php
+/* pubcheck:
+ * This script checks your current working repository as is against the online
+ * xml manifest to determine any mis-matches in version numbers. This allows
+ * a developer to determine if there are potential unpublished changes. It does
+ * not confirm if a later version has been packaged or not, nor does it do an
+ * svn update to bring the current repository up-to-date. It's simply a helper
+ * utility.
+ */
+
+// Get online XML information and create a has to compare it to the local content.
+//
+$ver = basename(getcwd());
+$orepo = file_get_contents("http://mirror.freepbx.org/modules-$ver.xml");
+$repo_xml = new SimpleXMLElement($orepo);
+$ohash = array();
+foreach ($repo_xml as $m => $c) {
+	$ohash[trim((string) $c->rawname)] = trim((string) $c->version);
+}
+
+// Create a local XML manifest
+//
+$dir = './';
+$dh = opendir($dir);
+$moddata = "<xml>";
+while (false !== ($file = readdir($dh))) {
+	if (file_exists("$dir$file/module.xml")) {
+		$moddata .= file_get_contents("$dir$file/module.xml");
+	}
+}
+$moddata .= "</xml>";
+$mod_xml = new SimpleXMLElement($moddata);
+
+// Compare the two and report on differences
+//
+$format = "%20s %14s %14s\n";
+printf($format, "MODULE", "ONLINE", "LOCAL");
+foreach ($mod_xml as $m => $c) {
+	$cv = trim((string) $c->version);
+	$cr = trim((string) $c->rawname);
+	if ($cv != $ohash[$cr]) {
+		printf($format, $cr, $ohash[$cr],$cv);
+	}
+}
