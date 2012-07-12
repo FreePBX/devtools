@@ -42,7 +42,7 @@ if (isset($vars['d']) || isset($vars['L'])) {
 
 //set up some other settings
 $vars['rver'] 		= '2.11';
-$vars['fwbranch'] 	= 'branches/2.10';
+$vars['fwbranch'] 	= 'branches/2.11';
 $vars['fw']			= 'framework';
 $vars['fw_ari']		= 'fw_ari';
 $vars['fw_lang']	= 'fw_langpacks';
