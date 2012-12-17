@@ -456,7 +456,7 @@ foreach ($vars['module'] as $mod) {
 		}
 	}
 	$final_status[$mod] = $mod . ' version ' . $ver 
-						. ' has been sucsessfuly packaged!' . PHP_EOL;
+						. ' has been successfully packaged!' . PHP_EOL;
 	$successful_mods[] = $mod;
 	echo PHP_EOL . $final_status[$mod];
 	
