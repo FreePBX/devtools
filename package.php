@@ -362,7 +362,7 @@ foreach ($vars['module'] as $mod) {
 	exec('find ' . $mod_dir . ' ' .  $exclude_find_arg , $exclude_raw, $ret);
 
 	if ($ret) {
-		die("something went wrong with fund command looking for .* files to exclude");
+		die("something went wrong with find command looking for .* files to exclude");
 	}
 	foreach ($exclude_raw as $name) {
 		$exclude[] = basename($name);
@@ -384,6 +384,7 @@ foreach ($vars['module'] as $mod) {
 	$tar_dir        = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))? array_pop($tar_dir_path) : $mod_dir;
 	$tar_dir_path   = (is_array($tar_dir_path) && (count($tar_dir_path) > 1)) 
 					? ' -C /' . implode('/', $tar_dir_path) : '';
+	run_cmd('export COPYFILE_DISABLE=true'); //This is to get rid of mac os x extra attributes.
 	run_cmd('tar zcf ' . $filename . ' ' . $x . ' ' . $tar_dir_path . ' ' . $tar_dir);
 	
 	//update md5 sum
