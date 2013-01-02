@@ -384,9 +384,12 @@ foreach ($vars['module'] as $mod) {
 	$tar_dir        = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))? array_pop($tar_dir_path) : $mod_dir;
 	$tar_dir_path   = (is_array($tar_dir_path) && (count($tar_dir_path) > 1)) 
 					? ' -C /' . implode('/', $tar_dir_path) : '';
-	run_cmd('export COPYFILE_DISABLE=true'); //This is to get rid of mac os x extra attributes.
+	$os = php_uname('s');
+	if(preg_match('/Darwin/i',$os)) {
+		echo "Detected MAC OS X Environment, Removing extra attributes" . PHP_EOL;
+		putenv("COPYFILE_DISABLE=true"); //This is to get rid of mac os x extra attributes.
+	}
 	run_cmd('tar zcf ' . $filename . ' ' . $x . ' ' . $tar_dir_path . ' ' . $tar_dir);
-	
 	//update md5 sum
 	$module_xml = file_get_contents($mod_dir . '/' . 'module.xml');
 	if(file_exists($filename)) {
