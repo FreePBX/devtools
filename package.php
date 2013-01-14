@@ -6,7 +6,7 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -149,7 +149,7 @@ if (isset($vars['re'])) {
 					$vars['re'][$k] = '#' . preg_replace("/[^0-9]/", '', $v);
 				}
 			}
-	
+
 			$vars['re'] = 're ' . implode(', ', $vars['re']) . ' ';
 			break;
 		case is_string($vars['re']):
@@ -172,17 +172,17 @@ if (isset($vars['c']) && $vars['interactive']) {
 		echo 'invalid username';
 		exit(1);
 	}
-	
+
 	echo 'Password: ';
 	$vars['password'] = trim(shell_exec('read -s -afoo; echo $foo'));
 	if (!$vars['password']) {
 		echo 'invalid password';
 		exit(1);
 	}
-	
+
 	//c = credentials
-	$vars['svn_c'] = ' --username ' . $vars['username'] 
-					. ' --password ' . $vars['password'] . ' '; 
+	$vars['svn_c'] = ' --username ' . $vars['username']
+					. ' --password ' . $vars['password'] . ' ';
 	echo PHP_EOL;
 } else {
 	$vars['svn_c'] = '';
@@ -245,11 +245,11 @@ foreach ($vars['module'] as $mod) {
 	$md5		=
 	$xml 		=
 	$rawname	=
-	$ver 		= 
+	$ver 		=
 	$x			= '';
 	$file_scan_exclude_list = array();
-	
-	
+
+
 	echo 'Packaging ' . $mod . '...' . PHP_EOL;
 	if (!file_exists($mod_dir . '/module.xml')) {
 		echo $mod_dir . '/module.xml dose not exists, ' . $mod . ' will not be built!' . PHP_EOL;
@@ -258,7 +258,7 @@ foreach ($vars['module'] as $mod) {
 
 	//test xml file and get some of its values
 	list($rawname, $ver) = check_xml($mod);
-	
+
 	//dont conitunue if there is an issue with the xml
 	if ($rawname == false || $ver == false) {
 		continue;
@@ -278,54 +278,54 @@ foreach ($vars['module'] as $mod) {
 		list($rawname, $ver) = check_xml($mod);
 		$vars['log'] = true;
 	}
-	
+
 	//add changelog if requested
 	if ($vars['log']) {
 		$msg = $vars['msg'] ? $vars['msg'] : 'Packaging of ver ' . $ver;
 		package_update_changelog($mod, $msg);
 	}
-	
+
 	//include module specifc hook, if present
 	if (file_exists($mod_dir . '/' . 'package_hook.php')) {
 		if ($vars['debug'] || $vars['verbose']) {
 			echo 'Running ' . $mod_dir . '/' . 'package_hook.php...' . PHP_EOL;
 		}
-		
+
 		//test include so that includes can return false and prevent further execution if it fail
 		if (!include($mod_dir . '/' . 'package_hook.php')) {
-			$final_status[$mod] = '[FATAL] retrurned from ' . $mod_dir . '/' . 'package_hook.php with an error, ' 
+			$final_status[$mod] = '[FATAL] retrurned from ' . $mod_dir . '/' . 'package_hook.php with an error, '
 				. $mod . ' wont be built' . PHP_EOL;
 			echo $final_status[$mod];
 			continue;
 		}
 	}
-	
+
 	//include any global hooks, if present
 	if (file_exists('package_hook.php')) {
 		if ($vars['debug'] || $vars['verbose']) {
 			echo 'Running ' . 'package_hook.php...' . PHP_EOL;
 		}
-		
+
 		//test include so that includes can return false and prevent further execution if it fail
 		if (!include('package_hook.php')) {
-			$final_status[$mod] = '[FATAL] retrurned from  package_hook.php with an error, ' 
+			$final_status[$mod] = '[FATAL] retrurned from  package_hook.php with an error, '
 				. $mod . ' wont be built' . PHP_EOL;
 			 echo $final_status[$mod];
 			continue;
 		}
 	}
-	
+
 	//test xml file and get some of its values. We did this before, but the hooks
 	//may have changed something
 	list($rawname, $ver) = check_xml($mod);
-	
+
 	//dont conitunue if there is an issue with the xml
 	if ($rawname == false || $ver == false) {
 		continue;
 	}
-	
+
 	//check php files for syntax errors if requested
-	if ($vars['checkphp']) {	
+	if ($vars['checkphp']) {
 		//get list of files
 		$files = package_scandirr($tar_dir, true, $file_scan_exclude_list);
 		foreach ($files as $f) {
@@ -337,7 +337,7 @@ foreach ($vars['module'] as $mod) {
 			}
 		}
 		unset($files, $list);
-		
+
 		if (isset($syntaxt_errors)) {
 			$final_status[$mod] = implode(PHP_EOL, $syntaxt_errors);
 			echo $final_status[$mod];
@@ -345,18 +345,18 @@ foreach ($vars['module'] as $mod) {
 		}
 	}
 
-	
+
 	//check in any out standing files
-	run_cmd('svn ci ' 
-			. $vars['svn_c'] 
-			. $vars['svn_q'] 
-			. '-m "[Auto Checking in outstanding changes in ' 
+	run_cmd('svn ci '
+			. $vars['svn_c']
+			. $vars['svn_q']
+			. '-m "[Auto Checking in outstanding changes in '
 			. $mod . '] ' . $vars['msg'] . '" ' . $mod_dir);
 
-	
+
 	//set tarball name var
 	$filename = $rawname . '-' . $ver . '.tgz';
-	
+
 	//add to exclude array, all '.*' except .htaccess
 	$exclude_raw = array();
 	exec('find ' . $mod_dir . ' ' .  $exclude_find_arg , $exclude_raw, $ret);
@@ -382,7 +382,7 @@ foreach ($vars['module'] as $mod) {
 	//tell tar to change directoires (-C) to one level above
 	$tar_dir_path   = explode('/', trim($tar_dir, '/'));
 	$tar_dir        = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))? array_pop($tar_dir_path) : $mod_dir;
-	$tar_dir_path   = (is_array($tar_dir_path) && (count($tar_dir_path) > 1)) 
+	$tar_dir_path   = (is_array($tar_dir_path) && (count($tar_dir_path) > 1))
 					? ' -C /' . implode('/', $tar_dir_path) : '';
 	$os = php_uname('s');
 	if(preg_match('/Darwin/i',$os)) {
@@ -398,7 +398,7 @@ foreach ($vars['module'] as $mod) {
 	} else {
 		echo "No Tarball Package found (in debug mode?)" . PHP_EOL;
 	}
-	
+
 	//update location
 	if(file_exists($filename)) {
 		$module_xml = preg_replace('/<location>(.*)<\/location>/i','<location>release/' . $vars['rver'] . '/' . $filename . '</location>',$module_xml);
@@ -406,64 +406,64 @@ foreach ($vars['module'] as $mod) {
 
 	file_put_contents($mod_dir . '/' . 'module.xml', $module_xml);
 
-	
+
 	//move tarbal to relase dir
 	run_cmd('mv ' . $filename . ' ' . $vars['reldir'] . '/');
-	
+
 	//add tarball to release repository
 	run_cmd('svn add ' . $vars['reldir'] . '/' . $filename . ' ' . $vars['svn_q']);
-	
+
 	//set mimetype of tarball
-	run_cmd('svn ps svn:mime-type application/tgz ' 
-			. $vars['reldir'] . '/' . $filename 
+	run_cmd('svn ps svn:mime-type application/tgz '
+			. $vars['reldir'] . '/' . $filename
 			. ' ' . $vars['svn_q'] . $vars['svn_c']);
-	
+
 	//check in tarball
-	run_cmd('svn ci ' 
+	run_cmd('svn ci '
 			. $vars['svn_c']
-			. $vars['svn_q'] 
-			. $vars['reldir'] . '/' . $filename 
-			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
+			. $vars['svn_q']
+			. $vars['reldir'] . '/' . $filename
+			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] '
 			. $vars['msg'] . '"');
-					
-	//lastpublished seems to be off, let's make sure we svn up before extracting the 
+
+	//lastpublished seems to be off, let's make sure we svn up before extracting the
 	//revision just in case something above has pushed it out
-	run_cmd('svn up ' . $vars['svn_q'] . $vars['svn_c'] 
+	run_cmd('svn up ' . $vars['svn_q'] . $vars['svn_c']
 			. $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
-	
-	
+
+
 	//set latpublished property
 	run_cmd('svn ps lastpublish ' . $vars['svn_q'] . $vars['svn_c']
-			. '`svn info ' 
-				. $vars['svn_c'] . $mod_dir 
-				. ' | grep Revision: | awk \'{print $2}\'`' 
+			. '`svn info '
+				. $vars['svn_c'] . $mod_dir
+				. ' | grep Revision: | awk \'{print $2}\'`'
 			. ' ' . $mod_dir);
-	
+
 	// appears we need to do an svn up here or it fails, maybe because of the propset above?
 	//TODO: see if this can be avoided
-	run_cmd('svn up ' 
-			. $vars['svn_c'] 
-			. $vars['svn_q'] 
+	run_cmd('svn up '
+			. $vars['svn_c']
+			. $vars['svn_q']
 			. $vars['reldir'] . '/' . $filename . ' ' . $mod_dir);
 
 	//check in new module.xml
-	run_cmd('svn ci ' 
+	run_cmd('svn ci '
 			. $vars['svn_c']
-			. $vars['svn_q'] . $mod_dir 
-			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] ' 
+			. $vars['svn_q'] . $mod_dir
+			. ' -m"[Module package script: ' . $rawname . ' ' . $ver . '] '
 			. $vars['msg'] . '"');
-	
+
 	//cleanup any remaining files
 	foreach($vars['rm_files'] as $f) {
 		if (file_exists($f)) {
 			run_cmd('rm -rf ' . $f);
 		}
 	}
-	$final_status[$mod] = $mod . ' version ' . $ver 
+	$final_status[$mod] = $mod . ' version ' . $ver
 						. ' has been successfully packaged!' . PHP_EOL;
 	$successful_mods[] = $mod;
 	echo PHP_EOL . $final_status[$mod];
-	
+
 }
 
 //print report
@@ -513,19 +513,19 @@ function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 	if ($absolute) {
 		global $list;
 	}
-	
-	
+
+
 	//get directory contents
 	if (!empty($exclude_list) && in_array(basename($dir), $exclude_list)) {
 		return $list;
 	}
 	foreach (scandir($dir) as $d) {
-		
+
 		//ignore any of the files in the array
 		if (in_array($d, array('.', '..', '.svn')) || (!empty($exclude_list) && in_array($d, $exclude_list))) {
 			continue;
 		}
-		
+
 		//if current file ($d) is a directory, call package_scandirr
 		if (is_dir($dir . '/' . $d)) {
 			if ($absolute) {
@@ -533,8 +533,8 @@ function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 			} else {
 				$list[$d] = package_scandirr($dir . '/' . $d, $absolute, $exclude_list);
 			}
-			
-		
+
+
 			//otherwise, add the file to the list
 		} elseif (is_file($dir . '/' . $d) || is_link($dir . '/' . $d)) {
 			if ($absolute) {
@@ -553,14 +553,14 @@ function package_bump_version($mod, $pos = '') {
 	global $mod_dir, $vars;
 	$xml = simplexml_load_file($mod_dir . '/module.xml');
 	$ver = explode('.', (string) $xml->version);
-	
+
 	//if $pos === true, reset it
 	if ($pos === true) {
 		$pos = '';
 	}
 	//pick last part if requested part isn't found
 	if (!isset($ver[$pos - 1])) {
-		$pos = count($ver);	
+		$pos = count($ver);
 	}
 	$pos = $pos - 1; //array start at 0, but people will count from 1.
 
@@ -573,13 +573,13 @@ function package_bump_version($mod, $pos = '') {
 		$num = $num[0] + 1;
 		$ver[$pos] = substr($ver[$pos], 0, $replace -1) . $num;
 	}
-	
+
 	if ($vars['verbose']) {
 		echo 'Bumping ' . $mod . 's verison to ' . implode('.', $ver) . PHP_EOL;
 	}
-	
+
 	$xml->version = implode('.', $ver);
-	
+
 	//simplexml adds a xml decleration that freepbx doesnt like. Remove it.
 	$xml = trim(preg_replace('/^\<\?xml.*?\?\>/', '', $xml->asXML()));
 
@@ -599,17 +599,17 @@ function package_update_changelog($mod, $msg) {
 	global $mod_dir, $vars, $ver;
 	$xml = simplexml_load_file($mod_dir . '/module.xml');
 	$log = explode("\n", (string) $xml->changelog);
-	
+
 	//firt element is ususally blank, remove it
 	array_shift($log);
-	
+
 	//prune to last 5 entreis
 	/* If pruning is to be added it should be configurable, please leave unless making that change
 	 * as Bryan suggested, we may want to have it auto-prune comments from previous versions though
 	 *
 	$log = array_slice($log, 0, 4);
 	 */
-	
+
 	//if the current message is already the last, dont duplicate it
 	if ($log[0] == $ver . ' ' . $msg) {
 		if ($vars['verbose'] || $vars['debug']) {
@@ -617,30 +617,30 @@ function package_update_changelog($mod, $msg) {
 			return true;
 		}
 	}
-	
+
 	//add new mesage
 	array_unshift($log, '*' . $ver . '*' . ' ' . $msg);
 
-	
+
 	if ($vars['verbose']) {
 		echo 'Adding to ' . $mod . 's changelog: ' . $ver . ' ' . $msg;
 	}
-	
+
 	//fold changelog array back in to xml
 	$xml->changelog = "\n\t\t" . trim(implode("\n", $log)) . "\n\t";
-	
+
 	if ($vars['verbose']) {
 		echo 'Writing to ' . $mod_dir . '/module.xml :' . PHP_EOL;
 	}
-	
+
 	//simplexml adds a xml decleration that freepbx doesnt like. Remove it.
 	$xml = trim(preg_replace('/^\<\?xml.*?\?\>/', '', $xml->asXML()));
-	
+
 	if ($vars['debug']) {
 		echo 'Writing to ' . $mod_dir . '/module.xml :' . PHP_EOL;
 		echo $xml;
 	}
-	
+
 	if (!$vars['debug']) {
 		file_put_contents($mod_dir . '/module.xml', $xml);
 	}
@@ -675,18 +675,18 @@ function check_xml($mod) {
 	global $mod_dir;
 	//check the xml script integrity
 	$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
-	if($xml === FALSE) { 
+	if($xml === FALSE) {
 		echo $mod_dir . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
 		return array(false, false);
 	}
-	
+
 	//check that module name is set in module.xml
 	$rawname = (string) $xml->rawname;
 	if (!$rawname) {
 		echo $mod_dir . '/module.xml is missing a module name, ' . $mod . ' won\'t be packaged' . PHP_EOL;
 		$rawname = false;
 	}
-	
+
 	//check that module version is set in module.xml
 	$version = (string) $xml->version;
 	if (!$version) {
@@ -708,7 +708,7 @@ function package_show_help($short = false) {
 	}
 	$ret[] = 'Short options MUST come after all the long options, or the long options will be ignored';
 	$ret[] = '';
-	
+
 	//args
 	$ret[] = array('--bump', 'Bump a modules version. You can specify the "octet" by adding a position '
 				. 'I.e. --bump=2 will turn 3.4.5.6 in to 3.5.5.6. Leaving the position blank will bump the last "octet"');
@@ -722,18 +722,18 @@ function package_show_help($short = false) {
 	$ret[] = array('--publish', 'Run publish scripts when done packaging.');
 	$ret[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
 	$ret[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
-	
+
 	$ret[] = '';
-	
+
 	//generate formated help message
 	foreach ($ret as $r) {
 		if (is_array($r)) {
 			//pad the option
 			$option = '  ' . str_pad($r[0], 20);
-			
+
 			//explode the definition to manageable chunks
 			$def = explode('§', wordwrap($r[1], 55, "§", true));
-			 
+
 			//and pad the def with whitespace 20 chars to the left stating from the second line
 			if (count($def) > 1) {
 				$first = array_shift($def);
@@ -747,7 +747,7 @@ function package_show_help($short = false) {
 				$first = '';
 				$def = array();
 			}
-			
+
 			$definition = $first . PHP_EOL . implode($def);
 			$final .= $option . $definition;
 		} else {
