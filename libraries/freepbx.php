@@ -1,6 +1,6 @@
 <?php
 require_once('stash.php');
-require_once('git.php');
+require_once('Git.php');
 
 class freepbx {
 	function __construct($username,$password) {
@@ -27,7 +27,34 @@ class freepbx {
 			echo "Done\n";
 		}
 	}
-	
+
+	function setupSymLinks($directory,$force=false) {
+		$fwdir = $directory . '/framework';
+		$fwmoddir = $fwdir . '/amp_conf/htdocs/admin/modules/';
+
+		$dirs = array_filter(glob($directory.'/*'), 'is_dir');	
+
+		foreach($dirs as $dirkey => $dirpath) {
+			if ($fwdir != $dirpath) {
+				$modlink = $fwmoddir . '/' . basename($dirpath);
+				
+				//remove if we have a link
+				if (is_link($modlink)) {
+					echo $modlink . " is already linked...Unlinking\n";
+					unlink($modlink);
+				}
+				
+				$linkMsg = "Linking " . $dirpath . " to " . $modlink . "...";
+				if(symlink($dirpath, $modlink)) {
+					$linkMsg .= 'Success';
+				} else {
+					$linkMsg .= 'Failed';
+				}
+				echo $linkMsg . "\n";
+			}
+		}
+	}	
+
 	public static function getInput($msg,$default=null){
 		if(!empty($default)) {
 			$msg = $msg . " [$default]";
