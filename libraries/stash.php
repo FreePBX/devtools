@@ -8,6 +8,18 @@ class Stash {
 	function __construct($username,$password) {
 		$this->pest = new PestJSON('http://git.freepbx.org');
 		$this->pest->setupAuth($username,$password);
+		if(!$this->getUser($username)) {
+			throw new Exception('Username/Password Not Valid');
+		}
+	}
+	
+	function getUser($username) {
+		try {
+			$o = $this->pest->get('/rest/api/1.0/users/'.$username);
+		} catch (Exception $e) {
+			return false;
+		}
+		return $o;
 	}
 	
 	function getAllRepos() {
