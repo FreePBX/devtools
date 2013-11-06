@@ -1,12 +1,27 @@
 <?php
 require_once('stash.php');
-require_once('git.php');
+require_once('Git.php');
 
 class freepbx {
+	
+	/**
+	 * Gets all information about said user from Stash
+	 *
+	 * @param   string $username Stash Username 
+	 * @param   string $password Stash password
+	 * @return  array
+	 */
 	function __construct($username,$password) {
 		$this->stash = new Stash($username,$password);
 	}
 	
+	/**
+	 * Gets all information about said user from Stash
+	 *
+	 * @param   string $directory Directory to
+	 * @param   bool $force True or False on whether to rm and recreate the lib
+	 * @return  array
+	 */
 	function setupDevLinks($directory,$force=false) {
 		$o = $this->stash->getAllRepos();
 
@@ -28,6 +43,12 @@ class freepbx {
 		}
 	}
 	
+	/**
+	 * Gets all information about said user from Stash
+	 *
+	 * @param   string $username Stash Username 
+	 * @return  array
+	 */
 	public static function getInput($msg,$default=null){
 		if(!empty($default)) {
 			$msg = $msg . " [$default]";
@@ -40,6 +61,12 @@ class freepbx {
 		return $varin;
 	}
 
+	/**
+	 * Gets all information about said user from Stash
+	 *
+	 * @param   string $username Stash Username 
+	 * @return  array
+	 */
 	public static function getPassword($stars = false)
 	{
 	    // Get current style

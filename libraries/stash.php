@@ -5,6 +5,15 @@ class Stash {
 	private $api_url = 'http://git.freepbx.org/rest/api/1.0';
 	private $pest;
 	
+	/**
+	 * Constructor for Stash
+	 *
+	 * Also checks for valid credentials before construct can finish
+	 *
+	 * @param   string $username Stash Username 
+	 * @param   string $password Stash password
+	 * @return  string
+	 */
 	function __construct($username,$password) {
 		$this->pest = new PestJSON('http://git.freepbx.org');
 		$this->pest->setupAuth($username,$password);
@@ -13,6 +22,12 @@ class Stash {
 		}
 	}
 	
+	/**
+	 * Gets all information about said user from Stash
+	 *
+	 * @param   string $username Stash Username 
+	 * @return  array
+	 */
 	function getUser($username) {
 		try {
 			$o = $this->pest->get('/rest/api/1.0/users/'.$username);
@@ -22,6 +37,11 @@ class Stash {
 		return $o;
 	}
 	
+	/**
+	 * Gets all repos for said project
+	 *
+	 * @return  string
+	 */
 	function getAllRepos() {
 		try {
 			$o = $this->pest->get('/projects/'.$this->project_key.'/repos?limit=200');
@@ -34,30 +54,3 @@ class Stash {
 		return $o;
 	}
 }
-
-/*
-$username = $argv[1];
-$password = $argv[2];
-$repo = $argv[3];
-$description = '';
-
-
-
-
-
-$pest->setupAuth($username,$password);
-
-$o = $pest->get('/rest/api/1.0/projects/FREEP12/repos');
-
-foreach($o['values'] as $repos) {
-	if($repos['name'] == $repo) {
-		$pest->delete('/rest/api/1.0/projects/FREEP12/repos/'.$repo);
-	}
-}
-
-$data = array(
-	'name' => $repo,
-	'scmId' => 'git'
-);
-$pest->post('/rest/api/1.0/projects/FREEP12/repos',$data);
-*/
