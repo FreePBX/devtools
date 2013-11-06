@@ -17,8 +17,11 @@ try {
 $directory = freepbx::getInput("Setup Directory",dirname(dirname(__FILE__)).'/freepbx');
 
 if(!file_exists($directory)) {
-	die($directory . " Does Not Exist \n");
+	if(!mkdir($directory)) {
+		die($directory . " Does Not Exist \n");
+	}
 }
 
 $force = isset($options['force']) ? true : false;
 $freepbx->setupDevLinks($directory,$force);
+$freepbx->setupSymLinks($directory);

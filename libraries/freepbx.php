@@ -49,6 +49,39 @@ class freepbx {
 	 * @param   string $username Stash Username 
 	 * @return  array
 	 */
+	function setupSymLinks($directory,$force=false) {
+		$fwdir = $directory . '/framework';
+		$fwmoddir = $fwdir . '/amp_conf/htdocs/admin/modules/';
+
+		$dirs = array_filter(glob($directory.'/*'), 'is_dir');	
+
+		foreach($dirs as $dirkey => $dirpath) {
+			if ($fwdir != $dirpath) {
+				$modlink = $fwmoddir . '/' . basename($dirpath);
+				
+				//remove if we have a link
+				if (is_link($modlink)) {
+					echo $modlink . " is already linked...Unlinking\n";
+					unlink($modlink);
+				}
+				
+				$linkMsg = "Linking " . $dirpath . " to " . $modlink . "...";
+				if(symlink($dirpath, $modlink)) {
+					$linkMsg .= 'Success';
+				} else {
+					$linkMsg .= 'Failed';
+				}
+				echo $linkMsg . "\n";
+			}
+		}
+	}	
+
+	/**
+	 * Gets all information about said user from Stash
+	 *
+	 * @param   string $username Stash Username 
+	 * @return  array
+	 */
 	public static function getInput($msg,$default=null){
 		if(!empty($default)) {
 			$msg = $msg . " [$default]";
