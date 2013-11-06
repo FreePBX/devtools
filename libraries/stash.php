@@ -53,4 +53,16 @@ class Stash {
 		}
 		return $o;
 	}
+	
+	function getRepo($repoName) {
+		try {
+			$o = $this->pest->get('/projects/'.$this->project_key.'/repos/'.$repoName);
+		} catch (Exception $e) {
+			return false;
+		}
+		if (is_array($o)) {
+			$o['cloneSSH'] = "ssh://git@git.freepbx.org/".$this->project_key."/".$o['name'].".git";
+		}
+		return $o;
+	}
 }
