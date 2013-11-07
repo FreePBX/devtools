@@ -11,13 +11,13 @@
 # GNU General Public License for more details.
 #
 # The purpose of this script is to merge all language .po from .pot file
-# For this script to work you need to so svn co for for branch and for modules and
+# For this script to work you need to so svn co for branch and for modules and
 # install this in the same tree so that the script can do all extraction at once.
 #
 for i in *; do
 	#dont do anything for these modules
 	[ $i = 'fw_ari' ] || [ $i = 'core' ] || [ $i = 'fw_fop' ] && continue
-    echo "Module $i"
+	echo "Module $i"
         for j in $i/i18n/*; do
             echo "Found language $j"
             if [ -d ${j}/LC_MESSAGES ]; then
