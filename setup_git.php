@@ -7,12 +7,12 @@ $longopts  = array(
 $options = getopt("",$longopts);
 
 $username = freepbx::getInput("FreePBX Username");
-fwrite(STDOUT, "FreePBX Password: ");
-$password = freepbx::getPassword(true);
+$password = freepbx::getPassword("FreePBX Password: ", true);
 try {
 	$freepbx = new freepbx($username,$password);
 } catch (Exception $e) {
-	die("Invalid Username/Password Combination\n");
+	freepbx::out("Invalid Username/Password Combination");
+	exit(1);
 }
 $directory = freepbx::getInput("Setup Directory",dirname(dirname(__FILE__)).'/freepbx');
 

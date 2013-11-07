@@ -479,6 +479,35 @@ class GitRepo {
 		return $this->run("tag -a $tag -m $message");
 	}
 
+	/**
+	 * Add a new stash
+	 *
+	 * @param string $name the name of the stash to add
+	 * @return string
+	 */
+	public function add_stash($name = null) {
+		return $this->run("stash");
+	}
+	
+	/**
+	 * Delete a Stash
+	 *
+	 * @param string $name the name of the stash to drop
+	 * @return string
+	 */
+	public function delete_stash($name = null) {
+		return $this->run("stash drop");
+	}
+	
+	/**
+	 * Apply a stash
+	 *
+	 * @param string $name the name of the stash to apply
+	 * @return string
+	 */
+	public function apply_stash($name = null) {
+		return $this->run("stash apply");
+	}
 
 	/**
 	 * Push specific branch to a remote
