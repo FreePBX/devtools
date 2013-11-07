@@ -50,7 +50,6 @@ if (isset($vars['help'])) {
 }
 
 //set up some other settings
-$vars['rver'] 		= '2.12';
 $vars['git_ssh']	= 'ssh://git@git.freepbx.org/freep12/';
 $vars['php_-l']		= 'php -l';
 $vars['php_extens']	= array('php', 'agi'); //extens to be considered as php for syntax checking
@@ -185,52 +184,6 @@ foreach ($modules as $module) {
 	$file_scan_exclude_list = array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
-	freepbx::out("\tChecking GIT Status...");
-	freepbx::outn("\t\tAttempting to open module...");
-	//Attempt to open the module as a git repo, bail if it's not a repo
-	try {
-		$repo = Git::open($mod_dir);
-		freepbx::out("Done");
-	} catch (Exception $e) {
-		freepbx::out($e->getMessage().', ' . $module . ' will not be built!');
-		continue;
-	}
-	//Check to see if we are on the correct release branch
-	//TODO: this needs to be more dynamic
-	freepbx::outn("\t\tOn release/".$vars['rver']." Branch...");
-	$activeb = $repo->active_branch();
-	//get ready to cross-compare the remote and local branches
-	$lbranches = $repo->list_branches();
-	$rbranches = $repo->list_remote_branches();
-	if($repo->active_branch() != "release/".$vars['rver']) {
-		//we are not on our release branch for this 'module'
-		freepbx::out("no");
-		
-		//check to see if the module has this branch in it's local list
-		if(!in_array("release/".$vars['rver'],$lbranches)) {
-			//the branch isn't in the local list, but is it on the server?
-			if(!in_array("origin/release/".$vars['rver'],$rbranches)) {
-				//its not on the remote server so we need to create the branch
-				$repo->branch("release/".$vars['rver']);
-			} 
-		}
-		
-		//if we created the branch then we are probably on it, so to prevent a bail just recheck where we are
-		if($repo->active_branch() != "release/".$vars['rver']) {
-			//not on the branch, mainly because it's local and was already here :-)
-			freepbx::outn("\t\t\tAttempting to Switch to release/".$vars['rver']."...");
-			try {
-				//switch to the local branch that was already here
-				$repo->checkout("release/".$vars['rver']);
-				freepbx::out("Done");
-			} catch(Exception $e) {
-				echo $e->getMessage();
-				continue;
-			}
-		}
-	} else {
-		freepbx::out("Yes");
-	}
 	
 	//Bail out if module.xml doesnt exist....its sort-of-important
 	if (!file_exists($mod_dir . '/module.xml')) {
@@ -248,6 +201,54 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("Done");
+	
+	freepbx::out("\tChecking GIT Status...");
+	freepbx::outn("\t\tAttempting to open module...");
+	//Attempt to open the module as a git repo, bail if it's not a repo
+	try {
+		$repo = Git::open($mod_dir);
+		freepbx::out("Done");
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage().', ' . $module . ' will not be built!');
+		continue;
+	}
+	
+	//check to make sure the origin is set to FreePBX
+	//TODO: loop through and look for other remotes?
+	$oi = $repo->show_remote('origin');
+	freepbx::outn("\t\tChecking To Make Sure Origin is set to FreePBX.org...");
+	if($oi['Push  URL'] != $vars['git_ssh'] . $module . '.git') {
+		//TODO: maybe set the correct origin?
+		//we could set it here? git remote set-url origin git://new.url.here
+		freepbx::out("Set Incorrectly, your origin is set to " . $oi['Push  URL'] . ", " . $module . " will not be built!");
+		continue;
+	}
+	freepbx::out("Set Correctly");
+		
+	//Check to see if we are on the correct release branch
+	//TODO: this needs to be more dynamic
+	freepbx::outn("\t\tChecking if on Release Branch...");
+	$activeb = $repo->active_branch();
+	//get ready to cross-compare the remote and local branches
+	$lbranches = $repo->list_branches();
+	$rbranches = $repo->list_remote_branches();
+	//get module root version
+	preg_match('/(\d*\.\d*)\./i',$ver,$matches);
+	$mver = $matches[1];
+	if(!preg_match('/release\/(.*)/i',$activeb,$matches)) {
+		//we are not on our release branch for this 'module'
+		freepbx::out("no");
+		freepbx::out("Please Switch ".$module." to be on a release branch, " . $module . " will not be built!");
+		continue;
+	} else {
+		freepbx::out("Yes");
+	}
+	$bver = $matches[1];
+	
+	if($bver != $mver) {
+		freepbx::out("Module Version of ".$mver." does not match release version of ".$bver. ", " . $module . " will not be built!");
+		continue;
+	}
 	
 	// Run xml script through the exact method that FreePBX currently uses. There have
 	// been cases where XML is valid but this method still fails so it won't be caught
@@ -333,11 +334,7 @@ foreach ($modules as $module) {
 	//TODO: we should check to make sure we actually ARE the origin,
 	//if we arent origin then find us or add us
 	//TODO: check to make sure we aren't pushing as 'root'
-	$repo->push('origin', "release/".$vars['rver']);
-	freepbx::out("Done");
-	freepbx::outn("\t\tSwitching back to ".$activeb." branch...");
-	//switch back to the active branch.
-	$repo->checkout($activeb);
+	$repo->push('origin', "release/".$mver);
 	freepbx::out("Done");
 	freepbx::out('Module ' . $module . ' version ' . $ver . ' has been successfully tagged!');
 	//add to final array
@@ -471,7 +468,7 @@ function package_update_changelog($mod, $msg) {
 	//if the current message is already the last, dont duplicate it
 	if ($log[0] == $ver . ' ' . $msg) {
 		if ($vars['verbose'] || $vars['debug']) {
-			echo 'No need to update changelag - last entry matches proposed entry';
+			echo 'No need to update changelog - last entry matches proposed entry';
 			return true;
 		}
 	}

@@ -366,6 +366,38 @@ class GitRepo {
 	public function delete_branch($branch, $force = false) {
 		return $this->run("branch ".(($force) ? '-D' : '-d')." $branch");
 	}
+	
+	/**
+	 * Runs a `git branch` call
+	 *
+	 * @access  public
+	 * @param   bool    keep asterisk mark on active branch
+	 * @return  array
+	 */
+	public function list_remotes() {
+		$remoteArray = explode("\n", $this->run("remote show"));
+		foreach($remoteArray as $i => &$remote) {
+			$remote = trim($remote);
+			if ($remote == "") {
+				unset($remoteArray[$i]);
+			}
+		}
+		return $remoteArray;
+	}
+	
+	public function show_remote($remote) {
+		$remoteArray = explode("\n", $this->run("remote show ".$remote));
+		$final = array();
+		foreach($remoteArray as $i => &$remote) {
+			$remote = trim($remote);
+			if(preg_match('/(.*): (.*)/i',$remote,$matches)) {
+				$k = $matches[1];
+				$v = $matches[2];
+				$final[$k] = $v;
+			}
+		}
+		return $final;
+	}
 
 	/**
 	 * Runs a `git branch` call
