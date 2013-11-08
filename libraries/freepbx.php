@@ -309,4 +309,49 @@ class freepbx {
 		// Return the password
 		return $password;
 	}
+	
+	function package_show_help($script,$message) {
+		$final = '';
+		$ret[] = $script;
+		$ret[] = '-----------';
+		$ret[] = '';
+
+		//args
+		foreach($message as $msg) {
+			$ret[] = $msg;
+		}
+
+		$ret[] = '';
+
+		//generate formated help message
+		foreach ($ret as $r) {
+			if (is_array($r)) {
+				//pad the option
+				$option = '  ' . str_pad($r[0], 20);
+
+				//explode the definition to manageable chunks
+				$def = explode('§', wordwrap($r[1], 55, "§", true));
+
+				//and pad the def with whitespace 20 chars to the left stating from the second line
+				if (count($def) > 1) {
+					$first = array_shift($def);
+					foreach ($def as $my => $item) {
+						$def[$my] = str_pad('', 22) . $item . PHP_EOL;
+					}
+				} elseif (count($def) == 1) {
+					$first = implode($def);
+					$def = array();
+				} else {
+					$first = '';
+					$def = array();
+				}
+
+				$definition = $first . PHP_EOL . implode($def);
+				$final .= $option . $definition;
+			} else {
+				$final .=  $r . PHP_EOL;
+			}
+		}
+		freepbx::out($final);
+	}
 }
