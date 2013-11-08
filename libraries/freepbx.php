@@ -77,7 +77,7 @@ class freepbx {
 				} else {
 					$linkMsg .= 'Failed';
 				}
-				freepbx::out($linkMsg . "\n");
+				freepbx::out($linkMsg);
 			}
 		}
 	}	
@@ -107,7 +107,7 @@ class freepbx {
 	 * @param   string $default The default value if client hits enter
 	 * @return  string The final result string
 	 */
-	public static function getInput($msg,$default=null){
+	public static function getInput($msg,$default=null) {
 		if(!empty($default)) {
 			$msg = $msg . " [$default]";
 		}
@@ -126,40 +126,40 @@ class freepbx {
 	 * @param   bool $starts True to display stars, false to display nothing
 	 * @return  string The final result password
 	 */
-	public static function getPassword($msg,$stars = false)
-	{
+	public static function getPassword($msg,$stars = false) {
 		fwrite(STDOUT, "$msg: ");
-	    // Get current style
-	    $oldStyle = shell_exec('stty -g');
+		// Get current style
+		$oldStyle = shell_exec('stty -g');
 
-	    if ($stars === false) {
-	        shell_exec('stty -echo');
-	        $password = rtrim(fgets(STDIN), "\n");
-	    } else {
-	        shell_exec('stty -icanon -echo min 1 time 0');
+		if ($stars === false) {
+			shell_exec('stty -echo');
+			$password = rtrim(fgets(STDIN), "\n");
+	    	} else {
+			shell_exec('stty -icanon -echo min 1 time 0');
 
-	        $password = '';
-	        while (true) {
-	            $char = fgetc(STDIN);
+			$password = '';
 
-	            if ($char === "\n") {
-	                break;
-	            } else if (ord($char) === 127) {
-	                if (strlen($password) > 0) {
-	                    fwrite(STDOUT, "\x08 \x08");
-	                    $password = substr($password, 0, -1);
-	                }
-	            } else {
-	                fwrite(STDOUT, "*");
-	                $password .= $char;
-	            }
-	        }
-	    }
+			while (true) {
+				$char = fgetc(STDIN);
 
-	    // Reset old style
-	    shell_exec('stty ' . $oldStyle);
+				if ($char === "\n") {
+					break;
+				} else if (ord($char) === 127) {
+					if (strlen($password) > 0) {
+						fwrite(STDOUT, "\x08 \x08");
+						$password = substr($password, 0, -1);
+					}
+				} else {
+					fwrite(STDOUT, "*");
+					$password .= $char;
+				}
+			}
+		}
+
+		// Reset old style
+		shell_exec('stty ' . $oldStyle);
 		echo "\n";
-	    // Return the password
-	    return $password;
+		// Return the password
+		return $password;
 	}
 }
