@@ -26,7 +26,6 @@ require_once('libraries/freepbx.php');
 $longopts = array(
 	'directory:',
 	'bump::',
-	'checkphp::',
 	'debug::',
 	'help::',
 	'log::',
@@ -36,7 +35,7 @@ $longopts = array(
 	're::',
 	'verbose::'
 );
-$vars = getopt('m:d::L::v::c::', $longopts);
+$vars = getopt('m:d::v::c::', $longopts);
 
 if (isset($vars['d']) || isset($vars['L'])) {
 	freepbx::out(package_show_help(true));
@@ -50,12 +49,14 @@ if (isset($vars['help'])) {
 }
 
 //set up some other settings
-$vars['git_ssh']	= 'ssh://git@git.freepbx.org/freep12/';
-$vars['php_-l']		= 'php -l';
-$vars['php_extens']	= array('php', 'agi'); //extens to be considered as php for syntax checking
+$vars['git_ssh'] = 'ssh://git@git.freepbx.org/freep12/';
+$vars['php_-l']	= 'php -l';
+//TODO: This should be settable by the developer, again maybe keeping the information in a ,freepbxconfig?
+$vars['remote'] = 'origin';
+$vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
 $vars['directory'] = !empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx';
-$modules			= array();
-$final_status		= array();//status message to be printed after script is run
+$modules = array();
+$final_status = array();//status message to be printed after script is run
 
 //Combine shortopt -m with longopt --module
 $vars['m'] = (isset($vars['m'])) ? (is_array($vars['m']) ? $vars['m'] : array($vars['m'])) : array();
@@ -85,13 +86,6 @@ if (isset($vars['d'])) {
 	$vars['debug'] = true;
 } else {
 	$vars['debug'] = false;
-}
-
-if (isset($vars['L'])) {
-	$vars['checkphp'] = false;
-	unset($vars['L']);
-} elseif (!isset($vars['checkphp']) || isset($vars['checkphp']) && $vars['checkphp'] != 'false') {
-	$vars['checkphp'] = true;
 }
 
 if (isset($vars['log']) && $vars['log'] != 'log') {
@@ -190,7 +184,7 @@ foreach ($modules as $module) {
 		freepbx::out("\t".$mod_dir . '/module.xml does not exist, ' . $module . ' will not be built!');
 		continue;
 	}
-	
+
 	//now check to make sure the xml is valid
 	freepbx::outn("\tChecking Module XML...");
 	//test xml file and get some of its values
@@ -214,8 +208,7 @@ foreach ($modules as $module) {
 	}
 	
 	//check to make sure the origin is set to FreePBX
-	//TODO: loop through and look for other remotes?
-	$oi = $repo->show_remote('origin');
+	$oi = $repo->show_remote($vars['remote']);
 	freepbx::outn("\t\tChecking To Make Sure Origin is set to FreePBX.org...");
 	if($oi['Push  URL'] != $vars['git_ssh'] . $module . '.git') {
 		//TODO: maybe set the correct origin?
@@ -226,7 +219,6 @@ foreach ($modules as $module) {
 	freepbx::out("Set Correctly");
 		
 	//Check to see if we are on the correct release branch
-	//TODO: this needs to be more dynamic
 	freepbx::outn("\t\tChecking if on Release Branch...");
 	$activeb = $repo->active_branch();
 	//get ready to cross-compare the remote and local branches
@@ -286,7 +278,6 @@ foreach ($modules as $module) {
 	
 	//check php files for syntax errors
 	//left on regardless of phpcheck.. for now
-	//TODO: should this be an optional setting?
 	freepbx::outn("\tChecking for PHP Syntax Errors...");
 	$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
@@ -297,8 +288,7 @@ foreach ($modules as $module) {
 			}
 		}
 	}
-	//TODO: not needed?
-	unset($files, $list);
+	unset($files);
 	
 	//TODO: clean up unused portions of module.xml at this stage: md5sum,location?
 	//cleanup_xml_junk();
@@ -331,10 +321,8 @@ foreach ($modules as $module) {
 	freepbx::out("Done");
 	freepbx::outn("\t\tPushing to Origin...");
 	//push to origin
-	//TODO: we should check to make sure we actually ARE the origin,
-	//if we arent origin then find us or add us
-	//TODO: check to make sure we aren't pushing as 'root'
-	$repo->push('origin', "release/".$mver);
+	//TODO: check to make sure the author/committer isn't 'root'
+	$repo->push($vars['remote'], "release/".$mver);
 	freepbx::out("Done");
 	freepbx::out('Module ' . $module . ' version ' . $ver . ' has been successfully tagged!');
 	//add to final array
