@@ -518,7 +518,11 @@ class GitRepo {
 	 * @return string
 	 */
 	public function add_stash($name = null) {
-		return $this->run("stash");
+		$stash = trim($this->run("stash"));
+		if($stash == 'No local changes to save') {
+			return false;
+		}
+		return $stash;
 	}
 	
 	/**
@@ -527,7 +531,7 @@ class GitRepo {
 	 * @param string $name the name of the stash to drop
 	 * @return string
 	 */
-	public function delete_stash($name = null) {
+	public function drop_stash($name = null) {
 		return $this->run("stash drop");
 	}
 	

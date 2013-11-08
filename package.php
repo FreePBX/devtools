@@ -154,7 +154,7 @@ $vars['msg'] = isset($vars['msg']) ? trim($vars['msg']) . ' ' : '';
 $vars['msg'] = $vars['re'] ? $vars['re'] . '- ' . $vars['msg'] : $vars['msg'];
 
 //set username and password mode
-//TODO: This will be used by JIRA
+//TODO: This will be used by JIRA at some point
 if (isset($vars['c']) && $vars['interactive']) {
 	$vars['username'] = freepbx::getInput('Username');
 	if (empty($vars['username'])) {
@@ -193,17 +193,19 @@ foreach ($modules as $module) {
 	
 	//Bail out if module.xml doesnt exist....its sort-of-important
 	if (!file_exists($mod_dir . '/module.xml')) {
-		freepbx::out("\t".$mod_dir . '/module.xml does not exist, ' . $module . ' will not be built!');
+		freepbx::out("\t".$mod_dir . '/module.xml does not exist');
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 
 	//now check to make sure the xml is valid
 	freepbx::outn("\tChecking Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver) = check_xml($module);
+	list($rawname, $ver, $supported) = check_xml($module);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false) {
-		freepbx::out("\t".$mod_dir . '/module.xml is missing rawname or version or is corrupt, ' . $module . ' will not be built!');
+	if ($rawname == false || $ver == false || $supported == false) {
+		freepbx::out('module.xml is missing rawname or version or is corrupt');
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("Done");
@@ -215,7 +217,8 @@ foreach ($modules as $module) {
 		$repo = Git::open($mod_dir);
 		freepbx::out("Done");
 	} catch (Exception $e) {
-		freepbx::out($e->getMessage().', ' . $module . ' will not be built!');
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	
@@ -225,7 +228,8 @@ foreach ($modules as $module) {
 	if($oi['Push  URL'] != $vars['git_ssh'] . $module . '.git') {
 		//TODO: maybe set the correct origin?
 		//we could set it here? git remote set-url origin git://new.url.here
-		freepbx::out("Set Incorrectly, your origin is set to " . $oi['Push  URL'] . ", " . $module . " will not be built!");
+		freepbx::out("Set Incorrectly, your origin is set to " . $oi['Push  URL']);
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("Set Correctly");
@@ -242,18 +246,81 @@ foreach ($modules as $module) {
 	if(!preg_match('/release\/(.*)/i',$activeb,$matches)) {
 		//we are not on our release branch for this 'module'
 		freepbx::out("no");
-		freepbx::out("Please Switch ".$module." to be on a release branch, " . $module . " will not be built!");
+		freepbx::out("Please Switch ".$module." to be on a release branch");
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	} else {
-		freepbx::out("Yes");
+		freepbx::out("Yes (Working With ".$activeb.")");
 	}
 	$bver = $matches[1];
 	
+	//make sure the version inside the module matches the release version we are on 
+	//(the first 2 version IDs)
 	if($bver != $mver) {
-		freepbx::out("Module Version of ".$mver." does not match release version of ".$bver. ", " . $module . " will not be built!");
+		freepbx::out("Module Version of ".$mver." does not match release version of ".$bver);
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	
+	//now check all release branches and make sure our supported version isn't doubled
+	//Stash locally uncommited changes if we need to do so before switching branches
+	freepbx::out("\t\tChecking to make sure supported version isn't doubled...");
+	$stash = $repo->add_stash();
+	if(!empty($stash)) {
+		freepbx::out("\t\t\tStashing Uncommited changes..Done");
+	}
+	//run through remote branches
+	foreach($rbranches as $branch) {
+		if(preg_match('/release\/(.*)/i',$branch,$matches) && $branch != $vars['remote'].'/'.$activeb) {
+			freepbx::outn("\t\t\tChecking ".$branch."...");
+			//checkout remote branch, headless mode!
+			$repo->checkout($branch);
+			$bxml = check_xml($module);
+			//check to make sure we aren't higher than the ones higher than us
+			//and that we arent lower than the ones lower than us
+			$type = version_compare($bver, $matches[1], '>') ? '<=' : '>=';
+			if (!empty($bxml[2]['version']) && version_compare($supported['version'], $bxml[2]['version'], $type)) {
+				$ntype = ($type == '<=') ? 'higher' : 'lower';
+				freepbx::out("Supported version of branch ".$branch."(".$bxml[2]['version'].") is ".$ntype." than branch ".$activeb."(".$supported['version'].")");
+				//errored so checkout original branch
+				$repo->checkout($activeb);
+				//restore stash if we need to do so
+				if(!empty($stash)) {
+					freepbx::outn("\t\t\tRestoring Uncommited changes...");
+					try {
+						$repo->apply_stash();
+						$repo->drop_stash();
+						freepbx::out("Done");
+					} catch (Exception $e) {
+						freepbx::out("Failed to restore stash!, Please check your directory");
+					}
+				}
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue(2);
+			}
+			if(!empty($bxml[2]['version'])) {
+				$ntype = ($type == '>=') ? 'higher' : 'lower';
+				freepbx::out("Passed (Supported Version in this branch is ".$ntype.")");
+			} else {
+				freepbx::out("");
+			}
+		}
+	}
+	//checkout original branch
+	$repo->checkout($activeb);
+	//restore stash if needed
+	if(!empty($stash)) {
+		freepbx::outn("\t\t\tRestoring Uncommited changes...");
+		try {
+			$repo->apply_stash();
+			$repo->drop_stash();
+		} catch (Exception $e) {
+			freepbx::out("Failed to restore stash!, Please check your directory");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	}
 	// Run xml script through the exact method that FreePBX currently uses. There have
 	// been cases where XML is valid but this method still fails so it won't be caught
 	// with the proper XML checer, better here then breaking the online repository
@@ -280,10 +347,11 @@ foreach ($modules as $module) {
 	//Check XML File one more time to be safe
 	freepbx::outn("\tChecking Modified Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver) = check_xml($module);
+	list($rawname, $ver, $supported) = check_xml($module);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false) {
-		freepbx::out("\t".$mod_dir . '/module.xml has gotten corrupt, ' . $module . ' will not be built!');
+	if ($rawname == false || $ver == false || $supported == false) {
+		freepbx::out('module.xml has gotten corrupt');
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("Done");
@@ -296,7 +364,7 @@ foreach ($modules as $module) {
 		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
 			if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, (!$vars['debug'] && !$vars['verbose']), true)) {
 				//add errors to array
-				$syntaxt_errors[] = 'syntax error detected in ' . $f . ', ' .  $mod . ' won\'t be packaged' . PHP_EOL;
+				$syntaxt_errors[] = 'syntax error detected in ' . $f . PHP_EOL;
 			}
 		}
 	}
@@ -308,6 +376,7 @@ foreach ($modules as $module) {
 	if (isset($syntaxt_errors)) {
 		$final_status[$mod] = implode(PHP_EOL, $syntaxt_errors);
 		freepbx::out("\t".$final_status[$mod]);
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("There are no errors");
@@ -316,25 +385,54 @@ foreach ($modules as $module) {
 	freepbx::out("\tRunning Git...");
 	freepbx::outn("\t\tAdding Module.xml...");
 	//add module.xml separately from the rest of the changes, because I said so
-	$repo->add('module.xml');
+	try {
+		$repo->add('module.xml');
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
 	freepbx::out("Done");
 	freepbx::outn("\t\tCheckin Outstanding Changes...");
 	//-A will do more than ., it will add any unstaged files...
-	$repo->add('-A');
+	try {
+		$repo->add('-A');
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
 	freepbx::out("Done");
 	freepbx::outn("\t\tAdding Commit Message...");
 	//Commit with old commit message from before, but call it tag instead of commit.
-	$repo->commit('[Module Tag script: '.$rawname.' '.$ver.'] '.$vars['msg']);
+	try {
+		$repo->commit('[Module Tag script: '.$rawname.' '.$ver.'] '.$vars['msg']);
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
 	freepbx::out("Done");
 	freepbx::outn("\t\tAdding Tag at this state...");
-	//add a tag to this branch at this point in time
-	//TODO: the second argument of this doesnt work, figure out why
-	$repo->add_tag('release/'.$ver);
+	//add a tag at this point in time
+	try {
+		$repo->add_tag('release/'.$ver);
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
 	freepbx::out("Done");
 	freepbx::outn("\t\tPushing to Origin...");
-	//push to origin
+	//push branch and tag to remote
 	//TODO: check to make sure the author/committer isn't 'root'
-	$repo->push($vars['remote'], "release/".$mver);
+	try {
+		$repo->push($vars['remote'], "release/".$mver);
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
 	freepbx::out("Done");
 	freepbx::out('Module ' . $module . ' version ' . $ver . ' has been successfully tagged!');
 	//add to final array
@@ -531,25 +629,32 @@ function check_xml($mod) {
 	//check the xml script integrity
 	$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
 	if($xml === FALSE) {
-		echo $mod_dir . '/module.xml seems corrupt, ' . $mod . ' won\'t be packaged' . PHP_EOL;
+		freepbx::outn('module.xml seems corrupt');
 		return array(false, false);
 	}
 
 	//check that module name is set in module.xml
 	$rawname = (string) $xml->rawname;
 	if (!$rawname) {
-		echo $mod_dir . '/module.xml is missing a module name, ' . $mod . ' won\'t be packaged' . PHP_EOL;
+		freepbx::outn('module.xml is missing a module name');
 		$rawname = false;
 	}
 
 	//check that module version is set in module.xml
 	$version = (string) $xml->version;
 	if (!$version) {
-		echo $mod_dir . '/module.xml is missing a version number, ' . $mod . ' won\'t be packaged' . PHP_EOL;
+		freepbx::outn('module.xml is missing a version number');
 		$version = false;
 	}
+	
+	//check that module version is set in module.xml
+	$supported = (array) $xml->supported;
+	if (!$supported) {
+		freepbx::outn('module.xml is missing supported tag');
+		$supported = false;
+	}
 
-	return array($rawname, $version);
+	return array($rawname, $version, $supported);
 }
 
 //show help menu
