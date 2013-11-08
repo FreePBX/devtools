@@ -1,10 +1,30 @@
 #!/usr/bin/php -q
 <?php
+/**
+ * Copyright 2013 by Schmooze Com, Inc.
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * @author mbrevda => gmail ! com
+ * @author andrew ! nagy => the159 ! com
+ *
+ * options:
+ *	run with --help for options
+ *
+ */
 require_once('libraries/freepbx.php');
 $help = array(
-	array('--setup', 'Setup new freepbx dev tools environment (use --force to resetup environment)'),
+	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
 	array('--refresh', 'Updates all local modules with their remote changes'),
-	array('--switch=<branch>', 'Switch all local modules to branch')
+	array('--switch=<branch>', 'Switch all local modules to branch'),
+	array('--directory', 'The directory location of the modules, will default to: '.dirname(dirname(__FILE__)).'/freepbx')
 );
 $longopts  = array(
 	"help",
@@ -16,7 +36,7 @@ $longopts  = array(
 );
 $options = getopt("",$longopts);
 if(empty($options) || isset($options['help'])) {
-	freepbx::showHelp('setup_git.php',$help);
+	freepbx::showHelp('freepbx_git.php',$help);
 	exit(0);
 }
 
@@ -60,5 +80,5 @@ if(isset($options['setup'])) {
 	exit(0);
 }
 freepbx::out("Invalid Command");
-freepbx::showHelp('setup_git.php',$help);
+freepbx::showHelp('freepbx_git.php',$help);
 exit(0);
