@@ -53,7 +53,6 @@ if (isset($modules) && empty($modules)) {
 	foreach($allmods as $mod) {
 		$modules[] = str_replace($vars['directory'] . '/', '', $mod);
 	}
-	print_r($glob);
 }
 
 //display our log on a per module basis, based on the last tag
@@ -64,7 +63,7 @@ foreach($modules as $module) {
        	        exit(1);
 	} else {
 		freepbx::out('================================== ' . $module . ' START =========================================');
-		echo checklog($moddir);
+		freepbx::out(checklog($moddir));
 		freepbx::out('================================== ' . $module . ' STOP =========================================');
 	}
 }
@@ -132,6 +131,9 @@ function checklog($moddir) {
 	$repo = Git::open($moddir);
 	$ltags = $repo->list_tags();
 
+	if ($ltags === false) {
+		return 'No Tags found!';
+	}
 	list($rawname, $ver, $supported) = check_xml($moddir);
 
 	//Get current module version
@@ -142,6 +144,7 @@ function checklog($moddir) {
 	$rver = number_format($mver,2);
 
 	//cycle through the tags and create a new array with relavant tags
+	$tagArray = array();
 	foreach ($ltags as $tag) {
 		if(preg_match('/release\/(.*)/i',$tag,$matches)) {
 			if (strpos($matches[1],$rver) !== false) {	
@@ -150,13 +153,16 @@ function checklog($moddir) {
 		}
 	}
 
-	natsort($tagArray);
+	if (!empty($tagArray)) {
+		natsort($tagArray);
 
-	$htag = array_pop($tagArray);
+		$htag = array_pop($tagArray);
 
-	$tagref = $repo->show_ref_tag($htag);
+		$tagref = $repo->show_ref_tag($htag);
 	
-	return $repo->log($tagref,'HEAD');
+		return $repo->log($tagref,'HEAD');
+	} 
+	return;
 }
 
 //test xml file for validity and extract some info from it
