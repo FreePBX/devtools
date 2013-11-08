@@ -310,7 +310,7 @@ class freepbx {
 		return $password;
 	}
 	
-	function showHelp($script,$message,$short = false) {
+	public static function showHelp($script,$message,$short = false) {
 		$final = '';
 		$ret[] = $script;
 		$ret[] = '-----------';
@@ -359,7 +359,7 @@ class freepbx {
 	}
 	
 	//test xml file for validity and extract some info from it
-	function check_xml($mod_dir) {
+	public static function check_xml($mod_dir) {
 	        //check the xml script integrity
 	        $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
 	        if($xml === FALSE) {
