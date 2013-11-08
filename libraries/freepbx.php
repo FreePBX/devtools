@@ -7,18 +7,18 @@ require_once('Git.php');
 require_once('xml2Array.class.php');
 
 class freepbx {
-	
+
 	/**
 	 * Setup FreePBX Class to talk to FreePBX.org services
 	 *
-	 * @param   string $username FreePBX.org Username 
+	 * @param   string $username FreePBX.org Username
 	 * @param   string $password FreePBX.org password
 	 * @return  array
 	 */
 	function __construct($username,$password) {
 		$this->stash = new Stash($username,$password);
 	}
-	
+
 	/**
 	 * Setup GIT Repos from Stash
 	 *
@@ -48,7 +48,7 @@ class freepbx {
 			freepbx::out("Done");
 		}
 	}
-	
+
 	/**
 	 * Sets Up Module and framework symlinks
 	 *
@@ -59,18 +59,18 @@ class freepbx {
 		$fwdir = $directory . '/framework';
 		$fwmoddir = $fwdir . '/amp_conf/htdocs/admin/modules/';
 
-		$dirs = array_filter(glob($directory.'/*'), 'is_dir');	
+		$dirs = array_filter(glob($directory.'/*'), 'is_dir');
 
 		foreach($dirs as $dirkey => $dirpath) {
 			if ($fwdir != $dirpath) {
 				$modlink = $fwmoddir . '/' . basename($dirpath);
-				
+
 				//remove if we have a link
 				if (is_link($modlink)) {
 					freepbx::out($modlink . " is already linked...Unlinking");
 					unlink($modlink);
 				}
-				
+
 				$linkMsg = "Linking " . $dirpath . " to " . $modlink . "...";
 				if(symlink($dirpath, $modlink)) {
 					$linkMsg .= 'Success';
@@ -80,9 +80,25 @@ class freepbx {
 				freepbx::out($linkMsg);
 			}
 		}
-	}	
+	}
 
 	/**
+	 * Get .freepbxconfig from users home folder
+	 *
+	 * @return array of config variables and values
+	 */
+	public static function getFreePBXConfig() {
+		$homedir = getenv("HOME");
+		$freepbxconfig = $homedir . '/' . '.freepbxconfig';
+		$config = array();
+
+		if (file_exists($freepbxconfig)) {
+			$config = parse_ini_file($freepbxconfig);
+		}
+		return $config;
+	}
+
+    /**
 	 * Echo without newline
 	 *
 	 * @param   string $msg Message to echo
@@ -90,7 +106,7 @@ class freepbx {
 	public static function outn($msg) {
 		echo $msg;
 	}
-	
+
 	/**
 	 * Echo with newline
 	 *

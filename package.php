@@ -22,12 +22,12 @@
 
 /**
  * @TODO
- * 
- * FreePBX has always had a 1 to 1 mapping, with regards to branches and 
- * modules releases, yet we are moving away from this. As a result we need 
- * to add support for a supported version tag to module.xml, which determines 
- * what version of FreePBX a gievn module supports. We need to determine if 
- * conflicts arise between versions by cycling through each of the branches 
+ *
+ * FreePBX has always had a 1 to 1 mapping, with regards to branches and
+ * modules releases, yet we are moving away from this. As a result we need
+ * to add support for a supported version tag to module.xml, which determines
+ * what version of FreePBX a gievn module supports. We need to determine if
+ * conflicts arise between versions by cycling through each of the branches
  * and comparing tags against what is about to be published. If this tag isn't
  * found during packaging, bomb out with an approporitate error
  *
@@ -60,11 +60,22 @@ if (isset($vars['help'])) {
 	exit(0);
 }
 
+//determine if we have a .freepbxconfig file in our home directory with
+//settings, and setting them as $vars
+$freepbx_conf = freepbx::getFreePBXConfig();
+if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
+	foreach($freepbx_conf as $key => $value) {
+		if (isset($value) && $value != '') {
+			$vars[$key] = $value;
+		}
+	}
+}
+
 //set up some other settings
 $vars['git_ssh'] = 'ssh://git@git.freepbx.org/freep12/';
 $vars['php_-l']	= 'php -l';
 //TODO: This should be settable by the developer, again maybe keeping the information in a ,freepbxconfig?
-$vars['remote'] = 'origin';
+$vars['remote'] = (isset($vars['remote'])) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
 $vars['directory'] = !empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx';
 $modules = array();
@@ -190,7 +201,7 @@ foreach ($modules as $module) {
 	$file_scan_exclude_list = array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
-	
+
 	//Bail out if module.xml doesnt exist....its sort-of-important
 	if (!file_exists($mod_dir . '/module.xml')) {
 		freepbx::out("\t".$mod_dir . '/module.xml does not exist');
@@ -209,7 +220,7 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("Done");
-	
+
 	freepbx::out("\tChecking GIT Status...");
 	freepbx::outn("\t\tAttempting to open module...");
 	//Attempt to open the module as a git repo, bail if it's not a repo
@@ -221,7 +232,7 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-	
+
 	//check to make sure the origin is set to FreePBX
 	$oi = $repo->show_remote($vars['remote']);
 	freepbx::outn("\t\tChecking To Make Sure Origin is set to FreePBX.org...");
@@ -233,7 +244,7 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("Set Correctly");
-		
+
 	//Check to see if we are on the correct release branch
 	freepbx::outn("\t\tChecking if on Release Branch...");
 	$activeb = $repo->active_branch();
@@ -253,15 +264,15 @@ foreach ($modules as $module) {
 		freepbx::out("Yes (Working With ".$activeb.")");
 	}
 	$bver = $matches[1];
-	
-	//make sure the version inside the module matches the release version we are on 
+
+	//make sure the version inside the module matches the release version we are on
 	//(the first 2 version IDs)
 	if($bver != $mver) {
 		freepbx::out("Module Version of ".$mver." does not match release version of ".$bver);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-	
+
 	//now check all release branches and make sure our supported version isn't doubled
 	//Stash locally uncommited changes if we need to do so before switching branches
 	freepbx::out("\t\tChecking to make sure supported version isn't doubled...");
@@ -327,7 +338,7 @@ foreach ($modules as $module) {
 	// -Philippe L.
 	$parser = new xml2ModuleArray();
 	$xmlarray = $parser->parseAdvanced(file_get_contents($mod_dir . '/module.xml'));
-	
+
 	//bump version if requested, and reset $ver
 	if ($vars['bump']) {
 		freepbx::outn("\tBumping Version as Requested...");
@@ -335,7 +346,7 @@ foreach ($modules as $module) {
 		freepbx::out("Done");
 		$vars['log'] = true;
 	}
-	
+
 	//add changelog if requested
 	if ($vars['log']) {
 		freepbx::outn("\tUpdating Changelog...");
@@ -343,7 +354,7 @@ foreach ($modules as $module) {
 		package_update_changelog($module, $msg);
 		freepbx::out("Done");
 	}
-	
+
 	//Check XML File one more time to be safe
 	freepbx::outn("\tChecking Modified Module XML...");
 	//test xml file and get some of its values
@@ -355,7 +366,7 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("Done");
-	
+
 	//check php files for syntax errors
 	//left on regardless of phpcheck.. for now
 	freepbx::outn("\tChecking for PHP Syntax Errors...");
@@ -369,7 +380,7 @@ foreach ($modules as $module) {
 		}
 	}
 	unset($files);
-	
+
 	//TODO: clean up unused portions of module.xml at this stage: md5sum,location?
 	//cleanup_xml_junk();
 
@@ -380,7 +391,7 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("There are no errors");
-	
+
 	//GIT Processing here
 	freepbx::out("\tRunning Git...");
 	freepbx::outn("\t\tAdding Module.xml...");
@@ -437,7 +448,7 @@ foreach ($modules as $module) {
 	freepbx::out('Module ' . $module . ' version ' . $ver . ' has been successfully tagged!');
 	//add to final array
 	$final_status[$module] = 'Module ' . $module . ' version ' . $ver . ' has been successfully tagged!';
-}	
+}
 
 //print report
 echo PHP_EOL . PHP_EOL . PHP_EOL;
@@ -646,7 +657,7 @@ function check_xml($mod) {
 		freepbx::outn('module.xml is missing a version number');
 		$version = false;
 	}
-	
+
 	//check that module version is set in module.xml
 	$supported = (array) $xml->supported;
 	if (!$supported) {
