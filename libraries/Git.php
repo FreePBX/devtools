@@ -337,8 +337,8 @@ class GitRepo {
 	 * @param   bool    delete directories?
 	 * @return  string
 	 */
-	public function clean($dirs = false) {
-		return $this->run("clean".(($dirs) ? " -d" : ""));
+	public function clean($force = false, $dirs = false) {
+		return $this->run("clean".(($dirs) ? " -d" : "")." ".(($force) ? " -f" : ""));
 	}
 
 	/**
@@ -577,12 +577,11 @@ class GitRepo {
 	/**
 	 * Add a new stash
 	 *
-	 * @param string $name the name of the stash to add
-	 * @return string
+	 * @return mixed false if nothing to stash, otherwise result
 	 */
-	public function add_stash($name = null) {
+	public function add_stash() {
 		$stash = trim($this->run("stash"));
-		if($stash == 'No local changes to save') {
+		if(preg_match('/No local changes to save/i',$stash)) {
 			return false;
 		}
 		return $stash;
@@ -591,20 +590,18 @@ class GitRepo {
 	/**
 	 * Delete a Stash
 	 *
-	 * @param string $name the name of the stash to drop
-	 * @return string
+	 * @return string result of drop
 	 */
-	public function drop_stash($name = null) {
+	public function drop_stash() {
 		return $this->run("stash drop");
 	}
 	
 	/**
 	 * Apply a stash
 	 *
-	 * @param string $name the name of the stash to apply
-	 * @return string
+	 * @return string result of apply
 	 */
-	public function apply_stash($name = null) {
+	public function apply_stash() {
 		return $this->run("stash apply");
 	}
 
