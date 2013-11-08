@@ -16,7 +16,7 @@ $longopts  = array(
 );
 $options = getopt("",$longopts);
 if(empty($options) || isset($options['help'])) {
-	freepbx::package_show_help('setup_git.php',$help);
+	freepbx::showHelp('setup_git.php',$help);
 	exit(0);
 }
 
@@ -60,5 +60,5 @@ if(isset($options['setup'])) {
 	exit(0);
 }
 freepbx::out("Invalid Command");
-freepbx::package_show_help('setup_git.php',$help);
+freepbx::showHelp('setup_git.php',$help);
 exit(0);

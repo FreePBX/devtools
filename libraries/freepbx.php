@@ -310,7 +310,7 @@ class freepbx {
 		return $password;
 	}
 	
-	function package_show_help($script,$message) {
+	function showHelp($script,$message) {
 		$final = '';
 		$ret[] = $script;
 		$ret[] = '-----------';
