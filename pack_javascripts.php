@@ -1,8 +1,27 @@
 #!/usr/bin/php -q
 <?php
 
-$libfreepbx = '../amp_conf/htdocs/admin/assets/js/pbxlib.js';
-$dir="../amp_conf/htdocs/admin/assets/js";
+//get cli opts
+$longopts = array(
+	'directory::',
+	'help::'
+);
+$vars = getopt('d::h::', $longopts);
+
+//if help was requested, show help and exit
+if (isset($vars['h'])) {
+        echo pack_javascripts_show_help(true);
+        exit(0);
+}
+
+if(isset($vars['help'])) {
+        echo pack_javascripts_show_help();
+        exit(0);
+}
+
+$vars['directory'] = !empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx/framework';
+$libfreepbx = $vars['directory'] . '/amp_conf/htdocs/admin/assets/js/pbxlib.js';
+$dir = $vars['directory'] . '/amp_conf/htdocs/admin/assets/js';
 $output=array();
 
 exec("ls $dir/*.js",$output,$ret);
@@ -56,10 +75,55 @@ foreach ($final as $f) {
 echo "\n\n\n";
 
 file_put_contents($libfreepbx, $js);
-//echo 'cat '.implode(' ',$final)." | ./jsmin.rb >  $dir/$libfreepbx\n\n";
 
-//system('cat '.implode(' ',$final)." | ./jsmin.rb >  $dir/$libfreepbx");
+//show help menu
+function pack_javascripts_show_help($short = false){
+        $final = '';
+        $ret[] = 'Pack_javascripts.php';
+        $ret[] = '-----------';
+        $ret[] = '';
+        if ($short) {
+                $ret[] = 'SHORT OPS HAVE BEEN DEPRICATED - PLEASE USE ONLY LONG OPTS!';
+        }
 
+        //args
+        $ret[] = array('--help', 'Show this menu and exit');
+        $ret[] = array('--directory', 'Directory Location of framework root, always assumed to be ../freepbx from this location');
+
+        $ret[] = '';
+
+        //generate formated help message
+        foreach ($ret as $r) {
+                if (is_array($r)) {
+                        //pad the option
+                        $option = '  ' . str_pad($r[0], 20);
+
+                        //explode the definition to manageable chunks
+                        $def = explode('§', wordwrap($r[1], 55, "§", true));
+
+                        //and pad the def with whitespace 20 chars to the left stating from the second line
+                        if (count($def) > 1) {
+                                $first = array_shift($def);
+                                foreach ($def as $my => $item) {
+                                        $def[$my] = str_pad('', 22) . $item . PHP_EOL;
+                                }
+                        } elseif (count($def) == 1) {
+                                $first = implode($def);
+                                $def = array();
+                        } else {
+                                $first = '';
+                                $def = array();
+                        }
+
+			$definition = $first . PHP_EOL . implode($def);
+                        $final .= $option . $definition;
+                } else {
+                        $final .=  $r . PHP_EOL;
+                }
+        }
+        return $final;
+
+}
 /**
  * jsmin.php - PHP implementation of Douglas Crockford's JSMin.
  *
