@@ -21,6 +21,7 @@
 
 require_once('libraries/freepbx.php');
 
+
 //get cli opts
 $longopts = array(
 	'directory::',
@@ -29,14 +30,20 @@ $longopts = array(
 );
 $vars = getopt('d::h::m::', $longopts);
 
+$helpArray = array(
+	array('--help', 'Show this menu and exit'),
+	array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples)'),
+	array('--directory', 'Directory Location of modules root, always assumed to be ../freepbx from this location')
+);
+
 //if help was requested, show help and exit
 if (isset($vars['h'])) {
-	freepbx::out(checklog_show_help(true));
+	freepbx::out(freepbx::showHelp(basename(__FILE__), $helpArray, true));
         exit(0);
 }
 
 if(isset($vars['help'])) {
-	freepbx::out(checklog_show_help());
+	freepbx::out(freepbx::showHelp(basename(__FILE__), $helpArray));
 	exit(0);
 }
 
@@ -68,56 +75,6 @@ foreach($modules as $module) {
 	}
 }
 
-//show help menu
-function checklog_show_help($short = false){
-	$final = '';
-	$ret[] = 'Checklog.php';
-        $ret[] = '-----------';
-        $ret[] = '';
-        if ($short) {
-                $ret[] = 'SHORT OPS HAVE BEEN DEPRICATED - PLEASE USE ONLY LONG OPTS!';
-        }
-
-        //args
-        $ret[] = array('--help', 'Show this menu and exit');
-        $ret[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples)');
-        $ret[] = array('--directory', 'Directory Location of modules root, always assumed to be ../freepbx from this location');
-
-        $ret[] = '';
-
-	//generate formated help message
-        foreach ($ret as $r) {
-                if (is_array($r)) {
-                        //pad the option
-                        $option = '  ' . str_pad($r[0], 20);
-
-                        //explode the definition to manageable chunks
-                        $def = explode('§', wordwrap($r[1], 55, "§", true));
-
-                        //and pad the def with whitespace 20 chars to the left stating from the second line
-                        if (count($def) > 1) {
-                                $first = array_shift($def);
-                                foreach ($def as $my => $item) {
-                                        $def[$my] = str_pad('', 22) . $item . PHP_EOL;
-                                }
-                        } elseif (count($def) == 1) {
-                                $first = implode($def);
-                                $def = array();
-                        } else {
-                                $first = '';
-                                $def = array();
-                        }
-
-                        $definition = $first . PHP_EOL . implode($def);
-                        $final .= $option . $definition;
-                } else {
-                        $final .=  $r . PHP_EOL;
-                }
-        }
-        return $final;
-
-}
-
 /**
  * Check Log
  *
@@ -134,7 +91,7 @@ function checklog($moddir) {
 	if ($ltags === false) {
 		return 'No Tags found!';
 	}
-	list($rawname, $ver, $supported) = check_xml($moddir);
+	list($rawname, $ver, $supported) = freepbx::check_xml($moddir);
 
 	//Get current module version
 	preg_match('/(\d*\.\d*)\./i',$ver,$matches);
@@ -163,44 +120,4 @@ function checklog($moddir) {
 		return $repo->log($tagref,'HEAD');
 	} 
 	return;
-}
-
-//test xml file for validity and extract some info from it
-//TODO: Make this a helper file as we use it elsewhere
-function check_xml($mod = null) {
-	if (isset($mod)) {
-		$mod_dir = $mod;
-	} else {
-        	global $mod_dir;
-	}
-
-        //check the xml script integrity
-        $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
-        if($xml === FALSE) {
-                freepbx::outn('module.xml seems corrupt');
-                return array(false, false);
-        }
-
-        //check that module name is set in module.xml
-        $rawname = (string) $xml->rawname;
-        if (!$rawname) {
-                freepbx::outn('module.xml is missing a module name');
-                $rawname = false;
-        }
-
-        //check that module version is set in module.xml
-        $version = (string) $xml->version;
-        if (!$version) {
-                freepbx::outn('module.xml is missing a version number');
-                $version = false;
-        }
-
-        //check that module version is set in module.xml
-        $supported = (array) $xml->supported;
-        if (!$supported) {
-                freepbx::outn('module.xml is missing supported tag');
-                $supported = false;
-        }
-
-        return array($rawname, $version, $supported);
 }

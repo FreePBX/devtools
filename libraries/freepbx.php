@@ -310,11 +310,14 @@ class freepbx {
 		return $password;
 	}
 	
-	function showHelp($script,$message) {
+	function showHelp($script,$message,$short = false) {
 		$final = '';
 		$ret[] = $script;
 		$ret[] = '-----------';
 		$ret[] = '';
+		if ($short) {
+			$ret[] = 'SHORT OPS HAVE BEEN DEPRICATED - PLEASE USE ONLY LONG OPTS!';
+		}
 
 		//args
 		foreach($message as $msg) {
@@ -353,5 +356,38 @@ class freepbx {
 			}
 		}
 		freepbx::out($final);
+	}
+	
+	//test xml file for validity and extract some info from it
+	function check_xml($mod_dir) {
+	        //check the xml script integrity
+	        $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
+	        if($xml === FALSE) {
+	                freepbx::outn('module.xml seems corrupt');
+	                return array(false, false);
+	        }
+
+	        //check that module name is set in module.xml
+	        $rawname = (string) $xml->rawname;
+	        if (!$rawname) {
+	                freepbx::outn('module.xml is missing a module name');
+	                $rawname = false;
+	        }
+
+	        //check that module version is set in module.xml
+	        $version = (string) $xml->version;
+	        if (!$version) {
+	                freepbx::outn('module.xml is missing a version number');
+	                $version = false;
+	        }
+
+	        //check that module version is set in module.xml
+	        $supported = (array) $xml->supported;
+	        if (!$supported) {
+	                freepbx::outn('module.xml is missing supported tag');
+	                $supported = false;
+	        }
+
+	        return array($rawname, $version, $supported);
 	}
 }
