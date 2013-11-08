@@ -1,7 +1,7 @@
 #!/usr/bin/php -q
 <?php
 /**
- * Copyright 2011 by Schmooze Com., Inc.
+ * Copyright 2011 by Schmooze Com, Inc.
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -20,6 +20,18 @@
  *
  */
 
+/**
+ * @TODO
+ * 
+ * FreePBX has always had a 1 to 1 mapping, with regards to branches and 
+ * modules releases, yet we are moving away from this. As a result we need 
+ * to add support for a supported version tag to module.xml, which determines 
+ * what version of FreePBX a gievn module supports. We need to determine if 
+ * conflicts arise between versions by cycling through each of the branches 
+ * and comparing tags against what is about to be published. If this tag isn't
+ * found during packaging, bomb out with an approporitate error
+ *
+ */
 require_once('libraries/freepbx.php');
 
 //get cli opts
