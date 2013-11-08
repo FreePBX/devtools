@@ -466,15 +466,20 @@ class GitRepo {
          */
         public function list_tags($keep_asterisk = false) {
                 $tagArray = explode("\n", $this->run("tag"));
-                foreach($tagArray as $i => &$tag) {
-                        $tag = trim($tag);
-                        if (! $keep_asterisk) {
-                                $tag = str_replace("* ", "", $tag);
-                        }
-                        if ($tag == "") {
-                                unset($tagArray[$i]);
-                        }
-                }
+		if (!empty($tagArray)) {
+	                foreach($tagArray as $i => &$tag) {
+	                        $tag = trim($tag);
+	                        if (! $keep_asterisk) {
+	                                $tag = str_replace("* ", "", $tag);
+	                        }
+	                        if ($tag == "") {
+	                                unset($tagArray[$i]);
+	                        }
+	                }
+		}
+		if (empty($tagArray)) {
+			return false;
+		}
                 return $tagArray;
         }
 
