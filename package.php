@@ -209,18 +209,6 @@ foreach ($modules as $module) {
 		continue;
 	}
 
-	//now check to make sure the xml is valid
-	freepbx::outn("\tChecking Module XML...");
-	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = check_xml($module);
-	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false || $supported == false) {
-		freepbx::out('module.xml is missing rawname or version or is corrupt');
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
-	}
-	freepbx::out("Done");
-
 	freepbx::out("\tChecking GIT Status...");
 	freepbx::outn("\t\tAttempting to open module...");
 	//Attempt to open the module as a git repo, bail if it's not a repo
@@ -272,6 +260,18 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
+	
+	//now check to make sure the xml is valid
+	freepbx::outn("\tChecking Module XML...");
+	//test xml file and get some of its values
+	list($rawname, $ver, $supported) = check_xml($module);
+	//dont continue if there is an issue with the xml
+	if ($rawname == false || $ver == false || $supported == false) {
+		freepbx::out('module.xml is missing rawname or version or is corrupt');
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
+	freepbx::out("Done");
 
 	//now check all release branches and make sure our supported version isn't doubled
 	//Stash locally uncommited changes if we need to do so before switching branches

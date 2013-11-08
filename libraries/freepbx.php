@@ -18,6 +18,132 @@ class freepbx {
 	function __construct($username,$password) {
 		$this->stash = new Stash($username,$password);
 	}
+	
+	/**
+	 * Switch Branch on Repo
+	 *
+	 * Switch Branch on repo, will automatically checkout from remote if not exist
+	 *
+	 * @param   string $directory Location of repo
+	 * @param	string $branch The branch to checkout
+	 * @return  bool
+	 */
+	public static function switchBranch($directory,$branch) {
+		freepbx::outn("Attempting to open ".$directory."...");
+		//Attempt to open the module as a git repo, bail if it's not a repo
+		try {
+			$repo = Git::open($directory);
+			freepbx::out("Done");
+		} catch (Exception $e) {
+			freepbx::out("Skipping");
+			return false;
+		}
+		$stash = $repo->add_stash();
+		if(!empty($stash)) {
+			freepbx::out("\tStashing Uncommited changes..Done");
+		}
+		freepbx::outn("\tCleaning Untracked Files...");
+		$repo->clean(true,true);
+		freepbx::out("Done");
+		freepbx::outn("\tFetching Changes...");
+		$repo->fetch();
+		freepbx::out("Done");
+		freepbx::outn("\tChecking out ".$branch." ...");
+		try {
+			$repo->checkout($branch);
+			freepbx::out("Done");
+		} catch (Exception $e) {
+			freepbx::out("Branch Doesnt Exist...Skipping");
+		}
+		if(!empty($stash) && empty($final_branch)) {
+			freepbx::outn("\tRestoring Uncommited changes...");
+			try {
+				$repo->apply_stash();
+				$repo->drop_stash();
+				freepbx::out("Done");
+			} catch (Exception $e) {
+				freepbx::out("Failed to restore stash!, Please check your directory");
+			}
+		}
+	}
+	
+	/**
+	 * Refresh a local repo with changes from remote
+	 *
+	 * Updates from remote, it will attempt to stash your working changes first
+	 *
+	 * @param   string $directory Location of repo
+	 * @param   string $remote The name of the remote origin
+	 * @param	string $final_branch The final branch to checkout after updating (null means whatever it was on before)
+	 * @return  bool
+	 */
+	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null) {
+		freepbx::outn("Attempting to open ".$directory."...");
+		//Attempt to open the module as a git repo, bail if it's not a repo
+		try {
+			$repo = Git::open($directory);
+			freepbx::out("Done");
+		} catch (Exception $e) {
+			freepbx::out("Skipping");
+			return false;
+		}
+		$stash = $repo->add_stash();
+		if(!empty($stash)) {
+			freepbx::out("\tStashing Uncommited changes..Done");
+		}
+		freepbx::outn("\tCleaning Untracked Files...");
+		$repo->clean(true,true);
+		freepbx::out("Done");
+		freepbx::outn("\tFetching Changes...");
+		$repo->fetch();
+		freepbx::out("Done");
+		freepbx::outn("\tDetermine Active Branch...");
+		$activeb = $repo->active_branch();
+		freepbx::out($activeb);
+		$lbranches = $repo->list_branches();
+		$rbranches = $repo->list_remote_branches();
+		foreach($rbranches as $k => &$rbranch) {
+			if(preg_match('/'.$remote.'\/(.*)/i',$rbranch)) {
+				$rbranch = str_replace($remote.'/','',$rbranch);
+			}
+		}
+		freepbx::out("\tUpdating Branches...");
+		$ubranches = array();
+		foreach($lbranches as $branch) {
+			freepbx::outn("\t\tUpdating ".$branch."...");
+			$repo->checkout($branch);
+			$repo->pull($remote, $branch);
+			freepbx::out("Done");
+			$ubranches[] = $branch;
+		}
+		foreach($rbranches as $branch) {
+			if(!in_array($branch,$ubranches)) {
+				freepbx::outn("\t\tChecking Out ".$branch."...");
+				try {
+					$repo->checkout($branch);
+					freepbx::out("Done");
+				} catch (Exception $e) {
+					freepbx::out("Branch Doesnt Exist...Skipping");
+				}
+			}
+		}
+		
+		$lbranches = $repo->list_branches();
+		$branch = (!empty($final_branch) && in_array($final_branch,$lbranches)) ? $final_branch : $activeb;
+		freepbx::out("\tPutting you back on ".$branch." ...");
+		$repo->checkout($branch);
+		freepbx::out("Done");
+		if(!empty($stash) && empty($final_branch)) {
+			freepbx::outn("\tRestoring Uncommited changes...");
+			try {
+				$repo->apply_stash();
+				$repo->drop_stash();
+				freepbx::out("Done");
+			} catch (Exception $e) {
+				freepbx::out("Failed to restore stash!, Please check your directory");
+			}
+		}
+	}
 
 	/**
 	 * Setup GIT Repos from Stash
@@ -26,9 +152,10 @@ class freepbx {
 	 *
 	 * @param   string $directory Directory to work with
 	 * @param   bool $force True or False on whether to rm -Rf and then recreate the repo
+	 * @param	string $release The release branch to checkout upon completion
 	 * @return  array
 	 */
-	function setupDevLinks($directory,$force=false) {
+	function setupDevRepos($directory,$force=false,$release='2.11') {
 		$o = $this->stash->getAllRepos();
 
 		foreach($o['values'] as $repos) {
@@ -45,6 +172,10 @@ class freepbx {
 				continue;
 			}
 			Git::create($dir, $repos['cloneSSH']);
+			freepbx::out("Done");
+			
+			freepbx::outn("\tChecking you out into the ".$release." release...");
+			$repo->checkout('release/'.$release);
 			freepbx::out("Done");
 		}
 	}
