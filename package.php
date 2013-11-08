@@ -33,7 +33,18 @@
  *
  */
 require_once('libraries/freepbx.php');
-
+$help = array();
+$help[] = array('--bump', 'Bump a modules version. You can specify the "octet" by adding a position '
+			. 'I.e. --bump=2 will turn 3.4.5.6 in to 3.5.5.6. Leaving the position blank will bump the last "octet"');
+$help[] = array('--debug=false', 'Debug only - just run through the command but don\'t make any changes');
+$help[] = array('-c', 'Prompt for FreePBX.org Credentials');
+$help[] = array('--help', 'Show this menu and exit');
+$help[] = array('--log', 'Update module.xml\'s changelog. [Done by default if bumping]');
+$help[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples)');
+$help[] = array('--directory', 'Directory Location of modules root, always assumed to be ../freepbx from this location');
+$help[] = array('--msg', 'Optional commit message.');
+$help[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
+$help[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
 //get cli opts
 $longopts = array(
 	'directory:',
@@ -50,13 +61,13 @@ $longopts = array(
 $vars = getopt('m:d::v::c::', $longopts);
 
 if (isset($vars['d']) || isset($vars['L'])) {
-	freepbx::out(package_show_help(true));
+	freepbx::showHelp('Package.php',$help);
 	sleep(3);
 }
 
 //if help was requested, show help and exit
 if (isset($vars['help'])) {
-	freepbx::out(package_show_help());
+	freepbx::showHelp('Package.php',$help);
 	exit(0);
 }
 
@@ -184,7 +195,7 @@ if (isset($vars['c']) && $vars['interactive']) {
 //ensure we have modules to package
 if (empty($modules)) {
 	freepbx::out("No modules specified. Please specify at least one module");
-	echo package_show_help();
+	freepbx::showHelp('Package.php',$help);
 	exit(1);
 }
 
@@ -340,7 +351,7 @@ foreach ($modules as $module) {
 	$xmlarray = $parser->parseAdvanced(file_get_contents($mod_dir . '/module.xml'));
 
 	//bump version if requested, and reset $ver
-	if ($vars['bump']) {
+	if ($vars['bump'] && !$vars['debug']) {
 		freepbx::outn("\tBumping Version as Requested...");
 		package_bump_version($module, $vars['bump']);
 		freepbx::out("Done");
@@ -348,7 +359,7 @@ foreach ($modules as $module) {
 	}
 
 	//add changelog if requested
-	if ($vars['log']) {
+	if ($vars['log'] && !$vars['debug']) {
 		freepbx::outn("\tUpdating Changelog...");
 		$msg = $vars['msg'] ? $vars['msg'] : 'Packaging of ver ' . $ver;
 		package_update_changelog($module, $msg);
@@ -396,58 +407,79 @@ foreach ($modules as $module) {
 	freepbx::out("\tRunning Git...");
 	freepbx::outn("\t\tAdding Module.xml...");
 	//add module.xml separately from the rest of the changes, because I said so
-	try {
-		$repo->add('module.xml');
-	} catch (Exception $e) {
-		freepbx::out($e->getMessage());
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+	if(!$vars['debug']) {
+		try {
+			$repo->add('module.xml');
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Debugging, Not Ran");
 	}
-	freepbx::out("Done");
+	
 	freepbx::outn("\t\tCheckin Outstanding Changes...");
 	//-A will do more than ., it will add any unstaged files...
-	try {
-		$repo->add('-A');
-	} catch (Exception $e) {
-		freepbx::out($e->getMessage());
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+	if(!$vars['debug']) {
+		try {
+			$repo->add('-A');
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Debugging, Not Ran");
 	}
-	freepbx::out("Done");
 	freepbx::outn("\t\tAdding Commit Message...");
 	//Commit with old commit message from before, but call it tag instead of commit.
-	try {
-		$repo->commit('[Module Tag script: '.$rawname.' '.$ver.'] '.$vars['msg']);
-	} catch (Exception $e) {
-		freepbx::out($e->getMessage());
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+	if(!$vars['debug']) {
+		try {
+			$repo->commit('[Module Tag script: '.$rawname.' '.$ver.'] '.$vars['msg']);
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Debugging, Not Ran");
 	}
-	freepbx::out("Done");
 	freepbx::outn("\t\tAdding Tag at this state...");
 	//add a tag at this point in time
-	try {
-		$repo->add_tag('release/'.$ver);
-	} catch (Exception $e) {
-		freepbx::out($e->getMessage());
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+	if(!$vars['debug']) {
+		try {
+			$repo->add_tag('release/'.$ver);
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Debugging, Not Ran");
 	}
-	freepbx::out("Done");
 	freepbx::outn("\t\tPushing to Origin...");
 	//push branch and tag to remote
 	//TODO: check to make sure the author/committer isn't 'root'
-	try {
-		$repo->push($vars['remote'], "release/".$mver);
-	} catch (Exception $e) {
-		freepbx::out($e->getMessage());
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+	if(!$vars['debug']) {
+		try {
+			$repo->push($vars['remote'], "release/".$mver);
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Debugging, Not Ran");
 	}
-	freepbx::out("Done");
-	freepbx::out('Module ' . $module . ' version ' . $ver . ' has been successfully tagged!');
-	//add to final array
-	$final_status[$module] = 'Module ' . $module . ' version ' . $ver . ' has been successfully tagged!';
+	$tense = !$vars['debug'] ? 'has' : 'would have';
+	$final_status[$module] = 'Module ' . $module . ' version ' . $ver . ' ' . $tense . ' been successfully tagged!';
+	freepbx::out($final_status[$module]);	
 }
 
 //print report
@@ -667,62 +699,3 @@ function check_xml($mod) {
 
 	return array($rawname, $version, $supported);
 }
-
-//show help menu
-function package_show_help($short = false) {
-	$final = '';
-	$ret[] = 'Package.php';
-	$ret[] = '-----------';
-	$ret[] = '';
-	if ($short) {
-		$ret[] = 'SHORT OPS HAVE BEEN DEPRICATED - PLEASE USE ONLY LONG OPTS!';
-	}
-
-	//args
-	$ret[] = array('--bump', 'Bump a modules version. You can specify the "octet" by adding a position '
-				. 'I.e. --bump=2 will turn 3.4.5.6 in to 3.5.5.6. Leaving the position blank will bump the last "octet"');
-	$ret[] = array('--debug=false', 'Debug only - just run through the command but don\'t make any changes');
-	$ret[] = array('--checkphp=true', 'Run PHP syntaxt check on php files (php -l <file name>)');
-	$ret[] = array('-c', 'Prompt for FreePBX.org Credentials');
-	$ret[] = array('--help', 'Show this menu and exit');
-	$ret[] = array('--log', 'Update module.xml\'s changelog. [Done by default if bumping]');
-	$ret[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples)');
-	$ret[] = array('--directory', 'Directory Location of modules root, always assumed to be ../freepbx from this location');
-	$ret[] = array('--msg', 'Optional commit message.');
-	$ret[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
-	$ret[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
-
-	$ret[] = '';
-
-	//generate formated help message
-	foreach ($ret as $r) {
-		if (is_array($r)) {
-			//pad the option
-			$option = '  ' . str_pad($r[0], 20);
-
-			//explode the definition to manageable chunks
-			$def = explode('§', wordwrap($r[1], 55, "§", true));
-
-			//and pad the def with whitespace 20 chars to the left stating from the second line
-			if (count($def) > 1) {
-				$first = array_shift($def);
-				foreach ($def as $my => $item) {
-					$def[$my] = str_pad('', 22) . $item . PHP_EOL;
-				}
-			} elseif (count($def) == 1) {
-				$first = implode($def);
-				$def = array();
-			} else {
-				$first = '';
-				$def = array();
-			}
-
-			$definition = $first . PHP_EOL . implode($def);
-			$final .= $option . $definition;
-		} else {
-			$final .=  $r . PHP_EOL;
-		}
-	}
-	return $final;
-}
-?>
