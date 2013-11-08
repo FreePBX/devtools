@@ -458,6 +458,69 @@ class GitRepo {
 	}
 
 	/**
+         * Runs a `git tag` call
+         *
+         * @access  public
+         * @param   bool    keep asterisk mark on active branch
+         * @return  array
+         */
+        public function list_tags($keep_asterisk = false) {
+                $tagArray = explode("\n", $this->run("tag"));
+                foreach($tagArray as $i => &$tag) {
+                        $tag = trim($tag);
+                        if (! $keep_asterisk) {
+                                $tag = str_replace("* ", "", $tag);
+                        }
+                        if ($tag == "") {
+                                unset($tagArray[$i]);
+                        }
+                }
+                return $tagArray;
+        }
+
+	/**
+         * Runs a `git show-ref` tag call
+         *
+         * Accepts a name of a tag
+         *
+         * @access  public
+         * @param   string  tag name
+         * @return  string
+         * @todo    We might want to expand on this to handle refs that come 
+	 * 		back with more than one result
+	 */
+	public function show_ref_tag($tag) {
+		return trim($this->run("show-ref -s " . $tag));
+	}
+
+	/**
+         * Runs a `git log`
+         *
+         * Accepts the from sha1, to sha1, and format
+         *
+         * @access  public
+         * @param   string  from sha1 hash
+	 * @param   string  to sha1 hash
+	 * @param   string  format string
+         * @return  string
+         */
+	public function log($from=null, $to=null, $format=null) {
+		$cmd[] = 'log';
+		if (isset($format) && $format != '') {
+			$cmd[] = $format;
+		}
+		if (isset($from) && $from != '') {
+			$diff = '';
+			if (isset($to) && $to != '') {
+				$diff .= '...';
+				$diff .= $to;
+			}
+			$cmd[] = $diff;
+		}
+		return $this->run(implode(' ',$cmd));
+	}
+
+	/**
 	 * Runs a `git checkout` call
 	 *
 	 * Accepts a name for the branch
