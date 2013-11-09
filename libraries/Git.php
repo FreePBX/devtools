@@ -256,6 +256,26 @@ class GitRepo {
 	public function run($command) {
 		return $this->run_command(Git::get_bin()." ".$command);
 	}
+	
+	public function status() {
+		$status = $this->run("status --porcelain");
+		if(empty($status)) {
+			return false;
+		}
+		$lines = explode("\n",$status);
+		$final = array(
+			'untracked' => array(),
+			'modified' => array(),
+		);
+		foreach($lines as $line) {
+			if(preg_match('/\?\?(.*)/',$line,$matches)) {
+				$final['untracked'][] = trim($matches[1]);
+			} elseif(preg_match('/M (.*)/',$line,$matches)) {
+				$final['modified'][] = trim($matches[1]);
+			}
+		}
+		return $final;
+	}
 
 	/**
 	 * Runs a `git add` call
@@ -456,59 +476,90 @@ class GitRepo {
 			return str_replace("* ", "", current($active_branch));
 		}
 	}
+	
+	/**
+	* Runs a `git ls-remote --tags` call
+	*
+	* Determines if a tag already exists on a remote server
+	*
+	* @access  public
+	* @param   string $tag The tag name
+	* @return  bool
+	*/
+	public function remote_tag_exist($remote, $tag) {
+		$o = $this->run("ls-remote --tags $remote $tag");
+		if(empty($o)) {
+			return false; 
+		}
+		return true;
+	}
+	
+	/**
+	* Runs a `git tag` call
+	*
+	* Determines if a tag already exists
+	*
+	* @access  public
+	* @param   string $tag The tag name
+	* @return  bool
+	*/
+	public function tag_exist($tag) {
+		$tags = $this->list_tags();
+		return(in_array($tag,$tags));
+	}
 
 	/**
-         * Runs a `git tag` call
-         *
-         * @access  public
-         * @param   bool    keep asterisk mark on active branch
-         * @return  array
-         */
-        public function list_tags($keep_asterisk = false) {
-                $tagArray = explode("\n", $this->run("tag"));
+	* Runs a `git tag` call
+	*
+	* @access  public
+	* @param   bool    keep asterisk mark on active branch
+	* @return  array
+	*/
+	public function list_tags($keep_asterisk = false) {
+		$tagArray = explode("\n", $this->run("tag"));
 		if (!empty($tagArray)) {
-	                foreach($tagArray as $i => &$tag) {
-	                        $tag = trim($tag);
-	                        if (! $keep_asterisk) {
-	                                $tag = str_replace("* ", "", $tag);
-	                        }
-	                        if ($tag == "") {
-	                                unset($tagArray[$i]);
-	                        }
-	                }
+			foreach($tagArray as $i => &$tag) {
+				$tag = trim($tag);
+				if (! $keep_asterisk) {
+					$tag = str_replace("* ", "", $tag);
+				}
+				if ($tag == "") {
+					unset($tagArray[$i]);
+				}
+			}
 		}
 		if (empty($tagArray)) {
 			return false;
 		}
-                return $tagArray;
-        }
+		return $tagArray;
+	}
 
 	/**
-         * Runs a `git show-ref` tag call
-         *
-         * Accepts a name of a tag
-         *
-         * @access  public
-         * @param   string  tag name
-         * @return  string
-         * @todo    We might want to expand on this to handle refs that come 
-	 * 		back with more than one result
-	 */
+	* Runs a `git show-ref` tag call
+	*
+	* Accepts a name of a tag
+	*
+	* @access  public
+	* @param   string  tag name
+	* @return  string
+	* @todo    We might want to expand on this to handle refs that come 
+	* 		back with more than one result
+	*/
 	public function show_ref_tag($tag) {
 		return trim($this->run("show-ref -s " . $tag));
 	}
 
 	/**
-         * Runs a `git log`
-         *
-         * Accepts the from sha1, to sha1, and format
-         *
-         * @access  public
-         * @param   string  from sha1 hash
-	 * @param   string  to sha1 hash
-	 * @param   string  format string
-         * @return  string
-         */
+	* Runs a `git log`
+	*
+	* Accepts the from sha1, to sha1, and format
+	*
+	* @access  public
+	* @param   string  from sha1 hash
+	* @param   string  to sha1 hash
+	* @param   string  format string
+	* @return  string
+	*/
 	public function log($from=null, $to=null, $format=null) {
 		$cmd[] = 'log';
 		if (isset($format) && $format != '') {
@@ -554,13 +605,15 @@ class GitRepo {
 
 
 	/**
-	 * Runs a git fetch on the current branch
+	 * Runs a git fetch on the current repository
 	 *
 	 * @access  public
 	 * @return  string
 	 */
 	public function fetch() {
-		return $this->run("fetch");
+		$this->run("fetch -q");
+		$this->run("fetch --tags -q");
+		return true;
 	}
 
 	/**
@@ -577,6 +630,27 @@ class GitRepo {
 			$message = $tag;
 		}
 		return $this->run("tag -a $tag -m $message");
+	}
+	
+	/**
+	 * Delete a local tag
+	 *
+	 * @param string $tag
+	 * @return string
+	 */
+	public function delete_tag($tag) {
+		return $this->run("tag -d $tag");
+	}
+	
+	/**
+	 * Delete a remote tag
+	 *
+	 * @param string $remote
+	 * @param string $tag
+	 * @return string
+	 */
+	public function delete_remote_tag($remote, $tag) {
+		return $this->run("push $remote :$tag");
 	}
 
 	/**
