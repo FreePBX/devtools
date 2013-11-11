@@ -564,6 +564,16 @@ class GitRepo {
 	}
 
 	/**
+	 * Runs a git fetch --tags on the current branch
+         *
+         * @access  public
+         * @return  string
+         */
+        public function fetch_tags() {
+                return $this->run("fetch --tags");
+        }
+
+	/**
 	 * Add a new tag on the current position
 	 *
 	 * Accepts the name for the tag and the message
