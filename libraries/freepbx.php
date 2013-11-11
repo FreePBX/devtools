@@ -360,34 +360,38 @@ class freepbx {
 	
 	//test xml file for validity and extract some info from it
 	public static function check_xml($mod_dir) {
-	        //check the xml script integrity
-	        $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
-	        if($xml === FALSE) {
-	                freepbx::outn('module.xml seems corrupt');
-	                return array(false, false);
-	        }
+		if(!file_exists($mod_dir . '/' . 'module.xml')) {
+			freepbx::outn('module.xml is missing');
+			return array(false, false, false);
+		}
+		//check the xml script integrity
+		$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
+		if($xml === FALSE) {
+			freepbx::outn('module.xml seems corrupt');
+			return array(false, false, false);
+		}
 
-	        //check that module name is set in module.xml
-	        $rawname = (string) $xml->rawname;
-	        if (!$rawname) {
-	                freepbx::outn('module.xml is missing a module name');
-	                $rawname = false;
-	        }
+		//check that module name is set in module.xml
+		$rawname = (string) $xml->rawname;
+		if (!$rawname) {
+			freepbx::outn('module.xml is missing a module name');
+			$rawname = false;
+		}
 
-	        //check that module version is set in module.xml
-	        $version = (string) $xml->version;
-	        if (!$version) {
-	                freepbx::outn('module.xml is missing a version number');
-	                $version = false;
-	        }
+		//check that module version is set in module.xml
+		$version = (string) $xml->version;
+		if (!$version) {
+			freepbx::outn('module.xml is missing a version number');
+			$version = false;
+		}
 
-	        //check that module version is set in module.xml
-	        $supported = (array) $xml->supported;
-	        if (!$supported) {
-	                freepbx::outn('module.xml is missing supported tag');
-	                $supported = false;
-	        }
+		//check that module version is set in module.xml
+		$supported = (array) $xml->supported;
+		if (!$supported) {
+			freepbx::outn('module.xml is missing supported tag');
+			$supported = false;
+		}
 
-	        return array($rawname, $version, $supported);
+		return array($rawname, $version, $supported);
 	}
 }

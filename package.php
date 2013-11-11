@@ -32,6 +32,9 @@ $help[] = array('--directory', 'Directory Location of modules root, always assum
 $help[] = array('--msg', 'Optional commit message.');
 $help[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
 $help[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
+$help[] = array('--forcetag', 'Force this sha1 onto the server if the tag already exists');
+$help[] = array('--remote', 'The Remote GIT Repository name, Default is origin');
+$help[] = array('--http', 'Force GIT To use http mode');
 //get cli opts
 $longopts = array(
 	'directory:',
@@ -43,10 +46,15 @@ $longopts = array(
 	'msg::',
 	'publish::',
 	're::',
-	'verbose::'
+	'verbose::',
+	'forcetag',
+	'remote::',
+	'http'
 );
 $vars = getopt('m:d::v::c::', $longopts);
-
+//TODO: Figure out what we really want to pull from here?
+// Right now it's just directory
+$fvars = freepbx::getFreePBXConfig();
 if (isset($vars['d']) || isset($vars['L'])) {
 	freepbx::showHelp('Package.php',$help);
 	sleep(3);
@@ -71,11 +79,11 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 
 //set up some other settings
 $vars['git_ssh'] = 'ssh://git@git.freepbx.org/freep12/';
+$vars['git_http'] = null;
 $vars['php_-l']	= 'php -l';
-//TODO: This should be settable by the developer, again maybe keeping the information in a ,freepbxconfig?
 $vars['remote'] = (isset($vars['remote'])) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
-$vars['directory'] = !empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx';
+$vars['directory'] = !empty($fvars['directory']) ? $fvars['directory'] : (!empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx');
 $modules = array();
 $final_status = array();//status message to be printed after script is run
 
@@ -87,6 +95,7 @@ $modules = array_merge($vars['m'], $vars['module']);
 unset($vars['m']);
 unset($vars['module']);
 
+//Check to make sure the module folder actually exists in the path provided
 foreach($modules as $module) {
 	if(!file_exists($vars['directory'].'/'.$module)) {
 		freepbx::out('Module '.$module.' does not exist in path: '.$vars['directory']);
@@ -94,12 +103,14 @@ foreach($modules as $module) {
 	}
 }
 
+//bump or not and by how much
 if (isset($vars['bump']) && $vars['bump'] != 'false') {
 	$vars['bump'] = ctype_digit($vars['bump']) ? $vars['bump'] : true;
 } else {
 	$vars['bump'] = false;
 }
 
+//debug, shortops and longops
 if (isset($vars['d'])) {
 	$vars['debug'] = true;
 	unset($vars['d']);
@@ -109,12 +120,28 @@ if (isset($vars['d'])) {
 	$vars['debug'] = false;
 }
 
+//log or not
 if (isset($vars['log']) && $vars['log'] != 'log') {
 	$vars['log'] = true;
 } else {
 	$vars['log'] = false;
 }
 
+//https mode
+if (isset($vars['http']) && $vars['http'] != 'http') {
+	$vars['http'] = true;
+} else {
+	$vars['http'] = false;
+}
+
+//force a tag to be updated instead of creating from scratch
+if (isset($vars['forcetag']) && $vars['forcetag'] != 'forcetag') {
+	$vars['forcetag'] = true;
+} else {
+	$vars['forcetag'] = false;
+}
+
+//verbosity
 if (isset($vars['v'])) {
 	$vars['verbose'] = true;
 	unset($vars['L']);
@@ -124,14 +151,9 @@ if (isset($vars['v'])) {
 	$vars['verbose'] = false;
 }
 
-$vars['git_q'] = $vars['debug'] || $vars['verbose'] ? '' : ' --quiet ';
-
 //check to see if this an interactive session
 exec('test -t 0', $ret, $vars['interactive']);
 $vars['interactive'] = !$vars['interactive'];
-
-//set publish to true if requested, but always false if the file doesnt exist
-$vars['publish'] = (isset($vars['publish']) && file_exists(dirname(__FILE__) . '/pkg_publish.php')) ? true : false;
 
 //set re
 //move re to an array if there are commas as part of the value
@@ -164,7 +186,7 @@ $vars['msg'] = $vars['re'] ? $vars['re'] . '- ' . $vars['msg'] : $vars['msg'];
 
 //set username and password mode
 //TODO: This will be used by JIRA at some point
-if (isset($vars['c']) && $vars['interactive']) {
+if ((isset($vars['c']) || $vars['http']) && $vars['interactive']) {
 	$vars['username'] = freepbx::getInput('Username');
 	if (empty($vars['username'])) {
 		freepbx::out("Invalid Username");
@@ -176,7 +198,7 @@ if (isset($vars['c']) && $vars['interactive']) {
 		efreepbx::out("Invalid Password");
 		exit(1);
 	}
-	$vars['git_http']	= 'http://'.$vars["username"].'@git.freepbx.org/scm/freep12/';
+	$vars['git_http'] = 'http://'.$vars["username"].':'.$vars["password"].'@git.freepbx.org/scm/freep12/';
 }
 
 //ensure we have modules to package
@@ -218,18 +240,44 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
+	
+	//this is for future http support
+	if(!empty($vars['git_http'])) {
+		//TODO: we could just do the following, but it seems bad
+		//git remote set-url origin http://<user>:<pass>@git.freepbx.org/scm/freep12/announcement.git
+		freepbx::out("\t\tDetected HTTP mode, This mode is NOT SUPPORTED YET");
+		continue;
+	}
 
 	//check to make sure the origin is set to FreePBX
 	$oi = $repo->show_remote($vars['remote']);
-	freepbx::outn("\t\tChecking To Make Sure Origin is set to FreePBX.org...");
-	if($oi['Push  URL'] != $vars['git_ssh'] . $module . '.git') {
-		//TODO: maybe set the correct origin?
-		//we could set it here? git remote set-url origin git://new.url.here
-		freepbx::out("Set Incorrectly, your origin is set to " . $oi['Push  URL']);
+	freepbx::outn("\t\tChecking To Make Sure ".$vars['remote']." is set to FreePBX.org...");
+	$remote_url = !empty($vars['git_http']) ? $vars['git_http'] : $vars['git_ssh'];
+	if($oi['Push  URL'] != $remote_url . $module . '.git') {
+		freepbx::out("");
+		freepbx::out("\t\t\tSet Incorrectly, your remote ".$vars['remote']." is set to " . $oi['Push  URL']);
+		freepbx::out("\t\t\tExpected ".$vars['remote']." was " . $remote_url . $module . '.git');
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("Set Correctly");
+	
+	//fetch changes so that we can get new tags
+	freepbx::outn("\t\tFetching remote changes (not applying)...");
+	$stash = $repo->fetch();
+	freepbx::out("Done");
+	
+	//now check to make sure the xml is valid
+	freepbx::outn("\tChecking Module XML...");
+	//test xml file and get some of its values
+	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
+	//dont continue if there is an issue with the xml
+	if ($rawname == false || $ver == false || $supported == false) {
+		freepbx::out('module.xml is missing rawname or version or is corrupt');
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
+	freepbx::out("Done");
 
 	//Check to see if we are on the correct release branch
 	freepbx::outn("\t\tChecking if on Release Branch...");
@@ -254,22 +302,10 @@ foreach ($modules as $module) {
 	//make sure the version inside the module matches the release version we are on
 	//(the first 2 version IDs)
 	if($bver != $mver) {
-		freepbx::out("Module Version of ".$mver." does not match release version of ".$bver);
+		freepbx::out("Module Version of ".$mver." does not match branch release version of ".$bver);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-	
-	//now check to make sure the xml is valid
-	freepbx::outn("\tChecking Module XML...");
-	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = check_xml($module);
-	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false || $supported == false) {
-		freepbx::out('module.xml is missing rawname or version or is corrupt');
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
-	}
-	freepbx::out("Done");
 
 	//now check all release branches and make sure our supported version isn't doubled
 	//Stash locally uncommited changes if we need to do so before switching branches
@@ -284,13 +320,14 @@ foreach ($modules as $module) {
 			freepbx::outn("\t\t\tChecking ".$branch."...");
 			//checkout remote branch, headless mode!
 			$repo->checkout($branch);
-			$bxml = check_xml($module);
+			$bxml = freepbx::check_xml($mod_dir);
 			//check to make sure we aren't higher than the ones higher than us
 			//and that we arent lower than the ones lower than us
 			$type = version_compare($bver, $matches[1], '>') ? '<=' : '>=';
 			if (!empty($bxml[2]['version']) && version_compare($supported['version'], $bxml[2]['version'], $type)) {
 				$ntype = ($type == '<=') ? 'higher' : 'lower';
-				freepbx::out("Supported version of branch ".$branch."(".$bxml[2]['version'].") is ".$ntype." than branch ".$activeb."(".$supported['version'].")");
+				$stype = ($type == '>=') ? 'higher' : 'lower';
+				freepbx::out("Supported version of this branch (".$bxml[2]['version'].") on a ".$stype." release is ".$ntype." than branch ".$activeb."(".$supported['version'].")");
 				//errored so checkout original branch
 				$repo->checkout($activeb);
 				//restore stash if we need to do so
@@ -309,7 +346,7 @@ foreach ($modules as $module) {
 			}
 			if(!empty($bxml[2]['version'])) {
 				$ntype = ($type == '>=') ? 'higher' : 'lower';
-				freepbx::out("Passed (Supported Version in this branch is ".$ntype.")");
+				freepbx::out("Passed (Supported version of this branch [".$bxml[2]['version']."] is ".$ntype." than ".$supported['version'].")");
 			} else {
 				freepbx::out("");
 			}
@@ -356,7 +393,7 @@ foreach ($modules as $module) {
 	//Check XML File one more time to be safe
 	freepbx::outn("\tChecking Modified Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = check_xml($module);
+	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
 	//dont continue if there is an issue with the xml
 	if ($rawname == false || $ver == false || $supported == false) {
 		freepbx::out('module.xml has gotten corrupt');
@@ -391,7 +428,51 @@ foreach ($modules as $module) {
 	freepbx::out("There are no errors");
 
 	//GIT Processing here
-	freepbx::out("\tRunning Git...");
+	freepbx::out("\tRunning GIT...");
+	freepbx::outn("\t\tChecking for Modified or New files...");
+	$status = $repo->status();
+	if(empty($status)) {
+		freepbx::out("No Modified or New Files");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	} else {
+		freepbx::out("Found ".count($status['modified'])." Modified files and ".count($status['untracked'])." New files");
+	}
+	
+	//Check to see if the tag already exists locally
+	freepbx::outn("\t\tChecking to see if local tag already exists...");
+	if($repo->tag_exist('release/'.$ver) && !$vars['forcetag']) {
+		freepbx::out("Tag Already Exists (Use --forcetag to force this sha1 onto the remote)");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	} elseif($repo->tag_exist('release/'.$ver) && $vars['forcetag']) {
+		freepbx::out("It does");
+		freepbx::outn("\t\t\t[FORCETAG] Removing Local Tag...");
+		if(!$vars['debug']) {
+			$repo->delete_tag('release/'.$ver);
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
+		}
+	} else {
+		freepbx::out("It doesn't");
+	}
+	
+	//Check to see if the tag exists remotely
+	$remote_tag = null;
+	freepbx::outn("\t\tChecking to see if remote tag on ".$vars['remote']." already exists...");
+	if($repo->remote_tag_exist($vars['remote'],'release/'.$ver) && !$vars['forcetag']) {
+		freepbx::out("Tag Already Exists (Use --forcetag to force this sha1 onto the remote)");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	} elseif($repo->remote_tag_exist($vars['remote'],'release/'.$ver) && $vars['forcetag']) {
+		freepbx::out("It does..");
+		freepbx::out("\t\t\t[FORCETAG] Remote tag stagged for removal");
+		$remote_tag = 'release/'.$ver;
+	} else {
+		freepbx::out("It doesn't");
+	}
+	
 	freepbx::outn("\t\tAdding Module.xml...");
 	//add module.xml separately from the rest of the changes, because I said so
 	if(!$vars['debug']) {
@@ -435,6 +516,22 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("Debugging, Not Ran");
 	}
+	//remove remote tag but only if we had forcetag enabled
+	if(!empty($remote_tag) && $vars['forcetag']) {
+		freepbx::outn("\t\t[FORCETAG] Removing Staged Remote Tag...");
+		if(!$vars['debug']) {
+			try {
+				$repo->delete_remote_tag($vars['remote'],$remote_tag);
+			} catch (Exception $e) {
+				freepbx::out($e->getMessage());
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
+		}
+	}
 	freepbx::outn("\t\tAdding Tag at this state...");
 	//add a tag at this point in time
 	if(!$vars['debug']) {
@@ -449,7 +546,7 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("Debugging, Not Ran");
 	}
-	freepbx::outn("\t\tPushing to Origin...");
+	freepbx::outn("\t\tPushing to ".$vars['remote']."...");
 	//push branch and tag to remote
 	//TODO: check to make sure the author/committer isn't 'root'
 	if(!$vars['debug']) {
@@ -651,38 +748,4 @@ function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
 		$outline = system($cmd . $quiet, $ret_val);
 	}
 	return ($ret_val == 0);
-}
-
-//test xml file for validity and extract some info from it
-function check_xml($mod) {
-	global $mod_dir;
-	//check the xml script integrity
-	$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
-	if($xml === FALSE) {
-		freepbx::outn('module.xml seems corrupt');
-		return array(false, false);
-	}
-
-	//check that module name is set in module.xml
-	$rawname = (string) $xml->rawname;
-	if (!$rawname) {
-		freepbx::outn('module.xml is missing a module name');
-		$rawname = false;
-	}
-
-	//check that module version is set in module.xml
-	$version = (string) $xml->version;
-	if (!$version) {
-		freepbx::outn('module.xml is missing a version number');
-		$version = false;
-	}
-
-	//check that module version is set in module.xml
-	$supported = (array) $xml->supported;
-	if (!$supported) {
-		freepbx::outn('module.xml is missing supported tag');
-		$supported = false;
-	}
-
-	return array($rawname, $version, $supported);
 }

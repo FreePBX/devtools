@@ -98,6 +98,7 @@ function checklog($moddir) {
 	$mver = $matches[1];
 
 	//Format the module version to 2 decimals so we know the release
+	//TODO: Bryan this is already done with the preg match above.
 	$rver = number_format($mver,2);
 
 	//cycle through the tags and create a new array with relavant tags
