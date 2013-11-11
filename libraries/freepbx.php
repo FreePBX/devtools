@@ -171,12 +171,16 @@ class freepbx {
 				freepbx::out($dir . " Already Exists, Skipping (use --force to force)");
 				continue;
 			}
-			Git::create($dir, $repos['cloneSSH']);
+			$repo = Git::create($dir, $repos['cloneSSH']);
 			freepbx::out("Done");
 			
-			freepbx::outn("\tChecking you out into the ".$release." release...");
-			$repo->checkout('release/'.$release);
-			freepbx::out("Done");
+			freepbx::outn("\tChecking you out into the develop branch...");
+			try {
+				$repo->checkout('develop');
+				freepbx::out("Done");
+			} catch (Exception $e) {
+				freepbx::out('develop does not exist');
+			}
 		}
 	}
 
