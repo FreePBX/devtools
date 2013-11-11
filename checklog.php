@@ -95,11 +95,7 @@ function checklog($moddir) {
 
 	//Get current module version
 	preg_match('/(\d*\.\d*)\./i',$ver,$matches);
-	$mver = $matches[1];
-
-	//Format the module version to 2 decimals so we know the release
-	//TODO: Bryan this is already done with the preg match above.
-	$rver = number_format($mver,2);
+	$rver = $matches[1];
 
 	//cycle through the tags and create a new array with relavant tags
 	$tagArray = array();
