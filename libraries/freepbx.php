@@ -365,37 +365,59 @@ class freepbx {
 	//test xml file for validity and extract some info from it
 	public static function check_xml($mod_dir) {
 		if(!file_exists($mod_dir . '/' . 'module.xml')) {
-			freepbx::outn('module.xml is missing');
+			freepbx::out('module.xml is missing');
 			return array(false, false, false);
 		}
 		//check the xml script integrity
 		$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
 		if($xml === FALSE) {
-			freepbx::outn('module.xml seems corrupt');
+			freepbx::out('module.xml seems corrupt');
 			return array(false, false, false);
 		}
 
 		//check that module name is set in module.xml
 		$rawname = (string) $xml->rawname;
 		if (!$rawname) {
-			freepbx::outn('module.xml is missing a module name');
+			freepbx::out('module.xml is missing a module name');
 			$rawname = false;
 		}
 
 		//check that module version is set in module.xml
 		$version = (string) $xml->version;
 		if (!$version) {
-			freepbx::outn('module.xml is missing a version number');
+			freepbx::out('module.xml is missing a version number');
 			$version = false;
 		}
 
 		//check that module version is set in module.xml
 		$supported = (array) $xml->supported;
 		if (!$supported) {
-			freepbx::outn('module.xml is missing supported tag');
+			freepbx::out('module.xml is missing supported tag');
 			$supported = false;
 		}
 
 		return array($rawname, $version, $supported);
+	}
+	
+	// if $duplex set to true and in debug mode, it will echo the command AND run it
+	public static function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
+		global $vars;
+		$quiet = $quiet ? ' > /dev/null' : '';
+
+		if (isset($vars['debug'])) {
+			echo $cmd . PHP_EOL;
+			if (!$duplex) {
+				return true;
+			}
+		}
+		if (isset($vars['verbose'])) {
+			$bt = debug_backtrace();
+			echo PHP_EOL . '+' . $bt[0]["file"] . ':' . $bt[0]["line"] . PHP_EOL;
+			echo "\t" . $cmd . PHP_EOL;
+			$outline = system($cmd . $quiet, $ret_val);
+		} else {
+			$outline = system($cmd . $quiet, $ret_val);
+		}
+		return ($ret_val == 0);
 	}
 }
