@@ -398,6 +398,21 @@ class freepbx {
 
 		return array($rawname, $version, $supported);
 	}
+
+	//return the xml as an object
+	public static function get_xml($mod_dir) {
+		if(!file_exists($mod_dir . '/' . 'module.xml')) {
+                        freepbx::out('module.xml is missing');
+                        return array(false, false, false);
+                }
+                //check the xml script integrity
+                $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
+                if($xml === FALSE) {
+                        freepbx::out('module.xml seems corrupt');
+                        return array(false, false, false);
+                }
+		return $xml;
+	}
 	
 	// if $duplex set to true and in debug mode, it will echo the command AND run it
 	public static function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
