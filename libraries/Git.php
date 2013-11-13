@@ -529,7 +529,7 @@ class GitRepo {
 			}
 		}
 		if (empty($tagArray)) {
-			return false;
+			return array();
 		}
 		return $tagArray;
 	}
@@ -574,6 +574,19 @@ class GitRepo {
 			$cmd[] = $diff;
 		}
 		return $this->run(implode(' ',$cmd));
+	}
+	
+	public function log_search($greps=array(), $format=null) {
+		$cmd[] = 'log --all -i';
+		foreach($greps as $grep) {
+			$cmd[] = '--grep="'.$grep.'"';
+		}
+		if (isset($format) && $format != '') {
+			$cmd[] = '--pretty=format:"'.$format.'"';
+		}
+		$o = $this->run(implode(' ',$cmd));
+		$z = explode("\n",$o);
+		return $z;
 	}
 
 	/**
@@ -635,11 +648,11 @@ class GitRepo {
 	 * @param string $message
 	 * @return string
 	 */
-	public function add_tag($tag, $message = null) {
+	public function add_tag($tag, $message = null, $ref = '') {
 		if ($message === null) {
 			$message = $tag;
 		}
-		return $this->run("tag -a $tag -m $message");
+		return $this->run("tag -a $tag -m $message $ref");
 	}
 	
 	/**
