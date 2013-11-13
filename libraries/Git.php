@@ -778,7 +778,18 @@ class GitRepo {
 	public function get_description() {
 		return file_get_contents($this->repo_path."/.git/description");
 	}
-	
+
+	/**
+	 * Archive a git tag to gzip
+	 *
+	 * @param string $prefix
+	 * @param string $tag
+	 * @param string $filename
+	 * @return string
+	 */
+	public function gzip_archive_tag($prefix, $tag, $filename) {
+		return $this->run("archive --format=tar --prefix=$module/ release/$htag | gzip > $filename");
+	}	
 }
 
 /* End of file */
