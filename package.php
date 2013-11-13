@@ -272,8 +272,8 @@ foreach ($modules as $module) {
 	//test xml file and get some of its values
 	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false || $supported == false) {
-		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
+	if ($rawname == false || $ver == false) {
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : 'Unknown');
 		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
@@ -307,21 +307,28 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-
+	//cleaner to the eyes of us mortals
+	natsort($rbranches);
 	//now check all release branches and make sure our supported version isn't doubled
-	//Stash locally uncommited changes if we need to do so before switching branches
-	freepbx::out("\t\tChecking to make sure supported version isn't doubled...");
-	$stash = $repo->add_stash();
-	if(!empty($stash)) {
-		freepbx::out("\t\t\tStashing Uncommited changes..Done");
-	}
+	freepbx::out("\tChecking to make sure supported version isn't doubled...");
 	//run through remote branches
 	foreach($rbranches as $branch) {
-		if(preg_match('/release\/(.*)/i',$branch,$matches) && $branch != $vars['remote'].'/'.$activeb) {
-			freepbx::outn("\t\t\tChecking ".$branch."...");
-			//checkout remote branch, headless mode!
-			$repo->checkout($branch);
-			$bxml = freepbx::check_xml_file($mod_dir);
+		//divide and conquer, only work with our remote and our releases on remote
+		//but skip our active branch, we know about that one 
+		if(preg_match('/'.$vars['remote'].'\/release\/(.*)/i',$branch,$matches) && $branch != $vars['remote'].'/'.$activeb) {
+			freepbx::outn("\t\tChecking ".$branch."...");
+			//attempt to 'grab' the file from it's reference,
+			//way less messy than a checkout
+			try{
+				$xml = $repo->show('refs/remotes/'.$branch,'module.xml');
+			} catch (Exception $e) {
+				//no module xml here...nothing to see move along and try next branch
+				freepbx::out("No Module.xml, skipping");
+				continue;
+			}
+			//load our xml string into our common parser
+			//we only get back three of the tags, rawname, version and supported
+			$bxml = freepbx::check_xml_string($xml);
 			//check to make sure we aren't higher than the ones higher than us
 			//and that we arent lower than the ones lower than us
 			$type = version_compare($bver, $matches[1], '>') ? '<=' : '>=';
@@ -329,46 +336,20 @@ foreach ($modules as $module) {
 				$ntype = ($type == '<=') ? 'higher' : 'lower';
 				$stype = ($type == '>=') ? 'higher' : 'lower';
 				freepbx::out("Supported version of this branch (".$bxml[2]['version'].") on a ".$stype." release is ".$ntype." than branch ".$activeb."(".$supported['version'].")");
-				//errored so checkout original branch
-				$repo->checkout($activeb);
-				//restore stash if we need to do so
-				if(!empty($stash)) {
-					freepbx::outn("\t\t\tRestoring Uncommited changes...");
-					try {
-						$repo->apply_stash();
-						$repo->drop_stash();
-						freepbx::out("Done");
-					} catch (Exception $e) {
-						freepbx::out("Failed to restore stash!, Please check your directory");
-					}
-				}
+				//errored so die out
 				freepbx::out("Module " . $module . " will not be tagged!");
+				//completely exit out of attempting anything with this module, it has problems
+				//'mo money mo' problems I always say
 				continue(2);
 			}
+			//some visual aides for good branches
 			if(!empty($bxml[2]['version'])) {
 				$ntype = ($type == '>=') ? 'higher' : 'lower';
 				freepbx::out("Passed (Supported version of this branch [".$bxml[2]['version']."] is ".$ntype." than ".$supported['version'].")");
 			}
 		}
 	}
-	//checkout original branch
-	$repo->checkout($activeb);
-	//restore stash if needed
-	if(!empty($stash)) {
-		freepbx::outn("\t\t\tRestoring Uncommited changes...");
-		try {
-			$repo->apply_stash();
-			$repo->drop_stash();
-		} catch (Exception $e) {
-			freepbx::out("Failed to restore stash!, Please check your directory");
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
-		}
-		freepbx::out("Done");
-	}
-
 	//check php files for syntax errors
-	//left on regardless of phpcheck.. for now
 	freepbx::outn("\tChecking for PHP Syntax Errors...");
 	$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
@@ -381,9 +362,7 @@ foreach ($modules as $module) {
 	}
 	unset($files);
 
-	//TODO: clean up unused portions of module.xml at this stage: md5sum,location?
-	//cleanup_xml_junk();
-
+	//if there are syntax errors then display them
 	if (isset($syntaxt_errors)) {
 		$final_status[$module] = implode(PHP_EOL, $syntaxt_errors);
 		freepbx::out("\t".$final_status[$module]);
@@ -392,7 +371,7 @@ foreach ($modules as $module) {
 	}
 	freepbx::out("There are no errors");
 	
-	//bump version if requested, and reset $ver
+	//bump version if requested
 	if ($vars['bump'] && !$vars['debug']) {
 		freepbx::outn("\tBumping Version as Requested...");
 		package_bump_version($module, $vars['bump']);
@@ -426,6 +405,13 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
+	//sanity check
+	if($rawname != $xmlarray['module']['rawname'] || $ver != $xmlarray['module']['version']) {
+		freepbx::out('simple_xml_object and xml2modulearray mismatch');
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
+
 	freepbx::out("Done");
 
 	//GIT Processing here
