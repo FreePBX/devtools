@@ -370,14 +370,19 @@ class freepbx {
 		}
 		//check the xml script integrity
 		$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
-		if($xml === FALSE) {
-			freepbx::out('module.xml seems corrupt');
-			return array(false, false, false);
-		}
 		return self::check_xml($xml); 
 	}
 	
+	public static function check_xml_string($xml) {
+		$xml = simplexml_load_string($xml);
+                return self::check_xml($xml);
+	}
+
 	public static function check_xml($xml) {
+		if($xml === FALSE) {
+                        freepbx::out('module.xml seems corrupt');
+                        return array(false, false, false);
+                }	
 		//check that module name is set in module.xml
 		$rawname = (string) $xml->rawname;
 		if (!$rawname) {
@@ -410,6 +415,11 @@ class freepbx {
                 }
                 //check the xml script integrity
                 $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
+		return self::get_xml($xml);
+	}
+
+	public static function get_xml_string($xml) {
+		$xml = simplexml_load_string($xml);
 		return self::get_xml($xml);
 	}
 
