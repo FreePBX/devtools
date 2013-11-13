@@ -550,6 +550,20 @@ class GitRepo {
 	}
 
 	/**
+	* Runs a `git show`
+	*
+	* Accepts the tree and the file we want to see
+	*
+	* $access public
+	* @param  string tree
+	* @param  string filename
+	* @return string
+	*/
+	public function show($tree,$file) {
+		return $this->run("show $tree:$file");
+	}
+
+	/**
 	* Runs a `git log`
 	*
 	* Accepts the from sha1, to sha1, and format
@@ -602,6 +616,20 @@ class GitRepo {
 		return $this->run("checkout $branch");
 	}
 
+	/**
+	 * Runs a `git checkout -b` call
+	 *
+	 * Accepts a name for the new branch
+	 * Accepts a name for the branch/tag being checked out
+	 *
+	 * @access  public
+	 * @param   string new branch name
+	 * @param   string branch/tag to checkout
+	 * @return  string
+	 */
+	public function checkout_branch($new_branch, $branch) {
+		return $this->run("checkout -b $new_branch $branch");
+	}
 
 	/**
 	 * Runs a `git merge` call
