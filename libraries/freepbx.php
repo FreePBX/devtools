@@ -435,4 +435,15 @@ class freepbx {
 		}
 		return ($ret_val == 0);
 	}
+	
+	// version_compare that works with FreePBX version numbers 
+	public static function version_compare_freepbx($version1, $version2, $op = null) {
+		$version1 = str_replace("rc","RC", strtolower($version1));
+		$version2 = str_replace("rc","RC", strtolower($version2));
+		if (!is_null($op)) {
+			return version_compare($version1, $version2, $op);
+		} else {
+			return version_compare($version1, $version2);
+		}
+	}	
 }
