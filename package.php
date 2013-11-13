@@ -270,7 +270,7 @@ foreach ($modules as $module) {
 	//now check to make sure the xml is valid
 	freepbx::outn("\tChecking Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
+	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
 	if ($rawname == false || $ver == false || $supported == false) {
 		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
@@ -321,7 +321,7 @@ foreach ($modules as $module) {
 			freepbx::outn("\t\t\tChecking ".$branch."...");
 			//checkout remote branch, headless mode!
 			$repo->checkout($branch);
-			$bxml = freepbx::check_xml($mod_dir);
+			$bxml = freepbx::check_xml_file($mod_dir);
 			//check to make sure we aren't higher than the ones higher than us
 			//and that we arent lower than the ones lower than us
 			$type = version_compare($bver, $matches[1], '>') ? '<=' : '>=';
@@ -418,7 +418,7 @@ foreach ($modules as $module) {
 	//Check XML File one more time to be safe
 	freepbx::outn("\tChecking Modified Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
+	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
 	if ($rawname == false || $ver == false || $supported == false) {
 		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));

@@ -91,7 +91,7 @@ function checklog($moddir) {
 	if ($ltags === false) {
 		return 'No Tags found!';
 	}
-	list($rawname, $ver, $supported) = freepbx::check_xml($moddir);
+	list($rawname, $ver, $supported) = freepbx::check_xml_file($moddir);
 
 	//Get current module version
 	preg_match('/(\d*\.\d*)\./i',$ver,$matches);
