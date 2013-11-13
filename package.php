@@ -348,8 +348,6 @@ foreach ($modules as $module) {
 			if(!empty($bxml[2]['version'])) {
 				$ntype = ($type == '>=') ? 'higher' : 'lower';
 				freepbx::out("Passed (Supported version of this branch [".$bxml[2]['version']."] is ".$ntype." than ".$supported['version'].")");
-			} else {
-				freepbx::out("");
 			}
 		}
 	}
@@ -368,41 +366,6 @@ foreach ($modules as $module) {
 		}
 		freepbx::out("Done");
 	}
-	// Run xml script through the exact method that FreePBX currently uses. There have
-	// been cases where XML is valid but this method still fails so it won't be caught
-	// with the proper XML checer, better here then breaking the online repository
-	// -Philippe L.
-	$parser = new xml2ModuleArray();
-	$xmlarray = $parser->parseAdvanced(file_get_contents($mod_dir . '/module.xml'));
-
-	//bump version if requested, and reset $ver
-	if ($vars['bump'] && !$vars['debug']) {
-		freepbx::outn("\tBumping Version as Requested...");
-		package_bump_version($module, $vars['bump']);
-		freepbx::out("Done");
-		$vars['log'] = true;
-	}
-
-	//add changelog if requested
-	if ($vars['log'] && !$vars['debug']) {
-		freepbx::outn("\tUpdating Changelog...");
-		$msg = $vars['msg'] ? $vars['msg'] : 'Packaging of ver ' . $ver;
-		package_update_changelog($module, $msg);
-		freepbx::out("Done");
-	}
-
-	//Check XML File one more time to be safe
-	freepbx::outn("\tChecking Modified Module XML...");
-	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
-	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false || $supported == false) {
-		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
-		freepbx::out('module.xml is missing '.$missing);
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
-	}
-	freepbx::out("Done");
 
 	//check php files for syntax errors
 	//left on regardless of phpcheck.. for now
@@ -422,12 +385,48 @@ foreach ($modules as $module) {
 	//cleanup_xml_junk();
 
 	if (isset($syntaxt_errors)) {
-		$final_status[$mod] = implode(PHP_EOL, $syntaxt_errors);
-		freepbx::out("\t".$final_status[$mod]);
+		$final_status[$module] = implode(PHP_EOL, $syntaxt_errors);
+		freepbx::out("\t".$final_status[$module]);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("There are no errors");
+	
+	//bump version if requested, and reset $ver
+	if ($vars['bump'] && !$vars['debug']) {
+		freepbx::outn("\tBumping Version as Requested...");
+		package_bump_version($module, $vars['bump']);
+		freepbx::out("Done");
+		$vars['log'] = true;
+	}
+
+	//add changelog if requested
+	if ($vars['log'] && !$vars['debug']) {
+		freepbx::outn("\tUpdating Changelog...");
+		$msg = $vars['msg'] ? $vars['msg'] : 'Packaging of ver ' . $ver;
+		package_update_changelog($module, $msg);
+		freepbx::out("Done");
+	}
+
+	// Run xml script through the exact method that FreePBX currently uses. There have
+	// been cases where XML is valid but this method still fails so it won't be caught
+	// with the proper XML checer, better here then breaking the online repository
+	// -Philippe L.
+	$parser = new xml2ModuleArray();
+	$xmlarray = $parser->parseAdvanced(file_get_contents($mod_dir . '/module.xml'));
+
+	//Check XML File one more time to be safe
+	freepbx::outn("\tChecking Modified Module XML...");
+	//test xml file and get some of its values
+	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
+	//dont continue if there is an issue with the xml
+	if ($rawname == false || $ver == false || $supported == false) {
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
+		freepbx::out('module.xml is missing '.$missing);
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
+	freepbx::out("Done");
 
 	//GIT Processing here
 	freepbx::out("\tRunning GIT...");
