@@ -108,7 +108,7 @@ function checklog($moddir) {
 	}
 
 	if (!empty($tagArray)) {
-		natsort($tagArray);
+		usort($tagArray,"freepbx::version_compare_freepbx");
 
 		$htag = array_pop($tagArray);
 
