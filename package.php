@@ -273,7 +273,8 @@ foreach ($modules as $module) {
 	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
 	//dont continue if there is an issue with the xml
 	if ($rawname == false || $ver == false || $supported == false) {
-		freepbx::out('module.xml is missing rawname or version or is corrupt');
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
+		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
@@ -396,7 +397,8 @@ foreach ($modules as $module) {
 	list($rawname, $ver, $supported) = freepbx::check_xml($mod_dir);
 	//dont continue if there is an issue with the xml
 	if ($rawname == false || $ver == false || $supported == false) {
-		freepbx::out('module.xml has gotten corrupt');
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
+		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
