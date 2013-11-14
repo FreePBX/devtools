@@ -812,7 +812,7 @@ class GitRepo {
 	 * @return string
 	 */
 	public function gzip_archive_tag($prefix, $tag, $filename) {
-		return $this->run("archive --format=tar --prefix=$prefix/ release/$tag | gzip > $filename");
+		return $this->run("archive --format=tar --prefix=$prefix $tag | gzip > $filename");
 	}	
 }
 
