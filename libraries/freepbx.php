@@ -369,20 +369,39 @@ class freepbx {
 			return array(false, false, false);
 		}
 		//check the xml script integrity
-		$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
+		libxml_use_internal_errors(true);
+		$xml = @simplexml_load_file($mod_dir . '/' . 'module.xml');
 		return self::check_xml($xml); 
 	}
 	
 	public static function check_xml_string($xml) {
-		$xml = simplexml_load_string($xml);
-                return self::check_xml($xml);
+		libxml_use_internal_errors(true);
+		$xml = @simplexml_load_string($xml);
+		return self::check_xml($xml);
 	}
 
 	public static function check_xml($xml) {
 		if($xml === FALSE) {
-                        freepbx::out('module.xml seems corrupt');
-                        return array(false, false, false);
-                }	
+			freepbx::out('module.xml seems corrupt');
+		    $errors = libxml_get_errors();
+
+		    foreach ($errors as $error) {
+			    switch ($error->level) {
+			        case LIBXML_ERR_WARNING:
+			            $ereturn = "Warning $error->code: ".trim($error->message);
+			            break;
+			         case LIBXML_ERR_ERROR:
+			            $ereturn = "Error $error->code: ".trim($error->message);
+			            break;
+			        case LIBXML_ERR_FATAL:
+			            $ereturn = "Fatal Error $error->code: ".trim($error->message);
+			            break;
+			    }
+				freepbx::out("\t\t\t\tXML ".$ereturn);
+		    }
+			libxml_clear_errors();
+			return array(false, false, false);
+		}	
 		//check that module name is set in module.xml
 		$rawname = (string) $xml->rawname;
 		if (!$rawname) {
@@ -402,19 +421,18 @@ class freepbx {
 		if (!$supported) {
 			freepbx::out('module.xml is missing supported tag');
 			$supported = false;
-		}
-
+		}		
 		return array($rawname, $version, $supported);
 	}
 
 	//return the xml as an object
 	public static function get_xml_file($mod_dir) {
 		if(!file_exists($mod_dir . '/' . 'module.xml')) {
-                        freepbx::out('module.xml is missing');
-                        return array(false, false, false);
-                }
-                //check the xml script integrity
-                $xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
+			freepbx::out('module.xml is missing');
+			return array(false, false, false);
+		}
+		//check the xml script integrity
+		$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
 		return self::get_xml($xml);
 	}
 
@@ -424,10 +442,10 @@ class freepbx {
 	}
 
 	public static function get_xml($xml) {
-                if($xml === FALSE) {
-                        freepbx::out('module.xml seems corrupt');
-                        return array(false, false, false);
-                }
+		if($xml === FALSE) {
+			freepbx::out('module.xml seems corrupt');
+			return array(false, false, false);
+		}
 		return $xml;
 	}
 	

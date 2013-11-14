@@ -694,6 +694,30 @@ class GitRepo {
 	}
 	
 	/**
+	 * Deletes all Local Tags
+	 *
+	 * http://stackoverflow.com/questions/1841341/remove-local-tags-that-are-no-longer-on-the-remote-repository
+	 *
+	 * @return string
+	 */
+	public function delete_all_tags() {
+		return $this->run("tag -l | xargs git tag -d");
+	}
+	
+	/**
+	 * Deletes all stale remote-tracking branches under
+	 *
+	 * These stale branches have already been removed from the remote repository referenced by $remote
+	 * but are still locally available in "remotes/$remote"
+	 *
+	 * @param string $remote
+	 * @return string
+	 */
+	public function prune($remote) {
+		return $this->run("remote prune $remote");
+	}
+	
+	/**
 	 * Delete a remote tag
 	 *
 	 * @param string $remote
