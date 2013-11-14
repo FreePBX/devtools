@@ -809,10 +809,11 @@ class GitRepo {
 	 * @param string $prefix
 	 * @param string $tag
 	 * @param string $filename
+	 * @param string $format (defaults to tar.gz)
 	 * @return string
 	 */
-	public function gzip_archive_tag($prefix, $tag, $filename) {
-		return $this->run("archive --format=tar --prefix=$prefix $tag | gzip > $filename");
+	public function gzip_archive_tag($prefix, $tag, $filename, $format='tar.gz') {
+		return $this->run("archive --format=$format --prefix=$prefix $tag -o $filename");
 	}	
 }
 
