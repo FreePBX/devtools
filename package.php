@@ -264,7 +264,7 @@ foreach ($modules as $module) {
 	
 	//fetch changes so that we can get new tags
 	freepbx::outn("\t\tFetching remote changes (not applying)...");
-	$stash = $repo->fetch();
+	$repo->fetch();
 	freepbx::out("Done");
 	
 	//now check to make sure the xml is valid
@@ -299,6 +299,16 @@ foreach ($modules as $module) {
 		freepbx::out("Yes (Working With ".$activeb.")");
 	}
 	$bver = $matches[1];
+	
+	freepbx::outn("\t\tFetching remote changes and applying to ".$activeb."...");
+	try {
+		$repo->pull($vars['remote'], $activeb);
+	} catch (Exception $e) {
+		freepbx::out("Merge Conflicts with this branch. Please fix");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
+	freepbx::out("Done");
 
 	//make sure the version inside the module matches the release version we are on
 	//(the first 2 version IDs)
@@ -418,12 +428,12 @@ foreach ($modules as $module) {
 	freepbx::out("\tRunning GIT...");
 	freepbx::outn("\t\tChecking for Modified or New files...");
 	$status = $repo->status();
+	$commitable = false;
 	if(empty($status)) {
 		freepbx::out("No Modified or New Files");
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
 	} else {
 		freepbx::out("Found ".count($status['modified'])." Modified files and ".count($status['untracked'])." New files");
+		$commitable = true;
 	}
 	
 	//Check to see if the tag already exists locally
@@ -460,48 +470,50 @@ foreach ($modules as $module) {
 		freepbx::out("It doesn't");
 	}
 	
-	freepbx::outn("\t\tAdding Module.xml...");
-	//add module.xml separately from the rest of the changes, because I said so
-	if(!$vars['debug']) {
-		try {
-			$repo->add('module.xml');
-		} catch (Exception $e) {
-			freepbx::out($e->getMessage());
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
+	if($commitable) {
+		freepbx::outn("\t\tAdding Module.xml...");
+		//add module.xml separately from the rest of the changes, because I said so
+		if(!$vars['debug']) {
+			try {
+				$repo->add('module.xml');
+			} catch (Exception $e) {
+				freepbx::out($e->getMessage());
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
 		}
-		freepbx::out("Done");
-	} else {
-		freepbx::out("Debugging, Not Ran");
-	}
 	
-	freepbx::outn("\t\tCheckin Outstanding Changes...");
-	//-A will do more than ., it will add any unstaged files...
-	if(!$vars['debug']) {
-		try {
-			$repo->add('-A');
-		} catch (Exception $e) {
-			freepbx::out($e->getMessage());
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
+		freepbx::outn("\t\tCheckin Outstanding Changes...");
+		//-A will do more than ., it will add any unstaged files...
+		if(!$vars['debug']) {
+			try {
+				$repo->add('-A');
+			} catch (Exception $e) {
+				freepbx::out($e->getMessage());
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
 		}
-		freepbx::out("Done");
-	} else {
-		freepbx::out("Debugging, Not Ran");
-	}
-	freepbx::outn("\t\tAdding Commit Message...");
-	//Commit with old commit message from before, but call it tag instead of commit.
-	if(!$vars['debug']) {
-		try {
-			$repo->commit('[Module Tag script: '.$rawname.' '.$ver.'] '.$vars['msg']);
-		} catch (Exception $e) {
-			freepbx::out($e->getMessage());
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
+		freepbx::outn("\t\tAdding Commit Message...");
+		//Commit with old commit message from before, but call it tag instead of commit.
+		if(!$vars['debug']) {
+			try {
+				$repo->commit('[Module Tag script: '.$rawname.' '.$ver.'] '.$vars['msg']);
+			} catch (Exception $e) {
+				freepbx::out($e->getMessage());
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
 		}
-		freepbx::out("Done");
-	} else {
-		freepbx::out("Debugging, Not Ran");
 	}
 	//remove remote tag but only if we had forcetag enabled
 	if(!empty($remote_tag) && $vars['forcetag']) {
