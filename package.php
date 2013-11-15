@@ -384,7 +384,7 @@ foreach ($modules as $module) {
 	//bump version if requested
 	if ($vars['bump'] && !$vars['debug']) {
 		freepbx::outn("\tBumping Version as Requested...");
-		package_bump_version($module, $vars['bump']);
+		$ver = package_bump_version($module, $vars['bump']);
 		freepbx::out("Done");
 		$vars['log'] = true;
 	}
@@ -657,7 +657,8 @@ function package_bump_version($mod, $pos = '') {
 		echo 'Bumping ' . $mod . 's verison to ' . implode('.', $ver) . PHP_EOL;
 	}
 
-	$xml->version = implode('.', $ver);
+	$version = implode('.', $ver);
+	$xml->version = $version;
 
 	//simplexml adds a xml decleration that freepbx doesnt like. Remove it.
 	$xml = trim(preg_replace('/^\<\?xml.*?\?\>/', '', $xml->asXML()));
@@ -670,7 +671,7 @@ function package_bump_version($mod, $pos = '') {
 		file_put_contents($mod_dir . '/module.xml', $xml);
 	}
 
-	return true;
+	return $version;
 }
 
 //update module's changelog
