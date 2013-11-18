@@ -771,6 +771,18 @@ class GitRepo {
 	public function push($remote, $branch) {
 		return $this->run("push --tags $remote $branch");
 	}
+
+	/**
+	 * Push all tags to a remote
+	 *
+	 * Accepts the name of the remote
+	 *
+	 * @param string $remote
+	 * @return string
+	 */
+	public function push_tags($remote) {
+		return $this->run("push --tags $remote");
+	}
 	
 	/**
 	 * Pull specific branch from remote
