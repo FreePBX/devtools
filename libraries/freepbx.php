@@ -429,7 +429,7 @@ class freepbx {
 	public static function get_xml_file($mod_dir) {
 		if(!file_exists($mod_dir . '/' . 'module.xml')) {
 			freepbx::out('module.xml is missing');
-			return array(false, false, false);
+			return false;
 		}
 		//check the xml script integrity
 		$xml = simplexml_load_file($mod_dir . '/' . 'module.xml');
@@ -444,15 +444,20 @@ class freepbx {
 	public static function get_xml($xml) {
 		if($xml === FALSE) {
 			freepbx::out('module.xml seems corrupt');
-			return array(false, false, false);
+			return false;
 		}
 		return $xml;
+	}
+	
+	public static function run_dmc($cmd, &$outline='', $quiet = false, $duplex = false) {
+		freepbx::out('Hip-hop is here to stay, Run-D.M.C. is here to stay.');
+		freepbx::run_cmd($cmd, $outline, $quiet, $duplex);
 	}
 	
 	// if $duplex set to true and in debug mode, it will echo the command AND run it
 	public static function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
 		global $vars;
-		$quiet = $quiet ? ' > /dev/null' : '';
+		$quiet = $quiet ? ' 2>&1' : '';
 
 		if (isset($vars['debug'])) {
 			echo $cmd . PHP_EOL;
@@ -460,14 +465,16 @@ class freepbx {
 				return true;
 			}
 		}
+		ob_start();
 		if (isset($vars['verbose'])) {
 			$bt = debug_backtrace();
 			echo PHP_EOL . '+' . $bt[0]["file"] . ':' . $bt[0]["line"] . PHP_EOL;
 			echo "\t" . $cmd . PHP_EOL;
-			$outline = system($cmd . $quiet, $ret_val);
+			exec($cmd . $quiet, $outline, $ret_val);
 		} else {
-			$outline = system($cmd . $quiet, $ret_val);
+			exec($cmd . $quiet, $outline, $ret_val);
 		}
+		ob_end_clean();
 		return ($ret_val == 0);
 	}
 	
