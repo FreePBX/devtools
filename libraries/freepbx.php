@@ -237,18 +237,32 @@ class freepbx {
 	 * Echo without newline
 	 *
 	 * @param   string $msg Message to echo
+	 * @param   int $tab Amount of tabs to prefix
 	 */
-	public static function outn($msg) {
-		echo $msg;
+	public static function outn($msg,$tab=0) {
+		if(php_sapi_name() === 'cli') {
+			$tab = !empty($tab) ? str_repeat("\t", $tab) : '';
+			echo $tab.$msg;
+		} else {
+			$tab = !empty($tab) ? str_repeat("&nbsp;", $tab) : '';
+			echo $tab.$msg;
+		}
 	}
 
 	/**
 	 * Echo with newline
 	 *
 	 * @param   string $msg Message to echo
+	 * @param   int $tab Amount of tabs to prefix
 	 */
-	public static function out($msg) {
-		echo $msg."\n";
+	public static function out($msg,$tab=0) {
+		if(php_sapi_name() === 'cli') {
+			$tab = !empty($tab) ? str_repeat("\t", $tab) : '';
+			echo $tab.$msg."\n";
+		} else {
+			$tab = !empty($tab) ? str_repeat("&nbsp;", $tab) : '';
+			echo $tab.$msg."<br />";
+		}
 	}
 
 	/**
