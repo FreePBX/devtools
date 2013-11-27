@@ -632,6 +632,19 @@ class GitRepo {
 	}
 
 	/**
+	 * Run a `git checkout-index` call
+	 *
+	 * Accepts the prefix directory to put the index
+	 *
+	 * @access public
+	 * @param string $prefix
+	 * @return string
+	 */
+	public function checkout_index($prefix) {
+		return $this->run("checkout-index -a -f --prefix=$prefix");
+	}
+
+	/**
 	 * Runs a `git merge` call
 	 *
 	 * Accepts a name for the branch to be merged
