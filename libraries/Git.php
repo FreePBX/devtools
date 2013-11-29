@@ -507,6 +507,11 @@ class GitRepo {
 		$tags = $this->list_tags();
 		return(in_array($tag,$tags));
 	}
+	
+	public function branch_exist($branch) {
+		$branches = $this->list_branches();
+		return(in_array($branch,$branches));
+	}
 
 	/**
 	* Runs a `git tag` call
@@ -738,7 +743,8 @@ class GitRepo {
 	 * @return string
 	 */
 	public function delete_remote_tag($remote, $tag) {
-		return $this->run("push $remote :$tag");
+		//clarify refs/tags otherwise we could have branches that are the same and then we dont know what to do
+		return $this->run("push $remote :refs/tags/$tag");
 	}
 
 	/**
