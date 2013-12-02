@@ -52,9 +52,7 @@ $longopts = array(
 	'http'
 );
 $vars = getopt('m:d::v::c::', $longopts);
-//TODO: Figure out what we really want to pull from here?
-// Right now it's just directory
-$fvars = freepbx::getFreePBXConfig();
+
 if (isset($vars['d']) || isset($vars['L'])) {
 	freepbx::showHelp('Package.php',$help);
 	sleep(3);
@@ -81,9 +79,9 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 $vars['git_ssh'] = 'ssh://git@git.freepbx.org/freep12/';
 $vars['git_http'] = null;
 $vars['php_-l']	= 'php -l';
-$vars['remote'] = (isset($vars['remote'])) ? $vars['remote'] : 'origin';
+$vars['remote'] = isset($vars['remote']) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
-$vars['directory'] = !empty($fvars['directory']) ? $fvars['directory'] : (!empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx');
+$vars['directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : (!empty($vars['directory']) ? $vars['directory'] : '/usr/src/freepbx_packaging/repos');
 $modules = array();
 $final_status = array();//status message to be printed after script is run
 
