@@ -192,7 +192,11 @@ class freepbx {
 	 */
 	function setupSymLinks($directory) {
 		$fwdir = $directory . '/framework';
-		$fwmoddir = $fwdir . '/amp_conf/htdocs/admin/modules/';
+		$fwmoddir = $fwdir . '/amp_conf/htdocs/admin/modules';
+
+		if(!file_exists($fwmoddir)) {
+			mkdir($fwmoddir);
+		}
 
 		$dirs = array_filter(glob($directory.'/*'), 'is_dir');
 

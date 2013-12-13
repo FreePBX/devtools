@@ -216,7 +216,7 @@ freepbx::out("Using ".$vars['directory']);
 chdir($vars['directory']);
 foreach ($modules as $module) {
 	//this isnt really used
-	$file_scan_exclude_list = array();
+	$file_scan_exclude_list = ($module == 'framework') ? array("modules") : array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
 
