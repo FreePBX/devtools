@@ -44,7 +44,9 @@ $skip = array(
 		"|$dir/progress-polyfill.min.js|",
 		"|$dir/jquery-.*\.js|",
 		"|$dir/jquery-ui-.*\.js$|",
-		"|$libfreepbx|"
+		"|$libfreepbx|",
+		"|$dir/bootstrap-.*\.js|",
+		"|html5shiv.js|"
 );
 foreach ($output as $file) {
 	

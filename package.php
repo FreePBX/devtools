@@ -421,6 +421,13 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::out("Done");
+	
+	//Package javascript because Andrew always forgets
+	if($module == 'framework') {
+		freepbx::outn("\tFramework, packaging javascripts...");
+		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php');
+		freepbx::out("Done");
+	}
 
 	//GIT Processing here
 	freepbx::out("\tRunning GIT...");
