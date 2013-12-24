@@ -46,7 +46,8 @@ $skip = array(
 		"|$dir/jquery-ui-.*\.js$|",
 		"|$libfreepbx|",
 		"|$dir/bootstrap-.*\.js|",
-		"|html5shiv.js|"
+		"|html5shiv.js|",
+		"|module_admin.js|"
 );
 foreach ($output as $file) {
 	
