@@ -1,9 +1,10 @@
 FreePBX Development Tools
 =========
 
-FreePBX is an opensource GUI (graphical user interface) that controls and manages Asterisk (PBX). FreePBX is licensed under GPL. FreePBX is a Registered Trademark of Schmooze Com Inc.
+FreePBX is an opensource GUI (graphical user interface) that controls and manages Asterisk (PBX). FreePBX is licensed under the GPL v2, GPL v3, and AGPL v3.
+FreePBX is a Registered Trademark of Schmooze Com Inc.
 
-These tools provide functionality for developers of FreePBX and it's modules
+These tools provide functionality for developers of FreePBX and its modules
 
 #Tools
 
@@ -39,7 +40,7 @@ This is used to package FreePBX modules for server side publishing.
 ```
 
 ##freepbx_git.php
-Check FreePBX out from git and enabled you to run ./install_amp with --dev-links
+Check FreePBX out from git and enables you to run ./install_amp with --dev-links
 
 ###Help Options
 ```
