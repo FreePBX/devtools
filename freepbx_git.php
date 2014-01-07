@@ -104,7 +104,19 @@ if(isset($options['m'])) {
 			$freepbx->setupSymLinks($directory);
 		}
 	} else {
-		die("Module Already Exists\n");
+		freepbx::out("Module Already Exists");
+		if(!file_exists($directory.'/framework/amp_conf/htdocs/admin/modules/'.$options['m'])) {
+			$freepbx->setupSymLinks($directory);
+		}
+	}
+	$ul = freepbx::getInput("Update Dev SymLinks?",'n');
+	if(($ul == 'yes' || $ul == 'y') && file_exists($directory.'/framework/install_amp')) {
+		freepbx::outn("Updating links through install_amp...");
+		$pwd = getcwd();
+		chdir($directory.'/framework');
+		passthru('./install_amp --update-links');
+		chdir($pwd);
+		freepbx::out("Done");
 	}
 	exit(0);
 }
