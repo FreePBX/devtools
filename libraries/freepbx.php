@@ -152,10 +152,9 @@ class freepbx {
 	 *
 	 * @param   string $directory Directory to work with
 	 * @param   bool $force True or False on whether to rm -Rf and then recreate the repo
-	 * @param	string $release The release branch to checkout upon completion
 	 * @return  array
 	 */
-	function setupDevRepos($directory,$force=false,$release='2.11') {
+	function setupDevRepos($directory,$force=false) {
 		$o = $this->stash->getAllRepos();
 
 		foreach($o['values'] as $repos) {

@@ -20,11 +20,31 @@
  *
  */
 require_once('libraries/freepbx.php');
+
+$projects = array(
+	"FREEP12" => "FreePBX Open Source",
+	"FBXCN" => "FreePBX Contributed Modules",
+	"FPBXC" => "FreePBX Commercial Modules",
+);
+
+$freepbx_conf = freepbx::getFreePBXConfig();
+//TODO Maybe move this inside of the function
+if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
+        foreach($freepbx_conf as $key => $value) {
+                if (isset($value) && $value != '') {
+                        $vars[$key] = $value;
+                }
+        }
+}
+$vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__)).'/freepbx';
+
 $help = array(
+	array('-m', 'Checkout a Single Module. Without the -r option will also search all available Stash Projects for said module'),
+	array('-r', 'Declare Stash Project Key for single module checkout'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
 	array('--refresh', 'Updates all local modules with their remote changes'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
-	array('--directory', 'The directory location of the modules, will default to: '.dirname(dirname(__FILE__)).'/freepbx')
+	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory'])
 );
 $longopts  = array(
 	"help",
@@ -34,19 +54,59 @@ $longopts  = array(
 	"directory::",
 	"switch::",
 );
-$options = getopt("",$longopts);
+$options = getopt("m:r:",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('freepbx_git.php',$help);
 	exit(0);
 }
 
-$directory = !empty($options['directory']) ? $options['directory'] : freepbx::getInput("Development Directory (NOT WEBROOT)",dirname(dirname(__FILE__)).'/freepbx');
+$directory = !empty($options['directory']) ? $options['directory'] : $vars['repo_directory'];
 
 if(!file_exists($directory)) {
 	$create = freepbx::getInput("Directory Doesnt Exist, Create? (y/n)",'y');
 	if($create == 'n' || !mkdir($directory)) {
 		die($directory . " Does Not Exist \n");
 	}
+}
+
+if(isset($options['m'])) {
+	if(!file_exists($directory.'/'.$options['m'])) {
+		$username = freepbx::getInput("FreePBX Username");
+		$password = freepbx::getPassword("FreePBX Password", true);
+		if(isset($options['r'])) {
+			$stash->project_key = $project;
+			$repo = $stash->getRepo($options['r']);
+			if ($repo === false) {
+				freepbx::out("[ERROR] Unable to find ".$options['m']);
+				exit(0);
+			}
+		} else {
+			$stash = new Stash($username,$password);
+			foreach($projects as $project => $description) {
+				$stash->project_key = $project;
+				$repo = $stash->getRepo($options['m']);
+				if ($repo === false) {
+					freepbx::out("[WARN] ".$options['m']." is NOT in the ".$description);
+				} else {
+					break;
+				}
+			}
+			if ($repo === false) {
+				freepbx::out("[ERROR] Unable to find ".$options['m']);
+				exit(0);
+			}
+			
+			$dir = $directory.'/'.$options['m'];
+			freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
+			Git::create($dir, $repo['cloneSSH']);
+			freepbx::out("Done");
+			$freepbx = new freepbx($username,$password);
+			$freepbx->setupSymLinks($directory);
+		}
+	} else {
+		die("Module Already Exists\n");
+	}
+	exit(0);
 }
 
 if(isset($options['switch']) && !empty($options['switch'])) {
@@ -75,7 +135,7 @@ if(isset($options['setup'])) {
 
 	$force = isset($options['force']) ? true : false;
 	//TODO: release branch is hardcoded...
-	$freepbx->setupDevRepos($directory,$force,'2.11');
+	$freepbx->setupDevRepos($directory,$force);
 	$freepbx->setupSymLinks($directory);
 	exit(0);
 }

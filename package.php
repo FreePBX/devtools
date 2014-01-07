@@ -248,6 +248,7 @@ foreach ($modules as $module) {
 	}
 
 	//check to make sure the origin is set to FreePBX
+	/* TODO: Need to check against commercial, contrib, open source
 	$oi = $repo->show_remote($vars['remote']);
 	freepbx::outn("\t\tChecking To Make Sure ".$vars['remote']." is set to FreePBX.org...");
 	$remote_url = !empty($vars['git_http']) ? $vars['git_http'] : $vars['git_ssh'];
@@ -259,6 +260,7 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("Set Correctly");
+	*/
 	
 	//fetch changes so that we can get new tags
 	freepbx::outn("\t\tFetching remote changes (not applying)...");
