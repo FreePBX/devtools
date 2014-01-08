@@ -405,6 +405,15 @@ class GitRepo {
 		return $remoteArray;
 	}
 	
+	public function get_remote_uri($remote) {
+		return($this->run("config --get remote.".$remote.".url"));
+	}
+	
+	public function update_remote($remote, $uri) {
+		$remoteArray = $this->run("remote set-url ".$remote." ".$uri);
+		print_r($remoteArray);
+	}
+	
 	public function show_remote($remote) {
 		$remoteArray = explode("\n", $this->run("remote show ".$remote));
 		$final = array();
