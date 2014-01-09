@@ -42,6 +42,7 @@ $help = array(
 	array('-m', 'Checkout a Single Module. Without the -r option will also search all available Stash Projects for said module'),
 	array('-r', 'Declare Stash Project Key for single module checkout'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
+	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
 	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory'])
@@ -51,6 +52,7 @@ $longopts  = array(
 	"setup",
     "force",
 	"refresh",
+	"clean",
 	"directory::",
 	"switch::",
 );
@@ -67,6 +69,37 @@ if(!file_exists($directory)) {
 	if($create == 'n' || !mkdir($directory)) {
 		die($directory . " Does Not Exist \n");
 	}
+}
+
+if(isset($options['clean']) && isset($options['m'])) {
+	if(file_exists($directory.'/'.$options['m'])) {
+		freepbx::outn('Cleaning '.$options['m'].'...');
+		try {
+			$repo = Git::open($directory.'/'.$options['m']);
+			$repo->prune('origin');
+			$repo->delete_all_tags();
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			continue;
+		}
+		freepbx::out('Done');
+	}
+	exit(0);
+} elseif(isset($options['clean'])) {
+	$modules = glob($vars['directory'].'/*', GLOB_ONLYDIR);
+	foreach($modules as $mod_dir) {
+		freepbx::outn('Cleaning '.$mod_dir.'...');
+		try {
+			$repo = Git::open($mod_dir);
+			$repo->prune('origin');
+			$repo->delete_all_tags();
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			continue;
+		}
+		freepbx::out('Done');
+	}
+	exit(0);
 }
 
 if(isset($options['m'])) {
