@@ -139,6 +139,9 @@ if(isset($options['m'])) {
 	} else {
 		freepbx::out("Module Already Exists");
 		if(!file_exists($directory.'/framework/amp_conf/htdocs/admin/modules/'.$options['m'])) {
+			$username = freepbx::getInput("FreePBX Username");
+			$password = freepbx::getPassword("FreePBX Password", true);
+			$freepbx = new freepbx($username,$password);
 			$freepbx->setupSymLinks($directory);
 		}
 	}
