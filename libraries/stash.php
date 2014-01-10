@@ -1,7 +1,7 @@
 <?php
 require_once('pest/PestJSON.php');
 class Stash {
-	public $project_key = 'freep12';
+	public $project_key = 'freepbx';
 	private $api_url = 'http://git.freepbx.org/rest/api/1.0';
 	private $pest;
 	
