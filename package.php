@@ -76,7 +76,7 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 }
 
 //set up some other settings
-$vars['git_ssh'] = 'ssh://git@git.freepbx.org/freep12/';
+$vars['git_ssh'] = 'ssh://git@git.freepbx.org/freeppbx/';
 $vars['git_http'] = null;
 $vars['php_-l']	= 'php -l';
 $vars['remote'] = isset($vars['remote']) ? $vars['remote'] : 'origin';

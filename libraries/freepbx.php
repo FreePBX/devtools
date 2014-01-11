@@ -154,12 +154,17 @@ class freepbx {
 	 * @param   bool $force True or False on whether to rm -Rf and then recreate the repo
 	 * @return  array
 	 */
-	function setupDevRepos($directory,$force=false) {
+	function setupDevRepos($directory,$force=false,$mode='ssh') {
 		$o = $this->stash->getAllRepos();
-
+		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
+			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
+			die();
+		} elseif($mode == 'http') {
+			Git::enable_credential_cache();
+		}
 		foreach($o['values'] as $repos) {
 			$dir = $directory.'/'.$repos['name'];
-			if($repos['name'] == 'devtools') {
+			if($repos['name'] == 'devtools' || $repos['name'] == 'moh_sounds') {
 				continue;
 			}
 			freepbx::out("Cloning ".$repos['name'] . " into ".$dir);
@@ -170,7 +175,8 @@ class freepbx {
 				freepbx::out($dir . " Already Exists, Skipping (use --force to force)");
 				continue;
 			}
-			$repo = Git::create($dir, $repos['cloneSSH']);
+			$uri = ($mode == 'http') ? $repos['cloneUrl'] : $repos['cloneSSH'];
+			$repo = Git::create($dir, $uri);
 			freepbx::out("Done");
 			
 			freepbx::outn("\tChecking you out into the develop branch...");

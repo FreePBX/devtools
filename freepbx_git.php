@@ -30,12 +30,13 @@ $projects = array(
 $freepbx_conf = freepbx::getFreePBXConfig();
 //TODO Maybe move this inside of the function
 if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
-        foreach($freepbx_conf as $key => $value) {
-                if (isset($value) && $value != '') {
-                        $vars[$key] = $value;
-                }
-        }
+	foreach($freepbx_conf as $key => $value) {
+		if (isset($value) && $value != '') {
+			$vars[$key] = $value;
+		}
+	}
 }
+$mode = !empty($vars['mode']) ? $vars['mode'] : 'ssh';
 $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__)).'/freepbx';
 
 $help = array(
@@ -45,6 +46,7 @@ $help = array(
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
+	array('--mode=<ssh|http>', 'What Mode to Use GIT in'),
 	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory'])
 );
 $longopts  = array(
@@ -55,6 +57,7 @@ $longopts  = array(
 	"clean",
 	"directory::",
 	"switch::",
+	"mode::"
 );
 $options = getopt("m:r:",$longopts);
 if(empty($options) || isset($options['help'])) {
@@ -183,7 +186,7 @@ if(isset($options['setup'])) {
 
 	$force = isset($options['force']) ? true : false;
 	//TODO: release branch is hardcoded...
-	$freepbx->setupDevRepos($directory,$force);
+	$freepbx->setupDevRepos($directory,$force,$mode);
 	$freepbx->setupSymLinks($directory);
 	exit(0);
 }

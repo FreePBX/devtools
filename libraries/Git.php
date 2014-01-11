@@ -88,6 +88,19 @@ class Git {
 	public static function is_repo($var) {
 		return (get_class($var) == 'GitRepo');
 	}
+	
+	public static function version() {
+		$gitversion = exec(Git::$bin." version");
+		if (!empty($gitversion)) {
+			preg_match('/git version\s(.*)/',$gitversion, $gitmatches);
+		}
+
+		return isset($gitmatches[1]) ? $gitmatches[1] : false;
+	}
+	
+	public static function enable_credential_cache() {
+		exec(Git::$bin." config --global credential.helper cache");
+	}
 
 }
 
@@ -190,7 +203,7 @@ class GitRepo {
 			}
 		}
 	}
-
+	
 	/**
 	 * Tests if git is installed
 	 *
