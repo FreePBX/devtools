@@ -65,6 +65,7 @@ if(empty($options) || isset($options['help'])) {
 	exit(0);
 }
 
+$mode = !empty($options['mode']) ? $options['mode'] : $mode;
 $directory = !empty($options['directory']) ? $options['directory'] : $vars['repo_directory'];
 
 if(!file_exists($directory)) {

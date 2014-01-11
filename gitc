@@ -1,0 +1,18 @@
+#!/usr/bin/php -q
+<?php
+
+$commands = '';
+
+foreach($argv as $k => $arg) {
+	if($k > 0) {
+		$commands .= ' '.$arg;
+	}
+	if($arg == '--author') {
+		die("Do not specify author, thats the whole point of this script!\n");
+	}
+}
+
+exec('git commit '.$commands,$out,$ret);
+foreach($out as $o) {
+	echo $o."\n";
+}
