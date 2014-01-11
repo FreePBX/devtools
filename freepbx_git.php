@@ -110,6 +110,12 @@ if(isset($options['m'])) {
 	if(!file_exists($directory.'/'.$options['m'])) {
 		$username = freepbx::getInput("FreePBX Username");
 		$password = freepbx::getPassword("FreePBX Password", true);
+		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
+			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
+			die();
+		} elseif($mode == 'http') {
+			Git::enable_credential_cache();
+		}
 		if(isset($options['r'])) {
 			$stash->project_key = $project;
 			$repo = $stash->getRepo($options['r']);
@@ -133,9 +139,10 @@ if(isset($options['m'])) {
 				exit(0);
 			}
 			
+			$uri = ($mode == 'http') ? $repo['cloneUrl'] : $repo['cloneSSH'];
 			$dir = $directory.'/'.$options['m'];
 			freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
-			Git::create($dir, $repo['cloneSSH']);
+			Git::create($dir, $uri);
 			freepbx::out("Done");
 			$freepbx = new freepbx($username,$password);
 			$freepbx->setupSymLinks($directory);
