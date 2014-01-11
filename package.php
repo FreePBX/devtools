@@ -34,7 +34,6 @@ $help[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. 
 $help[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
 $help[] = array('--forcetag', 'Force this sha1 onto the server if the tag already exists');
 $help[] = array('--remote', 'The Remote GIT Repository name, Default is origin');
-$help[] = array('--http', 'Force GIT To use http mode');
 //get cli opts
 $longopts = array(
 	'directory:',
@@ -48,8 +47,7 @@ $longopts = array(
 	're::',
 	'verbose::',
 	'forcetag',
-	'remote::',
-	'http'
+	'remote::'
 );
 $vars = getopt('m:d::v::c::', $longopts);
 
@@ -76,8 +74,6 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 }
 
 //set up some other settings
-$vars['git_ssh'] = 'ssh://git@git.freepbx.org/freeppbx/';
-$vars['git_http'] = null;
 $vars['php_-l']	= 'php -l';
 $vars['remote'] = isset($vars['remote']) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
@@ -123,13 +119,6 @@ if (isset($vars['log']) && $vars['log'] != 'log') {
 	$vars['log'] = true;
 } else {
 	$vars['log'] = false;
-}
-
-//https mode
-if (isset($vars['http']) && $vars['http'] != 'http') {
-	$vars['http'] = true;
-} else {
-	$vars['http'] = false;
 }
 
 //force a tag to be updated instead of creating from scratch
@@ -184,7 +173,7 @@ $vars['msg'] = $vars['re'] ? $vars['re'] . '- ' . $vars['msg'] : $vars['msg'];
 
 //set username and password mode
 //TODO: This will be used by JIRA at some point
-if ((isset($vars['c']) || $vars['http']) && $vars['interactive']) {
+if (isset($vars['c']) && $vars['interactive']) {
 	$vars['username'] = freepbx::getInput('Username');
 	if (empty($vars['username'])) {
 		freepbx::out("Invalid Username");
@@ -196,7 +185,6 @@ if ((isset($vars['c']) || $vars['http']) && $vars['interactive']) {
 		efreepbx::out("Invalid Password");
 		exit(1);
 	}
-	$vars['git_http'] = 'http://'.$vars["username"].':'.$vars["password"].'@git.freepbx.org/scm/freep12/';
 }
 
 //ensure we have modules to package
@@ -238,29 +226,6 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-	
-	//this is for future http support
-	if(!empty($vars['git_http'])) {
-		//TODO: we could just do the following, but it seems bad
-		//git remote set-url origin http://<user>:<pass>@git.freepbx.org/scm/freep12/announcement.git
-		freepbx::out("\t\tDetected HTTP mode, This mode is NOT SUPPORTED YET");
-		continue;
-	}
-
-	//check to make sure the origin is set to FreePBX
-	/* TODO: Need to check against commercial, contrib, open source
-	$oi = $repo->show_remote($vars['remote']);
-	freepbx::outn("\t\tChecking To Make Sure ".$vars['remote']." is set to FreePBX.org...");
-	$remote_url = !empty($vars['git_http']) ? $vars['git_http'] : $vars['git_ssh'];
-	if($oi['Push  URL'] != $remote_url . $module . '.git') {
-		freepbx::out("");
-		freepbx::out("\t\t\tSet Incorrectly, your remote ".$vars['remote']." is set to " . $oi['Push  URL']);
-		freepbx::out("\t\t\tExpected ".$vars['remote']." was " . $remote_url . $module . '.git');
-		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
-	}
-	freepbx::out("Set Correctly");
-	*/
 	
 	//fetch changes so that we can get new tags
 	freepbx::outn("\t\tFetching remote changes (not applying)...");

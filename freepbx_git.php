@@ -22,8 +22,8 @@
 require_once('libraries/freepbx.php');
 
 $projects = array(
-	"FREEP12" => "FreePBX Open Source",
-	"FBXCN" => "FreePBX Contributed Modules",
+	"FREEPBX" => "FreePBX Open Source",
+	"FPBXCN" => "FreePBX Contributed Modules",
 	"FPBXC" => "FreePBX Commercial Modules",
 );
 
@@ -46,7 +46,7 @@ $help = array(
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
-	array('--mode=<ssh|http>', 'What Mode to Use GIT in'),
+	array('--mode=<ssh|http>', 'What Mode to Use GIT in, Default is SSH. Use HTTP if you dont have SSH access or you dont know'),
 	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory'])
 );
 $longopts  = array(
@@ -186,7 +186,6 @@ if(isset($options['setup'])) {
 	}
 
 	$force = isset($options['force']) ? true : false;
-	//TODO: release branch is hardcoded...
 	$freepbx->setupDevRepos($directory,$force,$mode);
 	$freepbx->setupSymLinks($directory);
 	exit(0);
