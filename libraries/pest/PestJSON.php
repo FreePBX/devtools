@@ -22,8 +22,9 @@
  * This code is licensed for use, modification, and distribution
  * under the terms of the MIT License (see http://en.wikipedia.org/wiki/MIT_License)
  */
-
-require_once 'Pest.php';
+if(!class_exists('Pest')) {
+	require_once 'Pest.php';
+}
 
 class PestJSON extends Pest
 {
