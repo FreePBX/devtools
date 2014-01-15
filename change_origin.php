@@ -11,7 +11,7 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 		}
 	}
 }
-
+$vars['directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : '';
 $vars['directory'] = !empty($vars['directory']) ? $vars['directory'] : dirname(dirname(__FILE__)) . '/freepbx';
 $modules = glob($vars['directory'].'/*', GLOB_ONLYDIR);
 foreach($modules as $mod_dir) {
@@ -25,8 +25,9 @@ foreach($modules as $mod_dir) {
 	}
 	
 	$remote = $repo->get_remote_uri('origin');
-	if(preg_match('/org\/freep12/',$remote)) {
+	if(preg_match('/org\/freep12/i',$remote)) {
 		$newuri = str_replace('org/freep12','org/freepbx',$remote);
+		$newuri = str_replace('org/FREEP12','org/freepbx',$remote);
 		$repo->update_remote('origin', $newuri);
 	}
 }
