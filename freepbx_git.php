@@ -37,7 +37,7 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 	}
 }
 $mode = !empty($vars['mode']) ? $vars['mode'] : 'ssh';
-$vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__)).'/freepbx';
+$vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__));
 
 $help = array(
 	array('-m', 'Checkout a Single Module. Without the -r option will also search all available Stash Projects for said module'),
@@ -199,4 +199,5 @@ if(isset($options['setup'])) {
 }
 freepbx::out("Invalid Command");
 freepbx::showHelp('freepbx_git.php',$help);
-exit(0);
+exit;
+
