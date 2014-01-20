@@ -607,7 +607,7 @@ class GitRepo {
 			$cmd[] = $format;
 		}
 		if (isset($from) && $from != '') {
-			$diff = '';
+			$diff = $from;
 			if (isset($to) && $to != '') {
 				$diff .= '...';
 				$diff .= $to;
