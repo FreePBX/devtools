@@ -758,6 +758,18 @@ class GitRepo {
 	}
 	
 	/**
+	 * Runs Garbage Collection
+	 *
+	 *  Cleanup unnecessary files and optimize the local repository
+	 *
+	 * @param string $remote
+	 * @return string
+	 */
+	public function gc() {
+		return $this->run("gc");
+	}
+	
+	/**
 	 * Delete a remote tag
 	 *
 	 * @param string $remote
