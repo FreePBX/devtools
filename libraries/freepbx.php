@@ -91,6 +91,9 @@ class freepbx {
 		if(!empty($stash)) {
 			freepbx::out("\tStashing Uncommited changes..Done");
 		}
+		freepbx::outn("\tRemoving unreachable object from the remote...");
+		$repo->prune($remote);
+		freepbx::out("Done");
 		freepbx::outn("\tCleaning Untracked Files...");
 		$repo->clean(true,true);
 		freepbx::out("Done");
