@@ -28,7 +28,7 @@ $longopts = array(
 	'help::',
 	'module::'
 );
-$vars = getopt('d::h::m::', $longopts);
+$vars = getopt('d:h::m:', $longopts);
 
 $helpArray = array(
 	array('--help', 'Show this menu and exit'),
@@ -69,7 +69,9 @@ foreach($modules as $module) {
 		freepbx::out('Module '.$module.' does not exist in path: '.$vars['directory']);
        	        exit(1);
 	} else {
-		freepbx::out('================================== ' . $module . ' START =========================================');
+		$repo = Git::open($moddir);
+		
+		freepbx::out('================================== ' . $module . ' ('.$repo->active_branch().') START =========================================');
 		freepbx::out(checklog($moddir));
 		freepbx::out('================================== ' . $module . ' STOP =========================================');
 	}
