@@ -44,13 +44,13 @@ $skip = array(
 		"|$dir/progress-polyfill.min.js|",
 		"|$dir/jquery-.*\.js|",
 		"|$dir/jquery-ui-.*\.js$|",
-		"|$dir/jquery.selector-set-.*\.js",
-		"|$dir/selector-set-.*\.js",
-		"|$dir/less-.*\.js",
+		"|$dir/jquery.selector-set-.*\.js|",
+		"|$dir/selector-set-.*\.js|",
+		"|$dir/less-.*\.js|",
 		"|$libfreepbx|",
 		"|$dir/bootstrap-.*\.js|",
-		"|$dir/html5shiv.js|",
-		"|$dir/module_admin.js|"
+		"|$dir/html5shiv\.js|",
+		"|$dir/module_admin\.js|"
 );
 foreach ($output as $file) {
 	
