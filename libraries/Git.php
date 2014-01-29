@@ -422,6 +422,17 @@ class GitRepo {
 		return($this->run("config --get remote.".$remote.".url"));
 	}
 	
+	/**
+	 * Adds a merge driver called ours which will avoid module.xml merge conflicts
+	 *
+	 * @return  true
+	 */
+	public function add_merge_driver() {
+		$this->run("config merge.ours.name '\"always keep ours\" merge driver'");
+		$this->run("config merge.ours.driver 'touch %A'");
+		return true;
+	}
+	
 	public function update_remote($remote, $uri) {
 		$remoteArray = $this->run("remote set-url ".$remote." ".$uri);
 		print_r($remoteArray);

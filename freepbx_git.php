@@ -44,7 +44,8 @@ $help = array(
 	array('-r', 'Declare Stash Project Key for single module checkout'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
-	array('--refresh', 'Updates all local modules with their remote changes'),
+	array('--refresh', 'Updates all local modules with their remote changes (!!you will lose all untracked branches!!)'),
+	array('--addmergedriver', 'Updates/Adds Relevant Merge Drivers'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
 	array('--mode=<ssh|http>', 'What Mode to Use GIT in, Default is SSH. Use HTTP if you dont have SSH access or you dont know'),
 	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory'])
@@ -55,6 +56,7 @@ $longopts  = array(
     "force",
 	"refresh",
 	"clean",
+	"addmergedriver",
 	"directory::",
 	"switch::",
 	"mode::"
@@ -142,7 +144,8 @@ if(isset($options['m'])) {
 			$uri = ($mode == 'http') ? $repo['cloneUrl'] : $repo['cloneSSH'];
 			$dir = $directory.'/'.$options['m'];
 			freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
-			Git::create($dir, $uri);
+			$repo = Git::create($dir, $uri);
+			$repo->add_merge_driver();
 			freepbx::out("Done");
 			$freepbx = new freepbx($username,$password);
 			$freepbx->setupSymLinks($directory);
@@ -178,6 +181,22 @@ if(isset($options['switch']) && !empty($options['switch'])) {
 if(isset($options['refresh'])) {
 	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) { 
 		freepbx::refreshRepo($dir);
+	}
+	exit(0);
+}
+
+if(isset($options['addmergedriver'])) {
+	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) { 
+		freepbx::outn("Attempting to open ".$dir."...");
+		//Attempt to open the module as a git repo, bail if it's not a repo
+		try {
+			$repo = Git::open($dir);
+			freepbx::out("Done");
+		} catch (Exception $e) {
+			freepbx::out("Skipping");
+			continue;
+		}
+		$repo->add_merge_driver();
 	}
 	exit(0);
 }

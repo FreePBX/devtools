@@ -146,6 +146,8 @@ class freepbx {
 				freepbx::out("Failed to restore stash!, Please check your directory");
 			}
 		}
+		
+		$repo->add_merge_driver();
 	}
 
 	/**
@@ -180,6 +182,7 @@ class freepbx {
 			}
 			$uri = ($mode == 'http') ? $repos['cloneUrl'] : $repos['cloneSSH'];
 			$repo = Git::create($dir, $uri);
+			$repo->add_merge_driver();
 			freepbx::out("Done");
 			
 			freepbx::outn("\tChecking you out into the develop branch...");
