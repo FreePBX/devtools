@@ -546,6 +546,62 @@ foreach ($final_status as $module => $status) {
 }
 echo '----------------------' . PHP_EOL . PHP_EOL;
 
+if ($vars['interactive'] && !empty($supported['version']) && !empty($final_status)) {
+	$publish = freepbx::getInput('Publish?','n');
+	if($publish == 'y' || $publish == 'yes') {
+		if(function_exists('ssh2_connect')) {
+			foreach ($final_status as $module => $status) {
+				$supported = freepbx::getInput('Supported Version to Publish for?',$supported['version']);
+				$connection = ssh2_connect('mirror1.freepbx.org');
+				$fingerprint = ssh2_fingerprint($connection, SSH2_FINGERPRINT_MD5 | SSH2_FINGERPRINT_HEX);
+				if (strcmp("B5CA3DA1C15FA48CC70746EE7BCEACA5", $fingerprint) !== 0) {
+					freepbx::out("Unable to verify server identity!");
+					exit(1);
+				}
+				$user = posix_getpwuid(posix_geteuid());
+				$username = freepbx::getInput('Username?',$user['name']);
+				$ssh_auth_pub = ($username == 'root') ? '/root/.ssh/id_rsa.pub' : '/home/'.$username.'/.ssh/id_rsa.pub'; 
+				$ssh_auth_priv = ($username == 'root') ? '/root/.ssh/id_rsa' : '/home/'.$username.'/.ssh/id_rsa';
+				$ssh_auth_pass = (!file_exists($ssh_auth_pub) || !file_exists($ssh_auth_priv)) ? freepbx::getPassword("Password?") : null;
+				if (!ssh2_auth_pubkey_file($connection, $username, $ssh_auth_pub, $ssh_auth_priv, $ssh_auth_pass)) { 
+					freepbx::out('Autentication rejected by server');
+					exit(1);
+				}
+				$packager = "/usr/src/freepbx-server-dev-tools/server_packaging.php";
+		        if (!($stream = ssh2_exec($connection, "ls ".$packager))) { 
+					freepbx::out('SSH command failed');
+					exit(1);
+		        } 
+		        stream_set_blocking($stream, true); 
+		        $data = ""; 
+		        while ($buf = fread($stream, 4096)) { 
+		            $data .= $buf; 
+		        } 
+		        fclose($stream); 
+				if(trim($data) != $packager) {
+					freepbx::out('Cant Find Package Scripts');
+					exit(1);
+				}
+		        if (!($stream = ssh2_exec($connection, $packager . " -s " . $supported . " -m " . $module))) { 
+					freepbx::out('SSH command failed');
+					exit(1);
+		        } 
+		        stream_set_blocking($stream, true); 
+		        while ($buf = fread($stream, 4096)) { 
+					echo $buf;
+		        }
+				ssh2_exec($connection, 'echo "EXITING" && exit;'); 
+				$connection = null;
+			}
+		} else {
+			freepbx::out("ssh php libs not detected, you may has success with runing these commands:");
+			freepbx::out("yum install libssh2*",2);
+			freepbx::out("pecl install -f ssh2",2);
+			freepbx::out("Then add the required extension to php.ini");
+		}
+	}
+}
+
 exit(0);
 /**
  * function package_scandirr
