@@ -38,7 +38,7 @@ $final=$finalB=array();
  * in the switch statmenet below. To give a file priority, create a case for it and
  * add it to the $finalB array. All other files will be appended to the $final array.
  * $finalB is then merged with $final, with $finalB being put first
- */  
+ */
 
 $skip = array(
 		"|$dir/progress-polyfill.min.js|",
@@ -53,14 +53,14 @@ $skip = array(
 		"|$dir/module_admin\.js|"
 );
 foreach ($output as $file) {
-	
+
 	//skip the files in the skip array
 	foreach ($skip as $s) {
 		if (preg_match($s, $file)) {
 			continue 2;
 		}
 	}
-	
+
 	//add files
 	switch(true){
 		case preg_match("|$dir/jquery.cookie.js$|",$file)://jquery ui
@@ -74,6 +74,9 @@ foreach ($output as $file) {
 		break;
 	}
 }
+
+sort($finalB);
+sort($final);
 
 $final=array_merge($finalB,$final);
 
@@ -327,7 +330,7 @@ class JSMin {
         $this->get();
         $this->get();
         $this->get();
-    } 
+    }
 
     $this->a = "\n";
     $this->action(self::ACTION_DELETE_A_B);
