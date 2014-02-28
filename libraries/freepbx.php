@@ -18,7 +18,7 @@ class freepbx {
 	function __construct($username,$password) {
 		$this->stash = new Stash($username,$password);
 	}
-	
+
 	/**
 	 * Switch Branch on Repo
 	 *
@@ -66,7 +66,7 @@ class freepbx {
 			}
 		}
 	}
-	
+
 	/**
 	 * Refresh a local repo with changes from remote
 	 *
@@ -130,7 +130,7 @@ class freepbx {
 				}
 			}
 		}
-		
+
 		$lbranches = $repo->list_branches();
 		$branch = (!empty($final_branch) && in_array($final_branch,$lbranches)) ? $final_branch : $activeb;
 		freepbx::out("\tPutting you back on ".$branch." ...");
@@ -146,7 +146,7 @@ class freepbx {
 				freepbx::out("Failed to restore stash!, Please check your directory");
 			}
 		}
-		
+
 		$repo->add_merge_driver();
 	}
 
@@ -160,6 +160,7 @@ class freepbx {
 	 * @return  array
 	 */
 	function setupDevRepos($directory,$force=false,$mode='ssh') {
+		$skipr = array('devtools','moh_sounds','freepbxlocalization');
 		$o = $this->stash->getAllRepos();
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
 			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
@@ -169,7 +170,7 @@ class freepbx {
 		}
 		foreach($o['values'] as $repos) {
 			$dir = $directory.'/'.$repos['name'];
-			if($repos['name'] == 'devtools' || $repos['name'] == 'moh_sounds') {
+			if(in_array($repos['name'],$skipr)) {
 				continue;
 			}
 			freepbx::out("Cloning ".$repos['name'] . " into ".$dir);
@@ -184,7 +185,7 @@ class freepbx {
 			$repo = Git::create($dir, $uri);
 			$repo->add_merge_driver();
 			freepbx::out("Done");
-			
+
 			freepbx::outn("\tChecking you out into the develop branch...");
 			try {
 				$repo->checkout('develop');
@@ -342,7 +343,7 @@ class freepbx {
 		// Return the password
 		return $password;
 	}
-	
+
 	public static function showHelp($script,$message,$short = false) {
 		$final = '';
 		$ret[] = $script;
@@ -390,7 +391,7 @@ class freepbx {
 		}
 		freepbx::out($final);
 	}
-	
+
 	//test xml file for validity and extract some info from it
 	public static function check_xml_file($mod_dir) {
 		if(!file_exists($mod_dir . '/' . 'module.xml')) {
@@ -400,9 +401,9 @@ class freepbx {
 		//check the xml script integrity
 		libxml_use_internal_errors(true);
 		$xml = @simplexml_load_file($mod_dir . '/' . 'module.xml');
-		return self::check_xml($xml); 
+		return self::check_xml($xml);
 	}
-	
+
 	public static function check_xml_string($xml) {
 		libxml_use_internal_errors(true);
 		$xml = @simplexml_load_string($xml);
@@ -430,7 +431,7 @@ class freepbx {
 		    }
 			libxml_clear_errors();
 			return array(false, false, false);
-		}	
+		}
 		//check that module name is set in module.xml
 		$rawname = (string) $xml->rawname;
 		if (!$rawname) {
@@ -450,7 +451,7 @@ class freepbx {
 		if (!$supported) {
 			freepbx::out('module.xml is missing supported tag');
 			$supported = false;
-		}		
+		}
 		return array($rawname, $version, $supported);
 	}
 
@@ -477,12 +478,12 @@ class freepbx {
 		}
 		return $xml;
 	}
-	
+
 	public static function run_dmc($cmd, &$outline='', $quiet = false, $duplex = false) {
 		freepbx::out('Hip-hop is here to stay, Run-D.M.C. is here to stay.');
 		freepbx::run_cmd($cmd, $outline, $quiet, $duplex);
 	}
-	
+
 	// if $duplex set to true and in debug mode, it will echo the command AND run it
 	public static function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
 		global $vars;
@@ -506,8 +507,8 @@ class freepbx {
 		ob_end_clean();
 		return ($ret_val == 0);
 	}
-	
-	// version_compare that works with FreePBX version numbers 
+
+	// version_compare that works with FreePBX version numbers
 	public static function version_compare_freepbx($version1, $version2, $op = null) {
 		$version1 = str_replace("rc","RC", strtolower($version1));
 		$version2 = str_replace("rc","RC", strtolower($version2));
@@ -516,5 +517,5 @@ class freepbx {
 		} else {
 			return version_compare($version1, $version2);
 		}
-	}	
+	}
 }

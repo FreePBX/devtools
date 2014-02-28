@@ -1,0 +1,2 @@
+module.xml	merge=ours
+*.po merge=merge-gettext-po

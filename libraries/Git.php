@@ -32,16 +32,16 @@ class Git {
 	 * @var string
 	 */
 	protected static $bin = '/usr/bin/git';
-	
+
 	/**
 	 * Sets git executable path
-	 * 
+	 *
 	 * @param string $path executable location
 	 */
 	public static function set_bin($path) {
 		self::$bin = $path;
 	}
-	
+
 	/**
 	 * Gets git executable path
 	 */
@@ -88,7 +88,7 @@ class Git {
 	public static function is_repo($var) {
 		return (get_class($var) == 'GitRepo');
 	}
-	
+
 	public static function version() {
 		$gitversion = exec(Git::$bin." version");
 		if (!empty($gitversion)) {
@@ -97,7 +97,7 @@ class Git {
 
 		return isset($gitmatches[1]) ? $gitmatches[1] : false;
 	}
-	
+
 	public static function enable_credential_cache() {
 		exec(Git::$bin." config --global credential.helper cache");
 	}
@@ -203,7 +203,7 @@ class GitRepo {
 			}
 		}
 	}
-	
+
 	/**
 	 * Tests if git is installed
 	 *
@@ -269,7 +269,7 @@ class GitRepo {
 	public function run($command) {
 		return $this->run_command(Git::get_bin()." ".$command);
 	}
-	
+
 	public function status() {
 		$status = $this->run("status --porcelain");
 		if(empty($status)) {
@@ -318,6 +318,10 @@ class GitRepo {
 	public function commit($message = "") {
 		return $this->run("commit -av -m ".escapeshellarg($message));
 	}
+
+  public function commit_author($message,$author) {
+    return $this->run("commit --author=".escapeshellarg($author)." -m ".escapeshellarg($message));
+  }
 
 	/**
 	 * Runs a `git clone` call to clone the current repository
@@ -399,7 +403,7 @@ class GitRepo {
 	public function delete_branch($branch, $force = false) {
 		return $this->run("branch ".(($force) ? '-D' : '-d')." $branch");
 	}
-	
+
 	/**
 	 * Runs a `git branch` call
 	 *
@@ -417,27 +421,29 @@ class GitRepo {
 		}
 		return $remoteArray;
 	}
-	
+
 	public function get_remote_uri($remote) {
 		return($this->run("config --get remote.".$remote.".url"));
 	}
-	
+
 	/**
-	 * Adds a merge driver called ours which will avoid module.xml merge conflicts
+	 * Adds a merge drivers which will avoid merge conflicts
 	 *
 	 * @return  true
 	 */
 	public function add_merge_driver() {
 		$this->run("config merge.ours.name '\"always keep ours\" merge driver'");
 		$this->run("config merge.ours.driver 'touch %A'");
+		$this->run("config merge.merge-gettext-po.name 'merge driver for gettext po files'");
+		$this->run("config merge.merge-gettext-po.driver '".dirname(__FILE__)."/mergedrivers/git-merge-gettext-po %O %A %B'");
 		return true;
 	}
-	
+
 	public function update_remote($remote, $uri) {
 		$remoteArray = $this->run("remote set-url ".$remote." ".$uri);
 		print_r($remoteArray);
 	}
-	
+
 	public function show_remote($remote) {
 		$remoteArray = explode("\n", $this->run("remote show ".$remote));
 		$final = array();
@@ -509,7 +515,7 @@ class GitRepo {
 			return str_replace("* ", "", current($active_branch));
 		}
 	}
-	
+
 	/**
 	* Runs a `git ls-remote --tags` call
 	*
@@ -522,11 +528,11 @@ class GitRepo {
 	public function remote_tag_exist($remote, $tag) {
 		$o = $this->run("ls-remote --tags $remote $tag");
 		if(empty($o)) {
-			return false; 
+			return false;
 		}
 		return true;
 	}
-	
+
 	/**
 	* Runs a `git tag` call
 	*
@@ -540,7 +546,7 @@ class GitRepo {
 		$tags = $this->list_tags();
 		return(in_array($tag,$tags));
 	}
-	
+
 	public function branch_exist($branch) {
 		$branches = $this->list_branches();
 		return(in_array($branch,$branches));
@@ -580,7 +586,7 @@ class GitRepo {
 	* @access  public
 	* @param   string  tag name
 	* @return  string
-	* @todo    We might want to expand on this to handle refs that come 
+	* @todo    We might want to expand on this to handle refs that come
 	* 		back with more than one result
 	*/
 	public function show_ref_tag($tag) {
@@ -627,7 +633,7 @@ class GitRepo {
 		}
 		return $this->run(implode(' ',$cmd));
 	}
-	
+
 	public function log_search($greps=array(), $format=null) {
 		$cmd[] = 'log --all -i';
 		foreach($greps as $grep) {
@@ -640,6 +646,10 @@ class GitRepo {
 		$z = explode("\n",$o);
 		return $z;
 	}
+
+  public function get_last_author($file) {
+    return $this->run("log --format='%an <%ae>' $file");
+  }
 
 	/**
 	 * Runs a `git checkout` call
@@ -733,7 +743,7 @@ class GitRepo {
 		}
 		return $this->run("tag -a $tag -m $message $ref");
 	}
-	
+
 	/**
 	 * Delete a local tag
 	 *
@@ -743,7 +753,7 @@ class GitRepo {
 	public function delete_tag($tag) {
 		return $this->run("tag -d $tag");
 	}
-	
+
 	/**
 	 * Deletes all Local Tags
 	 *
@@ -754,7 +764,7 @@ class GitRepo {
 	public function delete_all_tags() {
 		return $this->run("tag -l | xargs git tag -d");
 	}
-	
+
 	/**
 	 * Deletes all stale remote-tracking branches under
 	 *
@@ -767,7 +777,7 @@ class GitRepo {
 	public function prune($remote) {
 		return $this->run("remote prune $remote");
 	}
-	
+
 	/**
 	 * Runs Garbage Collection
 	 *
@@ -779,7 +789,7 @@ class GitRepo {
 	public function gc() {
 		return $this->run("gc");
 	}
-	
+
 	/**
 	 * Delete a remote tag
 	 *
@@ -804,7 +814,7 @@ class GitRepo {
 		}
 		return $stash;
 	}
-	
+
 	/**
 	 * Delete a Stash
 	 *
@@ -813,7 +823,7 @@ class GitRepo {
 	public function drop_stash() {
 		return $this->run("stash drop");
 	}
-	
+
 	/**
 	 * Apply a stash
 	 *
@@ -847,7 +857,7 @@ class GitRepo {
 	public function push_tags($remote) {
 		return $this->run("push --tags $remote");
 	}
-	
+
 	/**
 	 * Pull specific branch from remote
 	 *
@@ -890,7 +900,7 @@ class GitRepo {
 	 */
 	public function gzip_archive_tag($prefix, $tag, $filename, $format='tar.gz') {
 		return $this->run("archive --format=$format --prefix=$prefix $tag -o $filename");
-	}	
+	}
 }
 
 /* End of file */
