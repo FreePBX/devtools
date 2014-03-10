@@ -108,12 +108,20 @@ class freepbx {
 		foreach($rbranches as $k => &$rbranch) {
 			if(preg_match('/'.$remote.'\/(.*)/i',$rbranch)) {
 				$rbranch = str_replace($remote.'/','',$rbranch);
+				$rbranch_array[] = $rbranch;
 			}
 		}
+		array_unique($rbranch_array);
 		freepbx::out("\tUpdating Branches...");
 		$ubranches = array();
 		foreach($lbranches as $branch) {
 			freepbx::outn("\t\tUpdating ".$branch."...");
+			if (!in_array($branch, $rbranch_array)) {
+        //Delete branches that are not available on the remote, otherwise we end up throwing an exception
+        freepbx::outn("\t\t\tRemoving as it no longer exists on the remote");
+        $repo->delete_branch($branch, true);
+        continue;
+      }
 			$repo->checkout($branch);
 			$repo->pull($remote, $branch);
 			freepbx::out("Done");
