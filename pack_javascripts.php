@@ -50,7 +50,9 @@ $skip = array(
 		"|$libfreepbx|",
 		"|$dir/bootstrap-.*\.js|",
 		"|$dir/html5shiv\.js|",
-		"|$dir/module_admin\.js|"
+		"|$dir/module_admin\.js|",
+		"|$dir/modernizr\.js|",
+		"|$dir/browser-support\.js|",
 );
 foreach ($output as $file) {
 
