@@ -516,6 +516,16 @@ class freepbx {
 		return ($ret_val == 0);
 	}
 
+	//http://www.jimcode.org/2012/07/recursive-filesearch-php-glob-function/
+	//https://gist.github.com/wooki/3215801
+	public static function glob_recursive($pattern, $flags = 0) {
+		$files = glob($pattern, $flags);
+		foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+			$files = array_merge($files, freepbx::glob_recursive($dir.'/'.basename($pattern), $flags));
+		}
+		return $files;
+	}
+
 	// version_compare that works with FreePBX version numbers
 	public static function version_compare_freepbx($version1, $version2, $op = null) {
 		$version1 = str_replace("rc","RC", strtolower($version1));
