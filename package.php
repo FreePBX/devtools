@@ -226,12 +226,12 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-	
+
 	//fetch changes so that we can get new tags
 	freepbx::outn("\t\tFetching remote changes (not applying)...");
 	$repo->fetch();
 	freepbx::out("Done");
-	
+
 	//now check to make sure the xml is valid
 	freepbx::outn("\tChecking Module XML...");
 	//test xml file and get some of its values
@@ -264,7 +264,7 @@ foreach ($modules as $module) {
 		freepbx::out("Yes (Working With ".$activeb.")");
 	}
 	$bver = $matches[1];
-	
+
 	freepbx::outn("\t\tFetching remote changes and applying to ".$activeb."...");
 	try {
 		$repo->pull($vars['remote'], $activeb);
@@ -289,7 +289,7 @@ foreach ($modules as $module) {
 	//run through remote branches
 	foreach($rbranches as $branch) {
 		//divide and conquer, only work with our remote and our releases on remote
-		//but skip our active branch, we know about that one 
+		//but skip our active branch, we know about that one
 		if(preg_match('/'.$vars['remote'].'\/release\/(.*)/i',$branch,$matches) && $branch != $vars['remote'].'/'.$activeb) {
 			freepbx::outn("\t\tChecking ".$branch."...");
 			//attempt to 'grab' the file from it's reference,
@@ -345,7 +345,7 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("There are no errors");
-	
+
 	//bump version if requested
 	if ($vars['bump'] && !$vars['debug']) {
 		freepbx::outn("\tBumping Version as Requested...");
@@ -388,11 +388,11 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::out("Done");
-	
+
 	//Package javascript because Andrew always forgets
 	if($module == 'framework') {
 		freepbx::outn("\tFramework, packaging javascripts...");
-		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php');
+		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php --directory '.$vars['directory']);
 		freepbx::out("Done");
 	}
 
@@ -407,7 +407,7 @@ foreach ($modules as $module) {
 		freepbx::out("Found ".count($status['modified'])." Modified files and ".count($status['untracked'])." New files");
 		$commitable = true;
 	}
-	
+
 	//Check to see if the tag already exists locally
 	freepbx::outn("\t\tChecking to see if local tag already exists...");
 	if($repo->tag_exist('release/'.$ver) && !$vars['forcetag']) {
@@ -426,7 +426,7 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("It doesn't");
 	}
-	
+
 	//Check to see if the tag exists remotely
 	$remote_tag = null;
 	freepbx::outn("\t\tChecking to see if remote tag on ".$vars['remote']." already exists...");
@@ -441,7 +441,7 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("It doesn't");
 	}
-	
+
 	if($commitable) {
 		freepbx::outn("\t\tAdding Module.xml...");
 		//add module.xml separately from the rest of the changes, because I said so
@@ -457,7 +457,7 @@ foreach ($modules as $module) {
 		} else {
 			freepbx::out("Debugging, Not Ran");
 		}
-	
+
 		freepbx::outn("\t\tCheckin Outstanding Changes...");
 		//-A will do more than ., it will add any unstaged files...
 		if(!$vars['debug']) {
@@ -534,7 +534,7 @@ foreach ($modules as $module) {
 	}
 	$tense = !$vars['debug'] ? 'has' : 'would have';
 	$final_status[$module] = 'Module ' . $module . ' version ' . $ver . ' ' . $tense . ' been successfully tagged!';
-	freepbx::out($final_status[$module]);	
+	freepbx::out($final_status[$module]);
 }
 
 //print report
@@ -560,37 +560,37 @@ if ($vars['interactive'] && !empty($supported['version']) && !empty($final_statu
 				}
 				$user = posix_getpwuid(posix_geteuid());
 				$username = freepbx::getInput('Username?',$user['name']);
-				$ssh_auth_pub = ($username == 'root') ? '/root/.ssh/id_rsa.pub' : '/home/'.$username.'/.ssh/id_rsa.pub'; 
+				$ssh_auth_pub = ($username == 'root') ? '/root/.ssh/id_rsa.pub' : '/home/'.$username.'/.ssh/id_rsa.pub';
 				$ssh_auth_priv = ($username == 'root') ? '/root/.ssh/id_rsa' : '/home/'.$username.'/.ssh/id_rsa';
 				$ssh_auth_pass = (!file_exists($ssh_auth_pub) || !file_exists($ssh_auth_priv)) ? freepbx::getPassword("Password?") : null;
-				if (!ssh2_auth_pubkey_file($connection, $username, $ssh_auth_pub, $ssh_auth_priv, $ssh_auth_pass)) { 
+				if (!ssh2_auth_pubkey_file($connection, $username, $ssh_auth_pub, $ssh_auth_priv, $ssh_auth_pass)) {
 					freepbx::out('Autentication rejected by server');
 					exit(1);
 				}
 				$packager = "/usr/src/freepbx-server-dev-tools/server_packaging.php";
-		        if (!($stream = ssh2_exec($connection, "ls ".$packager))) { 
+		        if (!($stream = ssh2_exec($connection, "ls ".$packager))) {
 					freepbx::out('SSH command failed');
 					exit(1);
-		        } 
-		        stream_set_blocking($stream, true); 
-		        $data = ""; 
-		        while ($buf = fread($stream, 4096)) { 
-		            $data .= $buf; 
-		        } 
-		        fclose($stream); 
+		        }
+		        stream_set_blocking($stream, true);
+		        $data = "";
+		        while ($buf = fread($stream, 4096)) {
+		            $data .= $buf;
+		        }
+		        fclose($stream);
 				if(trim($data) != $packager) {
 					freepbx::out('Cant Find Package Scripts');
 					exit(1);
 				}
-		        if (!($stream = ssh2_exec($connection, $packager . " -s " . $supported . " -m " . $module))) { 
+		        if (!($stream = ssh2_exec($connection, $packager . " -s " . $supported . " -m " . $module))) {
 					freepbx::out('SSH command failed');
 					exit(1);
-		        } 
-		        stream_set_blocking($stream, true); 
-		        while ($buf = fread($stream, 4096)) { 
+		        }
+		        stream_set_blocking($stream, true);
+		        while ($buf = fread($stream, 4096)) {
 					echo $buf;
 		        }
-				ssh2_exec($connection, 'echo "EXITING" && exit;'); 
+				ssh2_exec($connection, 'echo "EXITING" && exit;');
 				$connection = null;
 			}
 		} else {
