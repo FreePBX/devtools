@@ -460,7 +460,19 @@ class freepbx {
 			freepbx::out('module.xml is missing supported tag');
 			$supported = false;
 		}
-		return array($rawname, $version, $supported);
+
+		$license = (string) $xml->license;
+		if (empty($license)) {
+			freepbx::out('module.xml is missing a license tag');
+			$license = false;
+		}
+
+		$licenselink = (string) $xml->licenselink;
+		if (empty($licenselink)) {
+			freepbx::out('module.xml is missing a licenselink tag');
+			$licenselink = false;
+		}
+		return array($rawname, $version, $supported, $license, $licenselink);
 	}
 
 	//return the xml as an object

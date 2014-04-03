@@ -235,10 +235,10 @@ foreach ($modules as $module) {
 	//now check to make sure the xml is valid
 	freepbx::outn("\tChecking Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
+	list($rawname, $ver, $supported, $license, $licenselink) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false) {
-		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : 'Unknown');
+	if ($rawname == false || $ver == false || $license == false || $licenselink == false) {
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($license == false ? 'license' : ($licenselink == false ? 'licenselink' : 'Unknown')));
 		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
@@ -372,10 +372,10 @@ foreach ($modules as $module) {
 	//Check XML File one more time to be safe
 	freepbx::outn("\tChecking Modified Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
+	list($rawname, $ver, $supported, $license, $licenselink) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false || $supported == false) {
-		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
+	if ($rawname == false || $ver == false || $supported == false || $license == false || $licenselink == false) {
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : ($license == false ? 'license' : ($licenselink == false ? 'licenselink' : 'Unknown'))));
 		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
@@ -440,6 +440,17 @@ foreach ($modules as $module) {
 		$remote_tag = 'release/'.$ver;
 	} else {
 		freepbx::out("It doesn't");
+	}
+
+	//If we have a license, which we are required to have by this point, get the
+	//	licenselink tag and generate a LICENSE file
+	if ($license) {
+		if (!empty($licenselink)) {
+			if (!file_put_contents($mod_dir.'/LICENSE', file_get_contents($licenselink))) {
+				freepbx::out('Unable to get License from License link in module.xml');
+				continue;
+			}
+		}
 	}
 
 	if($commitable) {
