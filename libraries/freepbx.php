@@ -168,7 +168,7 @@ class freepbx {
 	 * @return  array
 	 */
 	function setupDevRepos($directory,$force=false,$mode='ssh') {
-		$skipr = array('devtools','moh_sounds','freepbxlocalization');
+		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade');
 		$o = $this->stash->getAllRepos();
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
 			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
