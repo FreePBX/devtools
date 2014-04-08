@@ -451,6 +451,7 @@ foreach ($modules as $module) {
 				continue;
 			}
 		}
+
 	}
 
 	if($commitable) {
@@ -462,6 +463,21 @@ foreach ($modules as $module) {
 			} catch (Exception $e) {
 				freepbx::out($e->getMessage());
 				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
+		}
+
+		freepbx::outn("\t\tAdding LICENSE...");
+		//add module.xml separately from the rest of the changes, because I said so
+		if(!$vars['debug']) {
+			try {
+				$repo->add('LICENSE');
+			} catch (Exception $e) {
+				freepbx::out($e->getMessage());
+				freepbx::out("Module " . $module . " will not be tagged since we are unable to add the LICENSE file!");
 				continue;
 			}
 			freepbx::out("Done");
