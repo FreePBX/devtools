@@ -129,8 +129,16 @@ if(isset($options['clean']) && isset($options['m'])) {
 
 if(isset($options['m'])) {
 	if(!file_exists($directory.'/'.$options['m'])) {
-		$username = freepbx::getInput("FreePBX Username");
-		$password = freepbx::getPassword("FreePBX Password", true);
+		if (empty($vars['username'])) {
+			$username = freepbx::getInput("FreePBX Username");
+		} else {
+			$username = $vars['username'];
+		}
+		if (empty($vars['password'])) {
+			$password = freepbx::getPassword("FreePBX Password", true);
+		} else {
+			$password = $vars['password'];
+		}
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
 			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
 			die();
@@ -178,7 +186,11 @@ if(isset($options['m'])) {
 			$freepbx->setupSymLinks($directory);
 		}
 	}
-	$ul = freepbx::getInput("Update Dev SymLinks?",'n');
+	if (empty($vars['dev_symlinks'])) {
+		$ul = freepbx::getInput("Update Dev SymLinks?",'n');
+	} else {
+		$ul = $vars['dev_symlinks'];
+	}
 	if(($ul == 'yes' || $ul == 'y') && file_exists($directory.'/framework/install_amp')) {
 		freepbx::outn("Updating links through install_amp...");
 		$pwd = getcwd();
