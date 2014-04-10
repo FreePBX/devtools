@@ -396,10 +396,23 @@ foreach ($modules as $module) {
 		freepbx::out("Done");
 	}
 
+    //If we have a license, which we are required to have by this point, get the
+	//	licenselink tag and generate a LICENSE file
+	if ($license) {
+		if (!empty($licenselink)) {
+			if (!file_put_contents($mod_dir.'/LICENSE', file_get_contents($licenselink))) {
+				freepbx::out('Unable to get License from License link in module.xml');
+				continue;
+			}
+		}
+
+	}
+
 	//GIT Processing here
 	freepbx::out("\tRunning GIT...");
 	freepbx::outn("\t\tChecking for Modified or New files...");
-	$status = $repo->status();
+    $status = $repo->status();
+    print_r($status);
 	$commitable = false;
 	if(empty($status)) {
 		freepbx::out("No Modified or New Files");
@@ -440,18 +453,6 @@ foreach ($modules as $module) {
 		$remote_tag = 'release/'.$ver;
 	} else {
 		freepbx::out("It doesn't");
-	}
-
-	//If we have a license, which we are required to have by this point, get the
-	//	licenselink tag and generate a LICENSE file
-	if ($license) {
-		if (!empty($licenselink)) {
-			if (!file_put_contents($mod_dir.'/LICENSE', file_get_contents($licenselink))) {
-				freepbx::out('Unable to get License from License link in module.xml');
-				continue;
-			}
-		}
-
 	}
 
 	if($commitable) {
