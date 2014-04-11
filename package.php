@@ -412,7 +412,6 @@ foreach ($modules as $module) {
 	freepbx::out("\tRunning GIT...");
 	freepbx::outn("\t\tChecking for Modified or New files...");
     $status = $repo->status();
-    print_r($status);
 	$commitable = false;
 	if(empty($status)) {
 		freepbx::out("No Modified or New Files");
