@@ -4,12 +4,22 @@
 #
 # usage looks like:
 #
-# ./mk_i18n_structure ru_RU /tmp/Russian
+# ./mk_i18n_structure ru_RU /tmp/Russian [module name optional] [directory optional]
 #
 # where ru_RU would be the language, and /tmp/Russian whould be where all the files
 # have been placed
+if [ "$4" != "" ]; then
+	cd $4	
+fi
 
-for i in *; do
+if [ "$3" == "" ]; then
+	mod=$(ls -d *)
+else
+	mod=$3
+fi
+
+for i in $mod; do
+
 	#dont create structure for these modules
 	[ $i = 'fw_ari' ] || [ $i = 'core' ] || [ $i = 'fw_fop' ] && continue
 	echo $i:
