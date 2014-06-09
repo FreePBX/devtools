@@ -149,7 +149,8 @@ do
 			echo "#    along with FreePBX.  If not, see <http://www.gnu.org/licenses/>." >> ${modules%%/}/i18n/${rawname%%/}.pot
 			echo "#" >> ${modules%%/}/i18n/${rawname%%/}.pot
 			echo "# FreePBX language template for ${modules%%/}" >> ${modules%%/}/i18n/${rawname%%/}.pot
-			echo "# Copyright (C) 2008, 2009, 2010 Bandwith.com" >> ${modules%%/}/i18n/${rawname%%/}.pot
+			thisyear=`date +"%Y"`
+			echo "# Copyright (C) 2008-${thisyear} Schmoozecom, INC" >> ${modules%%/}/i18n/${rawname%%/}.pot
 			echo "#" >> ${modules%%/}/i18n/${rawname%%/}.pot
 			# Remove the first six lines of the .tmp file and put it in the -pot file
 			/bin/sed '1,6d' ${modules%%/}/i18n/${rawname%%/}.tmp >> ${modules%%/}/i18n/${rawname%%/}.pot

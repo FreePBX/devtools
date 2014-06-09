@@ -346,6 +346,17 @@ foreach ($modules as $module) {
 	}
 	freepbx::out("There are no errors");
 
+	//run unit tests
+	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.phar')) {
+		freepbx::outn("\tDetected Unit Tests...");
+		if(!run_cmd(__DIR__.'/phpunit.phar '.$mod_dir.'/utests',$outline,true)) {
+			freepbx::out("Unit tests failed");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("all unit tests passed");
+	}
+
 	//bump version if requested
 	if ($vars['bump'] && !$vars['debug']) {
 		freepbx::outn("\tBumping Version as Requested...");
