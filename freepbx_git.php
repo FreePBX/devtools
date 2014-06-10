@@ -233,8 +233,16 @@ if(isset($options['addmergedriver'])) {
 }
 
 if(isset($options['setup'])) {
-	$username = freepbx::getInput("FreePBX Username");
-	$password = freepbx::getPassword("FreePBX Password", true);
+	if (empty($vars['username'])) {
+		$username = freepbx::getInput("FreePBX Username");
+	} else {
+		$username = $vars['username'];
+	}
+	if (empty($vars['password'])) {
+		$password = freepbx::getPassword("FreePBX Password", true);
+	} else {
+		$password = $vars['password'];
+ 	}
 	try {
 		$freepbx = new freepbx($username,$password);
 	} catch (Exception $e) {
