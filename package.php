@@ -416,13 +416,38 @@ foreach ($modules as $module) {
 				continue;
 			}
 		}
-
 	}
 
 	//GIT Processing here
 	freepbx::out("\tRunning GIT...");
+	freepbx::outn("\t\tAdding/Updating Merge Drivers....");
+	$gitatts = $repo->add_merge_driver();
+	if(!empty($gitatts)) {
+		file_put_contents($mod_dir.'/.gitattributes', $gitatts);
+	}
+	freepbx::out("Done");
+	//merging languages
+	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
+	$xml = simplexml_load_string($moduleMasterXmlString);
+	freepbx::out("\t\tChecking Merge Status with master");
+	if(freepbx::version_compare_freepbx((string)$xml->version, $ver, "<=")) {
+		freepbx::outn("\t\t\tModule is higher than master, merging master into this branch...");
+		$stashable = $repo->add_stash();
+		$repo->fetch();
+		$merged = $repo->pull('origin','master');
+		if(!$merged) {
+			freepbx::out("\t\t\tMerge from master to this branch failed");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+		if($stashable) {
+			$repo->apply_stash();
+			$repo->drop_stash();
+		}
+	}
 	freepbx::outn("\t\tChecking for Modified or New files...");
-    $status = $repo->status();
+	$status = $repo->status();
 	$commitable = false;
 	if(empty($status)) {
 		freepbx::out("No Modified or New Files");
