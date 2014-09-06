@@ -431,7 +431,7 @@ foreach ($modules as $module) {
 	$xml = simplexml_load_string($moduleMasterXmlString);
 	freepbx::out("\t\tChecking Merge Status with master");
 	if(freepbx::version_compare_freepbx((string)$xml->version, $ver, "<=")) {
-		freepbx::outn("\t\t\tModule is higher than master, merging master into this branch...");
+		freepbx::outn("\t\t\tModule is higher than or equal to master, merging master into this branch...");
 		$stashable = $repo->add_stash();
 		$repo->fetch();
 		$merged = $repo->pull('origin','master');
