@@ -226,19 +226,19 @@ foreach ($modules as $module) {
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
-	
+
 	//fetch changes so that we can get new tags
 	freepbx::outn("\t\tFetching remote changes (not applying)...");
 	$repo->fetch();
 	freepbx::out("Done");
-	
+
 	//now check to make sure the xml is valid
 	freepbx::outn("\tChecking Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
+	list($rawname, $ver, $supported, $license, $licenselink) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false) {
-		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : 'Unknown');
+	if ($rawname == false || $ver == false || $license == false || $licenselink == false) {
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($license == false ? 'license' : ($licenselink == false ? 'licenselink' : 'Unknown')));
 		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
@@ -264,7 +264,7 @@ foreach ($modules as $module) {
 		freepbx::out("Yes (Working With ".$activeb.")");
 	}
 	$bver = $matches[1];
-	
+
 	freepbx::outn("\t\tFetching remote changes and applying to ".$activeb."...");
 	try {
 		$repo->pull($vars['remote'], $activeb);
@@ -289,7 +289,7 @@ foreach ($modules as $module) {
 	//run through remote branches
 	foreach($rbranches as $branch) {
 		//divide and conquer, only work with our remote and our releases on remote
-		//but skip our active branch, we know about that one 
+		//but skip our active branch, we know about that one
 		if(preg_match('/'.$vars['remote'].'\/release\/(.*)/i',$branch,$matches) && $branch != $vars['remote'].'/'.$activeb) {
 			freepbx::outn("\t\tChecking ".$branch."...");
 			//attempt to 'grab' the file from it's reference,
@@ -345,7 +345,18 @@ foreach ($modules as $module) {
 		continue;
 	}
 	freepbx::out("There are no errors");
-	
+
+	//run unit tests
+	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.phar')) {
+		freepbx::outn("\tDetected Unit Tests...");
+		if(!run_cmd(__DIR__.'/phpunit.phar '.$mod_dir.'/utests',$outline,true)) {
+			freepbx::out("Unit tests failed");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("all unit tests passed");
+	}
+
 	//bump version if requested
 	if ($vars['bump'] && !$vars['debug']) {
 		freepbx::outn("\tBumping Version as Requested...");
@@ -372,10 +383,10 @@ foreach ($modules as $module) {
 	//Check XML File one more time to be safe
 	freepbx::outn("\tChecking Modified Module XML...");
 	//test xml file and get some of its values
-	list($rawname, $ver, $supported) = freepbx::check_xml_file($mod_dir);
+	list($rawname, $ver, $supported, $license, $licenselink) = freepbx::check_xml_file($mod_dir);
 	//dont continue if there is an issue with the xml
-	if ($rawname == false || $ver == false || $supported == false) {
-		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : 'Unknown'));
+	if ($rawname == false || $ver == false || $supported == false || $license == false || $licenselink == false) {
+		$missing = ($rawname == false) ? 'rawname' : ($ver == false ? 'version' : ($supported == false ? 'supported' : ($license == false ? 'license' : ($licenselink == false ? 'licenselink' : 'Unknown'))));
 		freepbx::out('module.xml is missing '.$missing);
 		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
@@ -388,16 +399,53 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::out("Done");
-	
+
 	//Package javascript because Andrew always forgets
 	if($module == 'framework') {
 		freepbx::outn("\tFramework, packaging javascripts...");
-		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php');
+		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php --directory '.$vars['directory']);
 		freepbx::out("Done");
+	}
+
+    //If we have a license, which we are required to have by this point, get the
+	//	licenselink tag and generate a LICENSE file
+	if ($license) {
+		if (!empty($licenselink)) {
+			if (!file_put_contents($mod_dir.'/LICENSE', file_get_contents($licenselink))) {
+				freepbx::out('Unable to get License from License link in module.xml');
+				continue;
+			}
+		}
 	}
 
 	//GIT Processing here
 	freepbx::out("\tRunning GIT...");
+	freepbx::outn("\t\tAdding/Updating Merge Drivers....");
+	$gitatts = $repo->add_merge_driver();
+	if(!empty($gitatts)) {
+		file_put_contents($mod_dir.'/.gitattributes', $gitatts);
+	}
+	freepbx::out("Done");
+	//merging languages
+	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
+	$xml = simplexml_load_string($moduleMasterXmlString);
+	freepbx::out("\t\tChecking Merge Status with master");
+	if(freepbx::version_compare_freepbx((string)$xml->version, $ver, "<=")) {
+		freepbx::outn("\t\t\tModule is higher than or equal to master, merging master into this branch...");
+		$stashable = $repo->add_stash();
+		$repo->fetch();
+		$merged = $repo->pull('origin','master');
+		if(!$merged) {
+			freepbx::out("\t\t\tMerge from master to this branch failed");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+		if($stashable) {
+			$repo->apply_stash();
+			$repo->drop_stash();
+		}
+	}
 	freepbx::outn("\t\tChecking for Modified or New files...");
 	$status = $repo->status();
 	$commitable = false;
@@ -407,7 +455,7 @@ foreach ($modules as $module) {
 		freepbx::out("Found ".count($status['modified'])." Modified files and ".count($status['untracked'])." New files");
 		$commitable = true;
 	}
-	
+
 	//Check to see if the tag already exists locally
 	freepbx::outn("\t\tChecking to see if local tag already exists...");
 	if($repo->tag_exist('release/'.$ver) && !$vars['forcetag']) {
@@ -426,7 +474,7 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("It doesn't");
 	}
-	
+
 	//Check to see if the tag exists remotely
 	$remote_tag = null;
 	freepbx::outn("\t\tChecking to see if remote tag on ".$vars['remote']." already exists...");
@@ -441,7 +489,7 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("It doesn't");
 	}
-	
+
 	if($commitable) {
 		freepbx::outn("\t\tAdding Module.xml...");
 		//add module.xml separately from the rest of the changes, because I said so
@@ -457,7 +505,22 @@ foreach ($modules as $module) {
 		} else {
 			freepbx::out("Debugging, Not Ran");
 		}
-	
+
+		freepbx::outn("\t\tAdding LICENSE...");
+		//add module.xml separately from the rest of the changes, because I said so
+		if(!$vars['debug']) {
+			try {
+				$repo->add('LICENSE');
+			} catch (Exception $e) {
+				freepbx::out($e->getMessage());
+				freepbx::out("Module " . $module . " will not be tagged since we are unable to add the LICENSE file!");
+				continue;
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Debugging, Not Ran");
+		}
+
 		freepbx::outn("\t\tCheckin Outstanding Changes...");
 		//-A will do more than ., it will add any unstaged files...
 		if(!$vars['debug']) {
@@ -534,7 +597,7 @@ foreach ($modules as $module) {
 	}
 	$tense = !$vars['debug'] ? 'has' : 'would have';
 	$final_status[$module] = 'Module ' . $module . ' version ' . $ver . ' ' . $tense . ' been successfully tagged!';
-	freepbx::out($final_status[$module]);	
+	freepbx::out($final_status[$module]);
 }
 
 //print report
@@ -560,37 +623,37 @@ if ($vars['interactive'] && !empty($supported['version']) && !empty($final_statu
 				}
 				$user = posix_getpwuid(posix_geteuid());
 				$username = freepbx::getInput('Username?',$user['name']);
-				$ssh_auth_pub = ($username == 'root') ? '/root/.ssh/id_rsa.pub' : '/home/'.$username.'/.ssh/id_rsa.pub'; 
+				$ssh_auth_pub = ($username == 'root') ? '/root/.ssh/id_rsa.pub' : '/home/'.$username.'/.ssh/id_rsa.pub';
 				$ssh_auth_priv = ($username == 'root') ? '/root/.ssh/id_rsa' : '/home/'.$username.'/.ssh/id_rsa';
 				$ssh_auth_pass = (!file_exists($ssh_auth_pub) || !file_exists($ssh_auth_priv)) ? freepbx::getPassword("Password?") : null;
-				if (!ssh2_auth_pubkey_file($connection, $username, $ssh_auth_pub, $ssh_auth_priv, $ssh_auth_pass)) { 
+				if (!ssh2_auth_pubkey_file($connection, $username, $ssh_auth_pub, $ssh_auth_priv, $ssh_auth_pass)) {
 					freepbx::out('Autentication rejected by server');
 					exit(1);
 				}
 				$packager = "/usr/src/freepbx-server-dev-tools/server_packaging.php";
-		        if (!($stream = ssh2_exec($connection, "ls ".$packager))) { 
+		        if (!($stream = ssh2_exec($connection, "ls ".$packager))) {
 					freepbx::out('SSH command failed');
 					exit(1);
-		        } 
-		        stream_set_blocking($stream, true); 
-		        $data = ""; 
-		        while ($buf = fread($stream, 4096)) { 
-		            $data .= $buf; 
-		        } 
-		        fclose($stream); 
+		        }
+		        stream_set_blocking($stream, true);
+		        $data = "";
+		        while ($buf = fread($stream, 4096)) {
+		            $data .= $buf;
+		        }
+		        fclose($stream);
 				if(trim($data) != $packager) {
 					freepbx::out('Cant Find Package Scripts');
 					exit(1);
 				}
-		        if (!($stream = ssh2_exec($connection, $packager . " -s " . $supported . " -m " . $module))) { 
+		        if (!($stream = ssh2_exec($connection, $packager . " -s " . $supported . " -m " . $module))) {
 					freepbx::out('SSH command failed');
 					exit(1);
-		        } 
-		        stream_set_blocking($stream, true); 
-		        while ($buf = fread($stream, 4096)) { 
+		        }
+		        stream_set_blocking($stream, true);
+		        while ($buf = fread($stream, 4096)) {
 					echo $buf;
 		        }
-				ssh2_exec($connection, 'echo "EXITING" && exit;'); 
+				ssh2_exec($connection, 'echo "EXITING" && exit;');
 				$connection = null;
 			}
 		} else {

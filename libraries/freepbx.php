@@ -168,7 +168,7 @@ class freepbx {
 	 * @return  array
 	 */
 	function setupDevRepos($directory,$force=false,$mode='ssh') {
-		$skipr = array('devtools','moh_sounds','freepbxlocalization');
+		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade');
 		$o = $this->stash->getAllRepos();
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
 			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
@@ -460,7 +460,19 @@ class freepbx {
 			freepbx::out('module.xml is missing supported tag');
 			$supported = false;
 		}
-		return array($rawname, $version, $supported);
+
+		$license = (string) $xml->license;
+		if (empty($license)) {
+			freepbx::out('module.xml is missing a license tag');
+			$license = false;
+		}
+
+		$licenselink = (string) $xml->licenselink;
+		if (empty($licenselink)) {
+			freepbx::out('module.xml is missing a licenselink tag');
+			$licenselink = false;
+		}
+		return array($rawname, $version, $supported, $license, $licenselink);
 	}
 
 	//return the xml as an object

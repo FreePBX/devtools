@@ -22,12 +22,17 @@
 # 	complaint, but you won't have obtained complete results.
 
 
+# Usage: update_i18n.sh [module name] [directory]
+
 # Always work out of the directory that this script is running in, as framework is not a real module, so we need to compensate for that.
-pwd=`dirname $(readlink -f $0)`
+if [ "$2" == "" ]; then
+	pwd=`dirname $(readlink -f $0)`
+else 
+	pwd=$2
+fi
 cd $pwd
 
-
-if [ -d $1 ] && [ "$1" != "" ]; then
+if [ -d $pwd/$1 ] && [ "$1" != "" ]; then
 	mod=$1/
 else
 	mod=$(ls -d */)
@@ -105,6 +110,11 @@ do
 	
 		echo "Checking if module ${modules%%/} has an i18n directory"
 		# spit out the module.xml in a <modulename>.i18.php so that we can grab it with the find
+		if [ ! -d ${modules}i18n ]; then
+			echo "Creating i18n directory"
+			mkdir ${modules}i18n
+		fi
+
 		if [ -d ${modules}i18n ]; then
 			echo "Found directory ${modules}i18n, creating temp file"
 			# This is needed for localization to actually pickup the enclosed text strings
@@ -139,7 +149,8 @@ do
 			echo "#    along with FreePBX.  If not, see <http://www.gnu.org/licenses/>." >> ${modules%%/}/i18n/${rawname%%/}.pot
 			echo "#" >> ${modules%%/}/i18n/${rawname%%/}.pot
 			echo "# FreePBX language template for ${modules%%/}" >> ${modules%%/}/i18n/${rawname%%/}.pot
-			echo "# Copyright (C) 2008, 2009, 2010 Bandwith.com" >> ${modules%%/}/i18n/${rawname%%/}.pot
+			thisyear=`date +"%Y"`
+			echo "# Copyright (C) 2008-${thisyear} Schmoozecom, INC" >> ${modules%%/}/i18n/${rawname%%/}.pot
 			echo "#" >> ${modules%%/}/i18n/${rawname%%/}.pot
 			# Remove the first six lines of the .tmp file and put it in the -pot file
 			/bin/sed '1,6d' ${modules%%/}/i18n/${rawname%%/}.tmp >> ${modules%%/}/i18n/${rawname%%/}.pot
@@ -149,6 +160,8 @@ do
 		fi
 	fi 
 	# Remove the .tmp file created above for amp.pot generation
-	rm ../ampfiles.tmp
+	if [ -f ../ampfiles.tmp ]; then
+		rm ../ampfiles.tmp
+	fi
 done
 echo "Done, now don't forget to commit your work!"
