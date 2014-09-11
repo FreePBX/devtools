@@ -901,6 +901,25 @@ class GitRepo {
 	public function gzip_archive_tag($prefix, $tag, $filename, $format='tar.gz') {
 		return $this->run("archive --format=$format --prefix=$prefix $tag -o $filename");
 	}
+
+	/**
+	 * Sync submodules
+	 *
+	 * @returns string
+	 */
+	public function submodule_sync() {
+		return $this->run("submodule foreach --recursive sync");
+	}
+
+	/**
+	 * Update submodules
+	 *
+	 * @return string
+	 */
+	public function submodule_update() {
+		return $this->run("submodule update --init --recursive");
+	}
+
 }
 
 /* End of file */
