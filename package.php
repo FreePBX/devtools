@@ -252,7 +252,13 @@ foreach ($modules as $module) {
 	$lbranches = $repo->list_branches();
 	$rbranches = $repo->list_remote_branches();
 	//get module root version
-	preg_match('/(\d*\.\d*)\./i',$ver,$matches);
+	if(!preg_match('/(\d*\.\d*)\./i',$ver,$matches)) {
+		freepbx::out("no");
+		freepbx::out("Module Version numbers must be of format X.Y.Z, Where X.Y is the release branch. Yours was " + $ver);
+		freepbx::out("Example: Module Version is 12.0.4, then the release branch would be release/12.0");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		continue;
+	}
 	$mver = $matches[1];
 	if(!preg_match('/release\/(.*)/i',$activeb,$matches)) {
 		//we are not on our release branch for this 'module'
