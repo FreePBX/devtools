@@ -26,8 +26,7 @@ foreach($modules as $mod_dir) {
 	
 	$remote = $repo->get_remote_uri('origin');
 	if(preg_match('/org\/freep12/i',$remote)) {
-		$newuri = str_replace('org/freep12','org/freepbx',$remote);
-		$newuri = str_replace('org/FREEP12','org/freepbx',$remote);
+		$newuri = preg_replace('/org\/freep12/i','org/freepbx',$remote);
 		$repo->update_remote('origin', $newuri);
 	}
 }
