@@ -53,6 +53,7 @@ $skip = array(
 		"|$dir/module_admin\.js|",
 		"|$dir/modernizr\.js|",
 		"|$dir/browser-support\.js|",
+		"|$dir/selectivizr\.js|"
 );
 foreach ($output as $file) {
 
