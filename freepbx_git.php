@@ -191,13 +191,22 @@ if(isset($options['m'])) {
 	} else {
 		$ul = $vars['dev_symlinks'];
 	}
-	if(($ul == 'yes' || $ul == 'y') && file_exists($directory.'/framework/install_amp')) {
-		freepbx::outn("Updating links through install_amp...");
-		$pwd = getcwd();
-		chdir($directory.'/framework');
-		passthru('./install_amp --update-links');
-		chdir($pwd);
-		freepbx::out("Done");
+	if($ul == 'yes' || $ul == 'y') {
+		if (file_exists($directory.'/framework/install')) {
+			freepbx::outn("Updating links through install...");
+			$pwd = getcwd();
+			chdir($directory.'/framework');
+			passthru('./install --dev-links -n');
+			chdir($pwd);
+			freepbx::out("Done");
+		} else if (file_exists($directory.'/framework/install_amp')) {
+			freepbx::outn("Updating links through install_amp...");
+			$pwd = getcwd();
+			chdir($directory.'/framework');
+			passthru('./install_amp --update-links');
+			chdir($pwd);
+			freepbx::out("Done");
+		}
 	}
 	exit(0);
 }
