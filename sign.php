@@ -62,9 +62,9 @@ if (!$key) {
 
 print "Signing $loc with $key\n";
 print "\tGenerating file list...";
+@unlink("$loc/module.sig");
 $files = $gpg->getHashes($loc);
 print "\n\tSigning $loc/module.sig..";
-@unlink("$loc/module.sig");
 $fh = popen("gpg --default-key $key --clearsign > $loc/module.sig", "w");
 
 fwrite($fh, ";################################################
