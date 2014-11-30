@@ -32,15 +32,9 @@ if (!file_exists($loc."/module.xml")) {
 }
 
 // Things are looking good, initalize freepbx
-$restrict_mods=true;
-$bootstrap_settings['freepbx_auth']=false;
-include '/etc/freepbx.conf';
+include(__DIR__."/libraries/GPG.class.php");
 
-restore_error_handler();
-restore_exception_handler();
-error_reporting(E_ALL);
-
-$gpg = FreePBX::GPG();
+$gpg = new GPG();
 
 // Make sure we have the FreePBX key
 exec('gpg --list-key 9F9169F4B33B4659', $output, $retcode);
@@ -148,4 +142,3 @@ function validateKey($key) {
 function recvKey($key) {
 	exec("gpg --recv-key $key");
 }
-
