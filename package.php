@@ -434,13 +434,17 @@ foreach ($modules as $module) {
 	freepbx::out("Done");
 	//merging languages
 	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
-	$xml = simplexml_load_string($moduleMasterXmlString);
+	$masterXML = simplexml_load_string($moduleMasterXmlString);
 	freepbx::out("\t\tChecking Merge Status with master");
-	if(freepbx::version_compare_freepbx((string)$xml->version, $ver, "<=")) {
+	if(freepbx::version_compare_freepbx((string)$masterXML->version, $ver, "<=")) {
 		freepbx::outn("\t\t\tModule is higher than or equal to master, merging master into this branch...");
 		$stashable = $repo->add_stash();
 		$repo->fetch();
-		$merged = $repo->pull('origin','master');
+		try {
+			$merged = $repo->pull('origin','master');
+		} catch(\Exception $e) {
+			$merged = false;
+		}
 		if(!$merged) {
 			freepbx::out("\t\t\tMerge from master to this branch failed");
 			freepbx::out("Module " . $module . " will not be tagged!");
@@ -586,6 +590,24 @@ foreach ($modules as $module) {
 	} else {
 		freepbx::out("Debugging, Not Ran");
 	}
+
+	if(freepbx::version_compare_freepbx((string)$masterXML->supported->version, $supported['version'], "=")) {
+		if(freepbx::version_compare_freepbx((string)$masterXML->version, $ver, "<=")) {
+			freepbx::outn("\t\tMaster is the same supported release as this branch. Merging release/".$mver." into master...");
+			if(!$vars['debug']) {
+				$repo->checkout("master");
+				$merged = $repo->pull($vars['remote'],"release/".$mver);
+				if(!$merged) {
+					freepbx::out("\t\t\tMerge from release/".$mver." into master failed");
+					freepbx::out("Module " . $module . " will not be tagged!");
+					continue;
+				}
+				$repo->push($vars['remote'], "master");
+			}
+			freepbx::out("Done");
+		}
+	}
+
 	freepbx::outn("\t\tPushing to ".$vars['remote']."...");
 	//push branch and tag to remote
 	//TODO: check to make sure the author/committer isn't 'root'
