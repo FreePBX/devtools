@@ -603,6 +603,7 @@ foreach ($modules as $module) {
 					continue;
 				}
 				$repo->push($vars['remote'], "master");
+				$repo->checkout("release/".$mver);
 			}
 			freepbx::out("Done");
 		}
