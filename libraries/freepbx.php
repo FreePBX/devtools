@@ -118,7 +118,7 @@ class freepbx {
 			freepbx::outn("\t\tUpdating ".$branch."...");
 			if (!in_array($branch, $rbranch_array)) {
         //Delete branches that are not available on the remote, otherwise we end up throwing an exception
-        freepbx::outn("\t\t\tRemoving as it no longer exists on the remote");
+        freepbx::out("Removing as it no longer exists on the remote");
         $repo->delete_branch($branch, true);
         continue;
       }
