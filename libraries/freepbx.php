@@ -199,7 +199,6 @@ class freepbx {
 				$repo->checkout($branch);
 				freepbx::out("Done");
 			} catch (Exception $e) {
-				$repo->checkout($branch);
 				try {
 					freepbx::out($branch.' does not exist');
 					$repo->checkout('develop');
