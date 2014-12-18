@@ -167,7 +167,7 @@ class freepbx {
 	 * @param   bool $force True or False on whether to rm -Rf and then recreate the repo
 	 * @return  array
 	 */
-	function setupDevRepos($directory,$force=false,$mode='ssh') {
+	function setupDevRepos($directory,$force=false,$mode='ssh',$branch='develop') {
 		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade');
 		$o = $this->stash->getAllRepos();
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
@@ -194,12 +194,18 @@ class freepbx {
 			$repo->add_merge_driver();
 			freepbx::out("Done");
 
-			freepbx::outn("\tChecking you out into the develop branch...");
+			freepbx::outn("\tChecking you out into the ".$branch." branch...");
 			try {
-				$repo->checkout('develop');
+				$repo->checkout($branch);
 				freepbx::out("Done");
 			} catch (Exception $e) {
-				freepbx::out('develop does not exist');
+				$repo->checkout($branch);
+				try {
+					freepbx::out($branch.' does not exist');
+					$repo->checkout('develop');
+				} catch (Exception $e) {
+					freepbx::out('develop does not exist');
+				}
 			}
 		}
 	}

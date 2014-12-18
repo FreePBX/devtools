@@ -211,7 +211,7 @@ if(isset($options['m'])) {
 	exit(0);
 }
 
-if(isset($options['switch']) && !empty($options['switch'])) {
+if(!isset($options['setup']) && isset($options['switch']) && !empty($options['switch'])) {
 	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) {
 		freepbx::switchBranch($dir,$options['switch']);
 	}
@@ -260,7 +260,8 @@ if(isset($options['setup'])) {
 	}
 
 	$force = isset($options['force']) ? true : false;
-	$freepbx->setupDevRepos($directory,$force,$mode);
+	$branch = isset($options['switch']) && !empty($options['switch']) ? $options['switch'] : 'develop';
+	$freepbx->setupDevRepos($directory,$force,$mode,$branch);
 	$freepbx->setupSymLinks($directory);
 	exit(0);
 }

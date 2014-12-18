@@ -39,7 +39,18 @@ $final=$finalB=array();
  * add it to the $finalB array. All other files will be appended to the $final array.
  * $finalB is then merged with $final, with $finalB being put first
  */
-
+/*
+Array
+(
+[0] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/jquery.cookie.js
+[1] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/script.legacy.js
+[2] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/XMLHttpRequest.js
+[3] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/class.js
+[4] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/jquery.autosize.min.js
+[5] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/jquery.hotkeys.js
+[6] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/tabber-minimized.js
+)
+ */
 $skip = array(
 		"|$dir/progress-polyfill.min.js|",
 		"|$dir/jquery-.*\.js|",
@@ -53,7 +64,11 @@ $skip = array(
 		"|$dir/module_admin\.js|",
 		"|$dir/modernizr\.js|",
 		"|$dir/browser-support\.js|",
-		"|$dir/selectivizr\.js|"
+		"|$dir/selectivizr\.js|",
+		"|$dir/typeahead\.bundle\.js|",
+		"|$dir/typeahead\.bundle\.min\.js|",
+		"|$dir/search\.js|",
+		"|$dir/jed\.js|"
 );
 foreach ($output as $file) {
 
