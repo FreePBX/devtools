@@ -181,7 +181,7 @@ class freepbx {
 			if(in_array($repos['name'],$skipr)) {
 				continue;
 			}
-			freepbx::out("Cloning ".$repos['name'] . " into ".$dir);
+			freepbx::outn("Cloning ".$repos['name'] . " into ".$dir."...");
 			if(file_exists($dir) && $force) {
 				freepbx::out($dir . " Already Exists but force is enabled so deleting and restoring");
 				exec('rm -Rf '.$dir);
@@ -194,19 +194,56 @@ class freepbx {
 			$repo->add_merge_driver();
 			freepbx::out("Done");
 
-			freepbx::outn("\tChecking you out into the ".$branch." branch...");
-			try {
-				$repo->checkout($branch);
-				freepbx::out("Done");
-			} catch (Exception $e) {
+			$obranch = $branch;
+			while($branch) {
 				try {
-					freepbx::out($branch.' does not exist');
-					$repo->checkout('develop');
+					freepbx::outn("\tChecking you out into the ".$branch." branch...");
+					$repo->checkout($branch);
+					freepbx::out("Done");
+					break;
 				} catch (Exception $e) {
-					freepbx::out('develop does not exist');
+					freepbx::out("Doesnt Exist!");
+					$branch = $this->getLowerBranch($branch);
+					if($branch === false) {
+						try {
+							freepbx::outn("\tChecking you out into the develop branch...");
+							$repo->checkout('develop');
+							freepbx::out("Done");
+						} catch (Exception $e) {
+							//TODO: error?
+						}
+					}
 				}
 			}
+			$branch = $obranch;
+			freepbx::out(" ");
 		}
+	}
+
+	/**
+	 * Gets the next lowest branch
+	 * This function could be better but it works the way it is for now
+	 * @param {string} $branch Branch name in the form of 'release/x.y'
+	 */
+	function getLowerBranch($branch) {
+		$parts = explode("/",$branch);
+		$release = $parts[1];
+		switch($release) {
+			case version_compare($release, "13.0", ">="):
+				$parts = explode(".",$release);
+				$major = $parts[0] - 1;
+				return "release/".$major.".0";
+			break;
+			case "12.0":
+				return "release/2.11";
+			case "2.11":
+				return "relase/2.10";
+			break;
+			default:
+				return false;
+			break;
+		}
+		return false;
 	}
 
 	/**
