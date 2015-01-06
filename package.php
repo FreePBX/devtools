@@ -202,6 +202,7 @@ if (!file_exists($vars['directory'])) {
 }
 freepbx::out("Using ".$vars['directory']);
 chdir($vars['directory']);
+update_devtools();
 foreach ($modules as $module) {
 	//this isnt really used
 	$file_scan_exclude_list = ($module == 'framework') ? array("modules") : array();
@@ -868,4 +869,35 @@ function run_cmd($cmd, &$outline='', $quiet = false, $duplex = false) {
 		$outline = system($cmd . $quiet, $ret_val);
 	}
 	return ($ret_val == 0);
+}
+
+function update_devtools() {
+	$mypath = __DIR__;
+	freepbx::outn("Updating devtools\n\tOpening devtools...");
+	//Attempt to open the module as a git repo, bail if it's not a repo
+	try {
+		$repo = Git::open($mypath);
+		freepbx::out("Done");
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		exit();
+	}
+	freepbx::outn("\tIm going to update the master branch now...");
+	$stashable = $repo->add_stash();
+	$repo->fetch();
+	try {
+		$merged = $repo->pull('origin','master');
+	} catch(\Exception $e) {
+		$merged = false;
+	}
+	if(!$merged) {
+		freepbx::out("\t\t\tMerge from master to this branch failed");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		exit();
+	}
+	if($stashable) {
+		$repo->apply_stash();
+		$repo->drop_stash();
+	}
+	freepbx::out("Done. Thanks for using FreePBX!");
 }

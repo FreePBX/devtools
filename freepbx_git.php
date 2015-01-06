@@ -41,6 +41,7 @@ $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_director
 
 $help = array(
 	array('-m', 'Checkout a Single Module. Without the -r option will also search all available Stash Projects for said module'),
+	array('-s', 'Setup symlinks into Framework for install'),
 	array('-r', 'Declare Stash Project Key for single module checkout'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
   array('--setuplang', 'Setup language dev tools, requires that --setup was already run (use --force to re-setup environment)'),
@@ -63,7 +64,7 @@ $longopts  = array(
 	"switch::",
 	"mode::"
 );
-$options = getopt("m:r:",$longopts);
+$options = getopt("m:r:s",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('freepbx_git.php',$help);
 	exit(0);
@@ -125,6 +126,10 @@ if(isset($options['clean']) && isset($options['m'])) {
 		freepbx::out('Done');
 	}
 	exit(0);
+}
+
+if(isset($options['s'])) {
+	$freepbx->setupSymLinks($directory);
 }
 
 if(isset($options['m'])) {
