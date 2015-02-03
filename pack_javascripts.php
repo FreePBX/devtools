@@ -68,7 +68,8 @@ $skip = array(
 		"|$dir/typeahead\.bundle\.js|",
 		"|$dir/typeahead\.bundle\.min\.js|",
 		"|$dir/search\.js|",
-		"|$dir/jed\.js|"
+		"|$dir/jed\.js|",
+		"|$dir/zxcvbn\.js|"
 );
 foreach ($output as $file) {
 
