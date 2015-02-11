@@ -250,10 +250,25 @@ EOF;
 			$string = $this->createHeader();
 
 			$potFile = $i18n_dir . '/' . $this->xml['rawname'] . '.pot';
+			if(file_exists($potFile)) {
+				$oldPotFile = file_get_contents($potFile);
+			}
 			file_put_contents($potFile, $string);
 
 			//Remove the first six lines of the .tmp file and tack it onto the .pot file
 			exec("/bin/sed '1,6d' $tmpFile >> $potFile");
+
+			$newPotFile = file_get_contents($potFile);
+
+			//Now check to see if any strings were really added or not.
+			//If not then revert to the old Pot file
+			//this is so we dont have useless commits
+			//Remove the date which is usually the only thing that changes
+			$tmpOldPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$oldPotFile);
+			$tmpNewPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$newPotFile);
+			if(strcmp($tmpOldPotFile, $tmpNewPotFile) === 0) {
+				file_put_contents($potFile, $oldPotFile);
+			}
 
 			//Remove the .tmp file created above
 			unlink($tmpFile);
@@ -396,10 +411,25 @@ EOF;
 			$string = $this->createHeader();
 
 			$potFile = $i18n_dir . '/' . $this->xml['rawname'] . '.pot';
+			if(file_exists($potFile)) {
+				$oldPotFile = file_get_contents($potFile);
+			}
 			file_put_contents($potFile, $string);
 
 			//Remove the first six lines of the .tmp file and tack it onto the .pot file
 			exec("/bin/sed '1,6d' $tmpFile >> $potFile");
+
+			$newPotFile = file_get_contents($potFile);
+
+			//Now check to see if any strings were really added or not.
+			//If not then revert to the old Pot file
+			//this is so we dont have useless commits
+			//Remove the date which is usually the only thing that changes
+			$tmpOldPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$oldPotFile);
+			$tmpNewPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$newPotFile);
+			if(strcmp($tmpOldPotFile, $tmpNewPotFile) === 0) {
+				file_put_contents($potFile, $oldPotFile);
+			}
 
 			//Remove the .tmp file created above
 			unlink($tmpFile);
