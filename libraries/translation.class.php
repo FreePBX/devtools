@@ -144,81 +144,6 @@ EOF;
 		return $o;
 	}
 
-	function find_gitignore_files($dir) {
-		$files = array();
-		while (true) {
-			$file = "$dir/.gitignore";
-			if (is_file($file)) $files[] = $file;
-			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
-			if (dirname($dir) === '.') break;                         # and here
-			$dir = dirname($dir);
-		}
-		return $files;
-	}
-
-	function find_langignore_files($dir) {
-		$files = array();
-		while (true) {
-			$file = "$dir/.langignore";
-			if (is_file($file)) $files[] = $file;
-			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
-			if (dirname($dir) === '.') break;                         # and here
-			$dir = dirname($dir);
-		}
-		return $files;
-	}
-
-	function parse_git_ignore_file($file) { // $file = '/absolute/path/to/.gitignore'
-		$dir = dirname($file);
-		$matches = array();
-		$lines = file($file);
-		foreach ($lines as $line) {
-			$line = trim($line);
-			if ($line === '') continue;                 // empty line
-			if (substr($line, 0, 1) == '#') continue;   // a comment
-			if (substr($line, 0, 1) == '!') {           // negated glob
-				$line = substr($line, 1);
-				$matches = array_diff($matches, array("$dir/$line"));
-				continue;
-			} elseif(preg_match('/\*/i',$line)) {
-				$files = glob("$dir/$line");
-			} else {
-				$files = array("$line");
-			}
-			$matches = array_merge($matches, $files);
-		}
-		return $matches;
-	}
-
-	function parseGitIgnoreFile($directory) {
-		$gitIgnoreFiles = $this->find_gitignore_files($this->cwd);
-		$langIgnoreFiles = $this->find_langignore_files($this->cwd);
-		$ignoreFiles = array_merge($gitIgnoreFiles, $langIgnoreFiles);
-		if(empty($ignoreFiles)) {
-			return array();
-		}
-		$ignores = array();
-		foreach($ignoreFiles as $file) {
-			$i = $this->parse_git_ignore_file($file);
-			if(!empty($i) && is_array($i)) {
-				$ignores = array_merge($i, $ignores);
-			}
-		}
-		return $ignores;
-	}
-
-	function isIgnored($file) {
-		if(empty($this->ignores)) {
-			$this->ignores = $this->ignores = $this->parseGitIgnoreFile($this->cwd);
-		}
-		foreach($this->ignores as $ignore) {
-			if(strrpos($file, $ignore) !== false) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	/* OK, now we have come to a place where framework and core need to be treated totally differently from other modules
 	Rather that go to the trouble of trying to special case everything within the same function, which is going to lead to
 	code that is more complex than necessary, what I have done is make two functions - one is update_i18n() which is used
@@ -251,16 +176,16 @@ EOF;
 		//from the latest source code alone if possible.
 
 		//Prepare the temporary PHP file where we will store strings
-		file_put_contents($i18n_php, "<?php \nif(false) {");
+		$this->addStringToFile($i18n_php, "<?php \nif(false) {", false);
 		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
 		//From module.xml - name, category, description (we used to get this from module_admin)
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->name)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->category)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->description)) . '");' . "\n", FILE_APPEND);
+		$this->addStringToFile($i18n_php, $xmlData->name);
+		$this->addStringToFile($i18n_php, $xmlData->category);
+		$this->addStringToFile($i18n_php, $xmlData->description);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
 		if (!empty($xmlData->menuitems)) {
 			foreach ($xmlData->menuitems->children() AS $child) {
-				file_put_contents($i18n_php, '_("' . addslashes(trim($child)) . '");' . "\n", FILE_APPEND);
+				$this->addStringToFile($i18n_php, $child);
 			}
 		}
 		//Go through the module's install.php file and get the strings that need to be translated
@@ -277,10 +202,10 @@ EOF;
 			//Perform textual healing
 			$process = new RecursiveIteratorIterator(new RecursiveArrayIterator($lines));
 			foreach($process as $trans_str) {
-				$pat=':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
-				$replacement='$1';
-				$output=preg_replace($pat, $replacement, $trans_str);
-				file_put_contents($i18n_php, '_("' . addslashes($output) . '");' . "\n", FILE_APPEND);
+				$pat = ':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
+				$replacement = '$1';
+				$output = preg_replace($pat, $replacement, $trans_str);
+				$this->addStringToFile($i18n_php, $output);
 			}
 		}
 		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
@@ -290,7 +215,7 @@ EOF;
 		$i18n_dir = $this->cwd . '/i18n';
 		if (is_dir($i18n_dir)) {
 			//Finish off the $i18n_php temp file with the required code
-			file_put_contents($i18n_php,"}\n?>\n", FILE_APPEND);
+			$this->addStringToFile($i18n_php, "}\n?>\n");
 
 			$phps = $this->rglob($this->cwd, "/(.*\.php)/");
 			$jss = $this->rglob($this->cwd, "/(.*\.js)/");
@@ -332,12 +257,14 @@ EOF;
 
 			//Remove the .tmp file created above
 			unlink($tmpFile);
+
+			//Remove the i18n php file
+			unlink($i18n_php);
 		}
 	}
 
 	/**
 	 * Update i18n files for special modules to make amp.pot
-	 * @param  {string} $module Module rawname
 	 */
 	function update_i18n_amp() {
 		// Give an error and exit if this is not a special module
@@ -365,18 +292,18 @@ EOF;
 		$i18n_php = $this->cwd . '/' . $this->xml['rawname'] . '.i18n.php';
 
 		//Start the temporary PHP file where we will store strings
-		file_put_contents($i18n_php, "<?php \nif(false) {", FILE_APPEND);
+		$this->addStringToFile($i18n_php, "<?php \nif(false) {", false);
 		//We need to handle two module.xml files - framework and core
 		// FRAMEWORK - module.xml
 		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
 		//From module.xml - name, category, description
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->name)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->category)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->description)) . '");' . "\n", FILE_APPEND);
+		$this->addStringToFile($i18n_php, $xmlData->name);
+		$this->addStringToFile($i18n_php, $xmlData->category);
+		$this->addStringToFile($i18n_php, $xmlData->description);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
 		if (!empty($xmlData->menuitems)) {
 			foreach ($xmlData->menuitems->children() AS $child) {
-				file_put_contents($i18n_php, '_("' . trim($child) . '")' . "\n", FILE_APPEND);
+				$this->addStringToFile($i18n_php, $child);
 			}
 		}
 		// CORE - module.xml
@@ -388,7 +315,7 @@ EOF;
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
 		if ($xmlData->menuitems->children()) {
 			foreach ($xmlData->menuitems->children() AS $child) {
-				file_put_contents($i18n_php, '_("' . addslashes(trim($child)) . '");' . "\n", FILE_APPEND);
+				$this->addStringToFile($i18n_php, $child);
 			}
 		}
 		// FRAMEWORK - libfreepbx.install.php
@@ -408,8 +335,7 @@ EOF;
 				$pat=':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
 				$replacement='$1';
 				$output=preg_replace($pat, $replacement, $trans_str);
-				//print($output);
-				file_put_contents($i18n_php, '_("' . addslashes($output) . '")' . "\n", FILE_APPEND);
+				$this->addStringToFile($i18n_php, $output);
 			}
 		}
 		// CORE - install.php
@@ -431,14 +357,14 @@ EOF;
 				$pat=':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
 				$replacement='$1';
 				$output=preg_replace($pat, $replacement, $trans_str);
-				file_put_contents($i18n_php, '_("' . $output . '")' . "\n", FILE_APPEND);
+				$this->addStringToFile($i18n_php, $output);
 			}
 		}
 		// This is the i18n dir path for framework
 		$i18n_dir = $this->cwd . '/amp_conf/htdocs/admin/i18n';
 		if (is_dir($i18n_dir)) {
 			//Finish off the $i18n_php temp file with the required code
-			file_put_contents($i18n_php, "}\n?>\n", FILE_APPEND);
+			$this->addStringToFile($i18n_php, "}\n?>\n");
 
 			//We will now scan all the PHP (and js) files in core and framework directories to put the resulting
 			//entries in amp.pot. This should include the temporary files created above.
@@ -477,11 +403,17 @@ EOF;
 
 			//Remove the .tmp file created above
 			unlink($tmpFile);
+			//Remove the i18n php file
+			unlink($i18n_php);
 		}
 	}
 
-
-	function rglob($folder, $pattern) {
+	/**
+	 * Recursive glob
+	 * @param  string $folder  The starting folder
+	 * @param  string $pattern Pattern to look for
+	 */
+	private function rglob($folder, $pattern) {
 		$dir = new RecursiveDirectoryIterator($folder);
 		$ite = new RecursiveIteratorIterator($dir);
 		$files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
@@ -490,5 +422,121 @@ EOF;
 			$fileList = array_merge($fileList, $file);
 		}
 		return $fileList;
+	}
+
+	/**
+	 * Recursively find all .gitignore files
+	 * @param  string $dir the starting directory
+	 * @return array      List of ignore files
+	 */
+	private function find_gitignore_files($dir) {
+		$files = array();
+		while (true) {
+			$file = "$dir/.gitignore";
+			if (is_file($file)) $files[] = $file;
+			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
+			if (dirname($dir) === '.') break;                         # and here
+			$dir = dirname($dir);
+		}
+		return $files;
+	}
+
+	/**
+	 * Find Language Ignore Files (.langignore)
+	 * @param  string $dir The starting directory
+	 * @return array      List of ignore files
+	 */
+	private function find_langignore_files($dir) {
+		$files = array();
+		while (true) {
+			$file = "$dir/.langignore";
+			if (is_file($file)) $files[] = $file;
+			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
+			if (dirname($dir) === '.') break;                         # and here
+			$dir = dirname($dir);
+		}
+		return $files;
+	}
+
+	/**
+	 * Parse a git ignore file and figure out our ignored files
+	 * @param  string $file .gitignore file to parse
+	 * @return array       File list to ignore
+	 */
+	private function parse_git_ignore_file($file) { // $file = '/absolute/path/to/.gitignore'
+		$dir = dirname($file);
+		$matches = array();
+		$lines = file($file);
+		foreach ($lines as $line) {
+			$line = trim($line);
+			if ($line === '') continue;                 // empty line
+			if (substr($line, 0, 1) == '#') continue;   // a comment
+			if (substr($line, 0, 1) == '!') {           // negated glob
+				$line = substr($line, 1);
+				$matches = array_diff($matches, array("$dir/$line"));
+				continue;
+			} elseif(preg_match('/\*/i',$line)) {
+				$files = glob("$dir/$line");
+			} else {
+				$files = array("$line");
+			}
+			$matches = array_merge($matches, $files);
+		}
+		return $matches;
+	}
+
+	/**
+	 * Parse all Ignore Files
+	 * @param string $directory The starting directory
+	 */
+	private function parseIgnoreFiles($directory) {
+		$gitIgnoreFiles = $this->find_gitignore_files($this->cwd);
+		$langIgnoreFiles = $this->find_langignore_files($this->cwd);
+		$ignoreFiles = array_merge($gitIgnoreFiles, $langIgnoreFiles);
+		if(empty($ignoreFiles)) {
+			return array();
+		}
+		$ignores = array();
+		foreach($ignoreFiles as $file) {
+			$i = $this->parse_git_ignore_file($file);
+			if(!empty($i) && is_array($i)) {
+				$ignores = array_merge($i, $ignores);
+			}
+		}
+		return $ignores;
+	}
+
+	/**
+	 * Check if a file is ignored
+	 * @param string $file The full path to the file
+	 */
+	private function isIgnored($file) {
+		if(empty($this->ignores)) {
+			$this->ignores = $this->ignores = $this->parseIgnoreFiles($this->cwd);
+		}
+		foreach($this->ignores as $ignore) {
+			if(strrpos($file, $ignore) !== false) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Add a string to the i18n.php temp file
+	 * @param string $file   The filename
+	 * @param string $string The string to add
+	 * @param bool $append Whether to append or not
+	 */
+	private function addStringToFile($file, $string, $append=true) {
+		$string = trim($string);
+		if(empty($string)) {
+			return;
+		}
+		if($append) {
+			file_put_contents($file, '_("' . addslashes($string) . '");' . "\n", FILE_APPEND);
+		} else {
+			file_put_contents($file, '_("' . addslashes($string) . '");' . "\n");
+		}
 	}
 }
