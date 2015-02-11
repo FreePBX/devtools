@@ -435,15 +435,22 @@ foreach ($modules as $module) {
 	}
 	freepbx::out("Done");
 
-	freepbx::out("\tProcessing and Updating localization...");
+	freepbx::outn("\tProcessing and Updating localization...");
 	$translation = new Translation($mod_dir);
-	//if no i18n folder then make an english one!
-	if(!file_exists($mod_dir.'/i18n')) {
-		$translation->makeLanguage("en_US");
+	if(!preg_match('/[core|framework]$/i',$mod_dir)) {
+		//if no i18n folder then make an english one!
+		if(!file_exists($mod_dir.'/i18n')) {
+			$translation->makeLanguage("en_US");
+		}
+		//pray that this works..
+		$translation->update_i18n();
+		freepbx::out("Done");
+	} elseif(preg_match('/framework$/i',$mod_dir)) {
+		$translation->update_i18n_amp();
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Core is done through framework, skipping");
 	}
-	//pray that this works..
-	$translation->update_i18n();
-	freepbx::out("Done");
 
 	//merging languages
 	$moduleMasterXmlString = $repo->show('origin/master','module.xml');

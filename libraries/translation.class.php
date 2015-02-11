@@ -306,8 +306,6 @@ EOF;
 	 * @param  {string} $module Module rawname
 	 */
 	function update_i18n_amp() {
-		echo "This is the rawnam at the beginning\n";
-		echo $this->xml['rawname'] . "\n";
 		// Give an error and exit if this is not a special module
 		if (!in_array($this->xml['rawname'], $this->specialModules)) {
 			echo "ERROR: " . $this->xml['rawname'] . " is a regular module. Please use the normal update_i18n() function instead.\n";
@@ -315,7 +313,6 @@ EOF;
 		}
 		// Give an error if someone tries to run this on core
 		if ($this->xml['rawname'] == 'core') {
-			echo $this->xml['rawname'] . " is the rawname\n";
 			echo "ERROR: update_i18n_amp should only be run on framework, not on core\n";
 			exit();
 		}
