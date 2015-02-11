@@ -435,23 +435,6 @@ foreach ($modules as $module) {
 	}
 	freepbx::out("Done");
 
-	freepbx::outn("\tProcessing and Updating localization...");
-	$translation = new Translation($mod_dir);
-	if(!preg_match('/[core|framework]$/i',$mod_dir)) {
-		//if no i18n folder then make an english one!
-		if(!file_exists($mod_dir.'/i18n')) {
-			$translation->makeLanguage("en_US");
-		}
-		//pray that this works..
-		$translation->update_i18n();
-		freepbx::out("Done");
-	} elseif(preg_match('/framework$/i',$mod_dir)) {
-		$translation->update_i18n_amp();
-		freepbx::out("Done");
-	} else {
-		freepbx::out("Core is done through framework, skipping");
-	}
-
 	//merging languages
 	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
 	$masterXML = simplexml_load_string($moduleMasterXmlString);
@@ -476,6 +459,32 @@ foreach ($modules as $module) {
 			$repo->drop_stash();
 		}
 	}
+
+	freepbx::out("\tProcessing localizations...");
+	freepbx::outn("\t\tUpdating master localization...");
+	$translation = new Translation($mod_dir);
+	if(!preg_match('/[core|framework]$/i',$mod_dir)) {
+		//if no i18n folder then make an english one!
+		if(!file_exists($mod_dir.'/i18n')) {
+			$translation->makeLanguage("en_US");
+		}
+		//pray that this works..
+		$translation->update_i18n();
+		freepbx::out("Done");
+		foreach(glob($mod_dir.'/i18n/*',GLOB_ONLYDIR) as $langDir) {
+			$lang = basename($langDir);
+			freepbx::outn("\t\tUpdating individual localization for ".$lang);
+			$o = $translation->merge_i18n($lang);
+			freepbx::out($o);
+		}
+	} elseif(preg_match('/framework$/i',$mod_dir)) {
+		$translation->update_i18n_amp();
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Core is done through framework, skipping");
+	}
+
+	freepbx::out("\tRunning GIT (again)...");
 	freepbx::outn("\t\tChecking for Modified or New files...");
 	$status = $repo->status();
 	$commitable = false;

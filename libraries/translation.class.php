@@ -38,14 +38,16 @@ class Translation {
 		date_default_timezone_set("America/Los_Angeles");
 		$year = date('Y');
 
+		//Note the newline after the final "#" dont remove this!!!!
 		$string = <<<EOF
 # This file is part of FreePBX.
 #
 # For licensing information, please see the file named LICENSE located in the module directory
 #
 # FreePBX language template for {$this->xml['module']}
-# Copyright (C) 2008-$year Schmooze Com, Inc.
+# Copyright (C) 2008-$year Sangoma, Inc.
 #
+
 EOF;
 
 		return $string;
@@ -104,10 +106,12 @@ EOF;
 		$poFile =  $i18n . '/' . $language . '/LC_MESSAGES' .'/' . $this->xml['rawname'] . '.po';
 		$moFile = $i18n . '/' . $language . '/LC_MESSAGES' .'/' . $this->xml['rawname'] . '.mo';
 		$potFile = $i18n . '/' . $this->xml['rawname'] . '.pot';
-		if (file_exists($poFile)) {
-			exec("msgmerge -N -U " . $poFile . " " . $potFile);
-			exec("msgfmt -v $poFile -o $moFile");
+		$o = "";
+		if (file_exists($poFile) && file_exists($potFile)) {
+			$o .= exec("msgmerge -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
+			$o .= exec("msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
 		}
+		return $o;
 	}
 
 	function find_gitignore_files($dir) {
@@ -224,7 +228,7 @@ EOF;
 		file_put_contents($i18n_php, '_("' . trim($xmlData->category) . '");' . "\n", FILE_APPEND);
 		file_put_contents($i18n_php, '_("' . trim($xmlData->description) . '");' . "\n", FILE_APPEND);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if ($xmlData->menuitems->children()) {
+		if (!empty($xmlData->menuitems)) {
 			foreach ($xmlData->menuitems->children() AS $child) {
 				file_put_contents($i18n_php, '_("' . trim($child) . '");' . "\n", FILE_APPEND);
 			}
