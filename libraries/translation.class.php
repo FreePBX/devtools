@@ -102,7 +102,36 @@ EOF;
 	 * @param  {string} $module Module rawname
 	 */
 	function merge_i18n($language) {
+		if (in_array($this->xml['rawname'], $this->specialModules)) {
+			echo "ERROR: " . $this->xml['rawname'] . " is treated differently than regular modules. Please use merge_i18n_amp() instead.\n";
+			exit();
+		}
 		$i18n = $this->cwd . '/i18n';
+
+		$poFile =  $i18n . '/' . $language . '/LC_MESSAGES' .'/' . $this->xml['rawname'] . '.po';
+		$moFile = $i18n . '/' . $language . '/LC_MESSAGES' .'/' . $this->xml['rawname'] . '.mo';
+		$potFile = $i18n . '/' . $this->xml['rawname'] . '.pot';
+		$o = "";
+		if (file_exists($poFile) && file_exists($potFile)) {
+			$o .= exec("msgmerge --backup=none -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
+			$o .= exec("msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
+		}
+		return $o;
+	}
+
+	function merge_i18n_amp($language) {
+		// Give an error and exit if this is not a special module
+		if (!in_array($this->xml['rawname'], $this->specialModules) && $this->xml['rawname'] != 'amp') {
+			echo "ERROR: " . $this->xml['rawname'] . " is a regular module. Please use the normal merge_i18n() function instead.\n";
+			exit();
+		}
+		// Give an error if someone tries to run this on core
+		if ($this->xml['rawname'] == 'core') {
+			echo "ERROR: update_i18n_amp should only be run on framework, not on core\n";
+			exit();
+		}
+
+		$i18n = $this->cwd . '/amp_conf/htdocs/admin/i18n';
 
 		$poFile =  $i18n . '/' . $language . '/LC_MESSAGES' .'/' . $this->xml['rawname'] . '.po';
 		$moFile = $i18n . '/' . $language . '/LC_MESSAGES' .'/' . $this->xml['rawname'] . '.mo';
@@ -225,13 +254,13 @@ EOF;
 		file_put_contents($i18n_php, "<?php \nif(false) {");
 		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
 		//From module.xml - name, category, description (we used to get this from module_admin)
-		file_put_contents($i18n_php, '_("' . trim($xmlData->name) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . trim($xmlData->category) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . trim($xmlData->description) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->name)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->category)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->description)) . '");' . "\n", FILE_APPEND);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
 		if (!empty($xmlData->menuitems)) {
 			foreach ($xmlData->menuitems->children() AS $child) {
-				file_put_contents($i18n_php, '_("' . trim($child) . '");' . "\n", FILE_APPEND);
+				file_put_contents($i18n_php, '_("' . addslashes(trim($child)) . '");' . "\n", FILE_APPEND);
 			}
 		}
 		//Go through the module's install.php file and get the strings that need to be translated
@@ -251,7 +280,7 @@ EOF;
 				$pat=':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
 				$replacement='$1';
 				$output=preg_replace($pat, $replacement, $trans_str);
-				file_put_contents($i18n_php, '_("' . $output . '");' . "\n", FILE_APPEND);
+				file_put_contents($i18n_php, '_("' . addslashes($output) . '");' . "\n", FILE_APPEND);
 			}
 		}
 		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
@@ -312,8 +341,8 @@ EOF;
 	 */
 	function update_i18n_amp() {
 		// Give an error and exit if this is not a special module
-		if (!in_array($this->xml['rawname'], $this->specialModules)) {
-			echo "ERROR: " . $this->xml['rawname'] . " is a regular module. Please use the normal update_i18n() function instead.\n";
+		if (!in_array($this->xml['rawname'], $this->specialModules) && trim($this->xml['rawname']) != 'amp') {
+			echo "ERROR: " . $this->xml['rawname'] . " isss a regular module. Please use the normal update_i18n() function instead.\n";
 			exit();
 		}
 		// Give an error if someone tries to run this on core
@@ -341,11 +370,11 @@ EOF;
 		// FRAMEWORK - module.xml
 		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
 		//From module.xml - name, category, description
-		file_put_contents($i18n_php, '_("' . trim($xmlData->name) . '")' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . trim($xmlData->category) . '")' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . trim($xmlData->description) . '")' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->name)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->category)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->description)) . '");' . "\n", FILE_APPEND);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if ($xmlData->menuitems->children()) {
+		if (!empty($xmlData->menuitems)) {
 			foreach ($xmlData->menuitems->children() AS $child) {
 				file_put_contents($i18n_php, '_("' . trim($child) . '")' . "\n", FILE_APPEND);
 			}
@@ -353,13 +382,13 @@ EOF;
 		// CORE - module.xml
 		$xmlData=simplexml_load_file($core_dir . '/module.xml'); //or die("Failed to load the module.xml file!")
 		//From module.xml - name, category, description
-		file_put_contents($i18n_php, '_("' . trim($xmlData->name) . '")' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . trim($xmlData->category) . '")' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . trim($xmlData->description) . '")' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->name)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->category)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->description)) . '");' . "\n", FILE_APPEND);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
 		if ($xmlData->menuitems->children()) {
 			foreach ($xmlData->menuitems->children() AS $child) {
-				file_put_contents($i18n_php, '_("' . trim($child) . '")' . "\n", FILE_APPEND);
+				file_put_contents($i18n_php, '_("' . addslashes(trim($child)) . '");' . "\n", FILE_APPEND);
 			}
 		}
 		// FRAMEWORK - libfreepbx.install.php
@@ -380,7 +409,7 @@ EOF;
 				$replacement='$1';
 				$output=preg_replace($pat, $replacement, $trans_str);
 				//print($output);
-				file_put_contents($i18n_php, '_("' . $output . '")' . "\n", FILE_APPEND);
+				file_put_contents($i18n_php, '_("' . addslashes($output) . '")' . "\n", FILE_APPEND);
 			}
 		}
 		// CORE - install.php

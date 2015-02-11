@@ -479,6 +479,12 @@ foreach ($modules as $module) {
 		}
 	} elseif(preg_match('/framework$/i',$mod_dir)) {
 		$translation->update_i18n_amp();
+		foreach(glob($mod_dir.'/amp_conf/htdocs/admin/i18n/*',GLOB_ONLYDIR) as $langDir) {
+			$lang = basename($langDir);
+			freepbx::outn("\t\tUpdating individual localization for ".$lang);
+			$o = $translation->merge_i18n_amp($lang);
+			freepbx::out($o);
+		}
 		freepbx::out("Done");
 	} else {
 		freepbx::out("Core is done through framework, skipping");
