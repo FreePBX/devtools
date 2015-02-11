@@ -64,7 +64,33 @@ switch(true) {
 		$masterXML = simplexml_load_string($moduleMasterXmlString);
 
 		$activeb = $repo->active_branch();
-		$mver = (string)$masterXML->supported->version;
+		$sver = (string)$masterXML->supported->version;
+
+		$rbranches = $repo->list_remote_branches();
+		foreach($rbranches as $branch) {
+			if(!preg_match("/^origin\/release\/(.*)/",$branch,$bmatch)) {
+				continue;
+			}
+			try{
+				$xml = $repo->show('refs/remotes/'.$branch,'module.xml');
+			} catch (Exception $e) {
+				//no module xml here...nothing to see move along and try next branch
+				freepbx::out("No Module.xml, skipping");
+				continue;
+			}
+			//load our xml string into our common parser
+			//we only get back three of the tags, rawname, version and supported
+			$bxml = freepbx::check_xml_string($xml);
+			if($bxml[2]['version'] == $sver) {
+				$mver = $bmatch[1];
+				break;
+			}
+		}
+		if(empty($mver)) {
+			freepbx::out("Could not find supported branch to work with!");
+			die();
+		}
+
 		$repo->checkout("release/".$mver);
 
 		freepbx::outn("\t\tMerging master into this branch...");
