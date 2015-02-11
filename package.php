@@ -19,7 +19,8 @@
  *	run with --help for options
  *
  */
-require_once('libraries/freepbx.php');
+require('libraries/freepbx.php');
+require("libraries/translation.class.php");
 $help = array();
 $help[] = array('--bump', 'Bump a modules version. You can specify the "octet" by adding a position '
 			. 'I.e. --bump=2 will turn 3.4.5.6 in to 3.5.5.6. Leaving the position blank will bump the last "octet"');
@@ -414,7 +415,7 @@ foreach ($modules as $module) {
 		freepbx::out("Done");
 	}
 
-    //If we have a license, which we are required to have by this point, get the
+	//If we have a license, which we are required to have by this point, get the
 	//	licenselink tag and generate a LICENSE file
 	if ($license) {
 		if (!empty($licenselink)) {
@@ -433,6 +434,17 @@ foreach ($modules as $module) {
 		file_put_contents($mod_dir.'/.gitattributes', $gitatts);
 	}
 	freepbx::out("Done");
+
+	freepbx::out("\tProcessing and Updating localization...");
+	$translation = new Translation($mod_dir);
+	//if no i18n folder then make an english one!
+	if(!file_exists($mod_dir.'/i18n')) {
+		$translation->makeLanguage("en_US");
+	}
+	//pray that this works..
+	$translation->update_i18n();
+	freepbx::out("Done");
+
 	//merging languages
 	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
 	$masterXML = simplexml_load_string($moduleMasterXmlString);
