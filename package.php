@@ -463,7 +463,7 @@ foreach ($modules as $module) {
 	freepbx::out("\tProcessing localizations...");
 	freepbx::outn("\t\tUpdating master localization...");
 	$translation = new Translation($mod_dir);
-	if(!preg_match('/[core|framework]$/i',$mod_dir)) {
+	if(!preg_match('/(core|framework)$/i',$mod_dir)) {
 		//if no i18n folder then make an english one!
 		if(!file_exists($mod_dir.'/i18n')) {
 			$translation->makeLanguage("en_US");
@@ -487,7 +487,7 @@ foreach ($modules as $module) {
 		}
 		freepbx::out("Done");
 	} else {
-		freepbx::out("Core is done through framework, skipping");
+		freepbx::out("Core is done through framework");
 	}
 
 	freepbx::out("\tRunning GIT (again)...");
