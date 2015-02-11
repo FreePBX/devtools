@@ -37,6 +37,7 @@ class Translation {
 		//Again, could be done better, but I lack the time and really need this out now
 		date_default_timezone_set("America/Los_Angeles");
 		$year = date('Y');
+		$module = $this->xml['rawname'];
 
 		//Note the newline after the final "#" dont remove this!!!!
 		$string = <<<EOF
@@ -44,7 +45,7 @@ class Translation {
 #
 # For licensing information, please see the file named LICENSE located in the module directory
 #
-# FreePBX language template for {$this->xml['module']}
+# FreePBX language template for $module
 # Copyright (C) 2008-$year Sangoma, Inc.
 #
 
@@ -84,7 +85,7 @@ EOF;
 		if (!file_exists($poFile)) {
 			copy($i18n . '/' . $this->xml['rawname'] .'.pot', $poFile);
 		} else {
-			exec("msgmerge -U $poFile $potFile");
+			exec("msgmerge --backup=none -N -U $poFile $potFile 2>&1");
 		}
 
 		$globalMoFile = $i18n .'/' . $this->xml['rawname'] . '.mo';
@@ -92,7 +93,7 @@ EOF;
 		if (file_exists($globalMoFile) && file_exists($globalPoFile)) {
 			exec("mv " . $i18n . "/" . $this->xml['rawname'] . "/" . $this->xml['rawname'] . ".mo $lcMessages/");
 			exec("mv " . $i18n . "/" . $this->xml['rawname'] . "/" . $this->xml['rawname'] . ".po $lcMessages/");
-			exec("msgmerge -U $poFile $potFile");
+			exec("msgmerge --backup=none -N -U $poFile $potFile 2>&1");
 		}
 	}
 
@@ -108,7 +109,7 @@ EOF;
 		$potFile = $i18n . '/' . $this->xml['rawname'] . '.pot';
 		$o = "";
 		if (file_exists($poFile) && file_exists($potFile)) {
-			$o .= exec("msgmerge -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
+			$o .= exec("msgmerge --backup=none -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
 			$o .= exec("msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
 		}
 		return $o;
