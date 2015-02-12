@@ -225,7 +225,6 @@ EOF;
 			//separate from the other ones in the loop below. The reason is that we only want to replace the
 			//CHARSET with utf-8 once, and that's annoying to try and do with a loop
 			$file = array_shift($phps);
-			//print($file . "<<<<<<<<<<<this is the file");
 			$tmpFile = $i18n_dir . '/' . $this->xml['rawname'] . '.tmp';
 			//We add the --force-po flag here to ensure that a pot file gets written out, even if the first file we scan
 			//doesn't yield any messages
