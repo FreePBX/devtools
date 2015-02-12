@@ -217,8 +217,8 @@ EOF;
 			//Finish off the $i18n_php temp file with the required code
 			$this->addStringToFile($i18n_php, "}\n?>\n");
 
-			$phps = $this->rglob($this->cwd, "/(.*\.php)/");
-			$jss = $this->rglob($this->cwd, "/(.*\.js)/");
+			$phps = $this->rglob($this->cwd, "/(.*\.php$)/");
+			$jss = $this->rglob($this->cwd, "/(.*\.js$)/");
 			asort($phps);
 			asort($jss);
 			//What we do next is a little weird, but we need to take the first file and run over it with gettext
@@ -385,8 +385,8 @@ EOF;
 			//entries in amp.pot. This should include the temporary files created above.
 
 			//FRAMEWORK - all php/js files including those in subdirs
-			$php = $this->rglob($this->cwd, "/(.*\.php)/");
-			$js = $this->rglob($this->cwd, "/(.*\.js)/");
+			$php = $this->rglob($this->cwd, "/(.*\.php$)/");
+			$js = $this->rglob($this->cwd, "/(.*\.js$)/");
 			$files = !empty($js) ? array_merge($php, $js) : $php;
 			asort($files);
 			$file = array_shift($files);
@@ -399,8 +399,8 @@ EOF;
 				exec("xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_");
 			}
 			//CORE - all php/js files including those in subdirs
-			$php = $this->rglob($core_dir, "/(.*\.php)/");
-			$js = $this->rglob($core_dir, "/(.*\.js)/");
+			$php = $this->rglob($core_dir, "/(.*\.php$)/");
+			$js = $this->rglob($core_dir, "/(.*\.js$)/");
 			$files = !empty($js) ? array_merge($php, $js) : $php;
 			asort($files);
 			foreach($files as $f) {
@@ -449,7 +449,7 @@ EOF;
 		$files = new RegexIterator($ite, $pattern, RegexIterator::GET_MATCH);
 		$fileList = array();
 		foreach($files as $file) {
-			$fileList = array_merge($fileList, $file);
+			$fileList[] = $file[1];
 		}
 		return $fileList;
 	}
