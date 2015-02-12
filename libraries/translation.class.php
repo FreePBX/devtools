@@ -229,21 +229,22 @@ EOF;
 			$tmpFile = $i18n_dir . '/' . $this->xml['rawname'] . '.tmp';
 			//We add the --force-po flag here to ensure that a pot file gets written out, even if the first file we scan
 			//doesn't yield any messages
-			exec("xgettext " . $file . " --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_ --force-po");
+			$addLocation = !preg_match('/commercial/i',$this->xml['license']) ? " --add-location" : " --no-location";
+			exec("xgettext " . $file . " --from-code=UTF-8 -L PHP -o " . $tmpFile . $addLocation . " --sort-output --keyword=_ --force-po");
 			file_put_contents($tmpFile, str_replace("CHARSET", "utf-8", file_get_contents($tmpFile)));
 			//Continue and go ahead and scan the rest of the files in the $files array
 			foreach($phps as $f) {
 				if($this->isIgnored($f)) {
 					continue;
 				}
-				exec("xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_");
+				exec("xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . $addLocation . " --sort-output --keyword=_");
 			}
 
 			foreach($jss as $f) {
 				if($this->isIgnored($f)) {
 					continue;
 				}
-				exec("xgettext " . $f . " -j --from-code=UTF-8 -L Perl -o " . $tmpFile . " --add-location --sort-output --keyword=_");
+				exec("xgettext " . $f . " -j --from-code=UTF-8 -L Perl -o " . $tmpFile . $addLocation . " --sort-output --keyword=_");
 			}
 
 			//get our file header
