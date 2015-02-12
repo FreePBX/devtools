@@ -176,7 +176,7 @@ EOF;
 		//from the latest source code alone if possible.
 
 		//Prepare the temporary PHP file where we will store strings
-		$this->addStringToFile($i18n_php, "<?php \nif(false) {", false);
+		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
 		//From module.xml - name, category, description (we used to get this from module_admin)
 		$this->addStringToFile($i18n_php, $xmlData->name);
@@ -215,7 +215,7 @@ EOF;
 		$i18n_dir = $this->cwd . '/i18n';
 		if (is_dir($i18n_dir)) {
 			//Finish off the $i18n_php temp file with the required code
-			$this->addStringToFile($i18n_php, "}\n?>\n");
+			file_put_contents($i18n_php, "}\n?>\n", FILE_APPEND);
 
 			$phps = $this->rglob($this->cwd, "/(.*\.php$)/");
 			$jss = $this->rglob($this->cwd, "/(.*\.js$)/");
@@ -307,7 +307,7 @@ EOF;
 		$i18n_php = $this->cwd . '/' . $this->xml['rawname'] . '.i18n.php';
 
 		//Start the temporary PHP file where we will store strings
-		$this->addStringToFile($i18n_php, "<?php \nif(false) {", false);
+		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 		//We need to handle two module.xml files - framework and core
 		// FRAMEWORK - module.xml
 		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
@@ -379,7 +379,7 @@ EOF;
 		$i18n_dir = $this->cwd . '/amp_conf/htdocs/admin/i18n';
 		if (is_dir($i18n_dir)) {
 			//Finish off the $i18n_php temp file with the required code
-			$this->addStringToFile($i18n_php, "}\n?>\n");
+			file_put_contents($i18n_php, "}\n?>\n", FILE_APPEND);
 
 			//We will now scan all the PHP (and js) files in core and framework directories to put the resulting
 			//entries in amp.pot. This should include the temporary files created above.
@@ -558,15 +558,11 @@ EOF;
 	 * @param string $string The string to add
 	 * @param bool $append Whether to append or not
 	 */
-	private function addStringToFile($file, $string, $append=true) {
+	private function addStringToFile($file, $string) {
 		$string = trim($string);
 		if(empty($string)) {
 			return;
 		}
-		if($append) {
-			file_put_contents($file, '_("' . addslashes($string) . '");' . "\n", FILE_APPEND);
-		} else {
-			file_put_contents($file, '_("' . addslashes($string) . '");' . "\n");
-		}
+		file_put_contents($file, '_("' . addslashes($string) . '");' . "\n", FILE_APPEND);
 	}
 }
