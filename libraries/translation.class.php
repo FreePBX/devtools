@@ -256,7 +256,7 @@ EOF;
 			file_put_contents($potFile, $string);
 
 			//Remove the first six lines of the .tmp file and tack it onto the .pot file
-			exec("/bin/sed '1,6d' $tmpFile >> $potFile");
+			exec("sed '1,6d' $tmpFile >> $potFile");
 
 			$newPotFile = file_get_contents($potFile);
 
@@ -417,7 +417,7 @@ EOF;
 			file_put_contents($potFile, $string);
 
 			//Remove the first six lines of the .tmp file and tack it onto the .pot file
-			exec("/bin/sed '1,6d' $tmpFile >> $potFile");
+			exec("sed '1,6d' $tmpFile >> $potFile");
 
 			$newPotFile = file_get_contents($potFile);
 
