@@ -272,6 +272,11 @@ EOF;
 
 			$newPotFile = file_get_contents($potFile);
 
+			//replace full paths to protect developers
+			$path = str_replace("/","\/",$this->cwd."/");
+			$newPotFile = preg_replace("/^#: ".$path."/m", "#: ", $newPotFile);
+			file_put_contents($potFile, $newPotFile);
+
 			//Now check to see if any strings were really added or not.
 			//If not then revert to the old Pot file
 			//this is so we dont have useless commits
