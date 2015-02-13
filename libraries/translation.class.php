@@ -24,6 +24,18 @@ class Translation {
 			echo "This doesnt appear to be a module";
 			exit();
 		}
+		//Check to make sure get text is installed
+		exec("/usr/bin/env xgettext --version 2>/dev/null",$out,$ret);
+		if($ret !== 0) {
+			echo ("Error with xgettext, is it installed?\n");
+			exit($ret);
+		}
+		//check to make sure msg merge is installed as well
+		exec("/usr/bin/env msgmerge --version 2>/dev/null",$out,$ret);
+		if($ret !== 0) {
+			echo ("Error with msgmerge, is it installed?\n");
+			exit($ret);
+		}
 		$xml = simplexml_load_file($cwd."/module.xml");
 		$this->xml = json_decode(json_encode($xml),true);
 	}
@@ -113,8 +125,8 @@ EOF;
 		$potFile = $i18n . '/' . $this->xml['rawname'] . '.pot';
 		$o = "";
 		if (file_exists($poFile) && file_exists($potFile)) {
-			$o .= exec("msgmerge --backup=none -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
-			$o .= exec("msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
+			$o .= exec("/usr/bin/env msgmerge --backup=none -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
+			$o .= exec("/usr/bin/env msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
 		}
 		return $o;
 	}
@@ -138,8 +150,8 @@ EOF;
 		$potFile = $i18n . '/' . $this->xml['rawname'] . '.pot';
 		$o = "";
 		if (file_exists($poFile) && file_exists($potFile)) {
-			$o .= exec("msgmerge --backup=none -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
-			$o .= exec("msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
+			$o .= exec("/usr/bin/env msgmerge --backup=none -N -U " . $poFile . " " . $potFile . " 2>&1", $output);
+			$o .= exec("/usr/bin/env msgfmt -v " . $poFile . " -o " . $moFile . " 2>&1", $output);
 		}
 		return $o;
 	}
@@ -229,21 +241,21 @@ EOF;
 			//We add the --force-po flag here to ensure that a pot file gets written out, even if the first file we scan
 			//doesn't yield any messages
 			$addLocation = !preg_match('/commercial/i',$this->xml['license']) ? " --add-location" : " --no-location";
-			exec("xgettext " . $file . " --from-code=UTF-8 -L PHP -o " . $tmpFile . $addLocation . " --sort-output --keyword=_ --force-po");
+			exec("/usr/bin/env xgettext " . $file . " --from-code=UTF-8 -L PHP -o " . $tmpFile . $addLocation . " --sort-output --keyword=_ --force-po");
 			file_put_contents($tmpFile, str_replace("CHARSET", "utf-8", file_get_contents($tmpFile)));
 			//Continue and go ahead and scan the rest of the files in the $files array
 			foreach($phps as $f) {
 				if($this->isIgnored($f)) {
 					continue;
 				}
-				exec("xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . $addLocation . " --sort-output --keyword=_");
+				exec("/usr/bin/env xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . $addLocation . " --sort-output --keyword=_");
 			}
 
 			foreach($jss as $f) {
 				if($this->isIgnored($f)) {
 					continue;
 				}
-				exec("xgettext " . $f . " -j --from-code=UTF-8 -L Perl -o " . $tmpFile . $addLocation . " --sort-output --keyword=_");
+				exec("/usr/bin/env xgettext " . $f . " -j --from-code=UTF-8 -L Perl -o " . $tmpFile . $addLocation . " --sort-output --keyword=_");
 			}
 
 			//get our file header
@@ -256,7 +268,7 @@ EOF;
 			file_put_contents($potFile, $string);
 
 			//Remove the first six lines of the .tmp file and tack it onto the .pot file
-			exec("sed '1,6d' $tmpFile >> $potFile");
+			exec("/usr/bin/env sed '1,6d' $tmpFile >> $potFile");
 
 			$newPotFile = file_get_contents($potFile);
 
@@ -393,10 +405,10 @@ EOF;
 			$tmpFile = $i18n_dir . '/' . $this->xml['rawname'] . '.tmp';
 			//We add --force-po flag here to make sure that a pot file gets written even if the first php file doesn't contain
 			//any translatable messages
-			exec("xgettext " . $file . " --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_ --force-po");
+			exec("/usr/bin/env xgettext " . $file . " --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_ --force-po");
 			file_put_contents($tmpFile, str_replace("CHARSET", "utf-8", file_get_contents($tmpFile)));
 			foreach($files as $f) {
-				exec("xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_");
+				exec("/usr/bin/env xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_");
 			}
 			//CORE - all php/js files including those in subdirs
 			$php = $this->rglob($core_dir, "/(.*\.php$)/");
@@ -404,7 +416,7 @@ EOF;
 			$files = !empty($js) ? array_merge($php, $js) : $php;
 			asort($files);
 			foreach($files as $f) {
-				exec("xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_");
+				exec("/usr/bin/env xgettext " . $f . " -j --from-code=UTF-8 -L PHP -o " . $tmpFile . " --add-location --sort-output --keyword=_");
 			}
 
 			//get our file header
@@ -417,7 +429,7 @@ EOF;
 			file_put_contents($potFile, $string);
 
 			//Remove the first six lines of the .tmp file and tack it onto the .pot file
-			exec("sed '1,6d' $tmpFile >> $potFile");
+			exec("/usr/bin/env sed '1,6d' $tmpFile >> $potFile");
 
 			$newPotFile = file_get_contents($potFile);
 
