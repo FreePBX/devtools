@@ -626,6 +626,22 @@ foreach ($modules as $module) {
 		freepbx::out("Debugging, Not Ran");
 	}
 
+	freepbx::outn("\t\tPushing to ".$vars['remote']." release/".$mver."...");
+	//push branch and tag to remote
+	//TODO: check to make sure the author/committer isn't 'root'
+	if(!$vars['debug']) {
+		try {
+			$repo->push($vars['remote'], "release/".$mver);
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Debugging, Not Ran");
+	}
+
 	if(freepbx::version_compare_freepbx((string)$masterXML->supported->version, $supported['version'], "=")) {
 		if(freepbx::version_compare_freepbx((string)$masterXML->version, $ver, "<=")) {
 			freepbx::outn("\t\tMaster is the same supported release as this branch. Merging release/".$mver." into master...");
@@ -644,21 +660,6 @@ foreach ($modules as $module) {
 		}
 	}
 
-	freepbx::outn("\t\tPushing to ".$vars['remote']."...");
-	//push branch and tag to remote
-	//TODO: check to make sure the author/committer isn't 'root'
-	if(!$vars['debug']) {
-		try {
-			$repo->push($vars['remote'], "release/".$mver);
-		} catch (Exception $e) {
-			freepbx::out($e->getMessage());
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
-		}
-		freepbx::out("Done");
-	} else {
-		freepbx::out("Debugging, Not Ran");
-	}
 	$tense = !$vars['debug'] ? 'has' : 'would have';
 	$final_status[$module] = 'Module ' . $module . ' version ' . $ver . ' ' . $tense . ' been successfully tagged!';
 	freepbx::out($final_status[$module]);
