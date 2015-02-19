@@ -182,6 +182,11 @@ EOF;
 			exit();
 		}
 
+		if(!file_exists('/var/lib/asterisk/bin/module_admin') || !is_executable("/var/lib/asterisk/bin/module_admin")) {
+			echo "Coulnt find /var/lib/asterisk/bin/module_admin, I need this to generate strings from Advanced Settings\n";
+			exit();
+		}
+
 		$i18n_php = $this->cwd . '/' . $this->xml['rawname'] . '.i18n.php';
 		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
 		//to be in tact with the latest information to work. It would be better to have this pick up the necessary strings
@@ -200,29 +205,13 @@ EOF;
 				$this->addStringToFile($i18n_php, $child);
 			}
 		}
-		//Go through the module's install.php file and get the strings that need to be translated
-		if (file_exists($this->cwd . '/install.php')) {
-			//The 3 patterns we need to grep from install.php
-			$pattern_cat=':^[\s\S]*?\$set.*category:';
-			$pattern_name=':^[\s\S]*?\$set.*name:';
-			$pattern_desc=':^[\s\S]*?\$set.*description:';
-			//Grep the needed lines and format them to be put in the temp file
-			$lines=array();
-			array_push($lines, preg_grep($pattern_cat, file($this->cwd . '/install.php')));
-			array_push($lines, preg_grep($pattern_name, file($this->cwd . '/install.php')));
-			array_push($lines, preg_grep($pattern_desc, file($this->cwd . '/install.php')));
-			//Perform textual healing
-			$process = new RecursiveIteratorIterator(new RecursiveArrayIterator($lines));
-			foreach($process as $trans_str) {
-				$pat = ':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
-				$replacement = '$1';
-				$output = preg_replace($pat, $replacement, $trans_str);
-				$this->addStringToFile($i18n_php, $output);
-			}
-		}
 		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
 		//to be in tact with the latest information to work. It would be better to have this pick up the necessary strings
 		//from the latest source code alone if possible.
+		exec("/var/lib/asterisk/bin/module_admin i18n ".$this->xml['rawname'],$output);
+		foreach($output as $line) {
+			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
+		}
 
 		$i18n_dir = $this->cwd . '/i18n';
 		if (is_dir($i18n_dir)) {
@@ -333,6 +322,10 @@ EOF;
 			echo "ERROR: Please switch core to the same supproted release as Framework so translations can get updated! (Framework: ".$frameworkXmlData->supported->version."| Core: ".$coreXmlData->supported->version.")\n";
 			exit();
 		}
+		if(!file_exists('/var/lib/asterisk/bin/module_admin') || !is_executable("/var/lib/asterisk/bin/module_admin")) {
+			echo "Coulnt find /var/lib/asterisk/bin/module_admin, I need this to generate strings from Advanced Settings\n";
+			exit();
+		}
 
 		//Start the temporary PHP file where we will store strings
 		file_put_contents($i18n_php, "<?php \nif(false) {\n");
@@ -357,48 +350,11 @@ EOF;
 				$this->addStringToFile($i18n_php, $child);
 			}
 		}
-		// FRAMEWORK - libfreepbx.install.php
-		if (file_exists($this->cwd . '/libfreepbx.install.php')) {
-			//The 3 patterns we need to grep from install.php
-			$pattern_cat=':^[\s\S]*?\$set.*category:';
-			$pattern_name=':^[\s\S]*?\$set.*name:';
-			$pattern_desc=':^[\s\S]*?\$set.*description:';
-			//Grep the needed lines and format them to be put in the temp file
-			$lines=array();
-			array_push($lines, preg_grep($pattern_cat, file($this->cwd . '/libfreepbx.install.php')));
-			array_push($lines, preg_grep($pattern_name, file($this->cwd . '/libfreepbx.install.php')));
-			array_push($lines, preg_grep($pattern_desc, file($this->cwd . '/libfreepbx.install.php')));
-			//Perform textual healing
-			$process = new RecursiveIteratorIterator(new RecursiveArrayIterator($lines));
-			foreach($process as $trans_str) {
-				$pat=':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
-				$replacement='$1';
-				$output=preg_replace($pat, $replacement, $trans_str);
-				$this->addStringToFile($i18n_php, $output);
-			}
+		exec("/var/lib/asterisk/bin/module_admin i18n framework",$output);
+		foreach($output as $line) {
+			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
-		// CORE - install.php
-		if (file_exists($core_dir . '/install.php')) {
-			//The 3 patterns we need to grep from install.php
-			$pattern_cat=':^[\s\S]*?\$set.*category:';
-			$pattern_name=':^[\s\S]*?\$set.*name:';
-			$pattern_desc=':^[\s\S]*?\$set.*description:';
-			//Grep the needed lines and format them to be put in the temp file
-			unset($lines);
-			unset($process);
-			$lines=array();
-			array_push($lines, preg_grep($pattern_cat, file($core_dir . '/install.php')));
-			array_push($lines, preg_grep($pattern_name, file($core_dir . '/install.php')));
-			array_push($lines, preg_grep($pattern_desc, file($core_dir . '/install.php')));
-			//Perform textual healing
-			$process = new RecursiveIteratorIterator(new RecursiveArrayIterator($lines));
-			foreach($process as $trans_str) {
-				$pat=':^[\s\S]*?\$set\[\S{1}\S+?\S{1}\]\s*=\s*\S{1}([\s\S]*)\S{2}\s*$:';
-				$replacement='$1';
-				$output=preg_replace($pat, $replacement, $trans_str);
-				$this->addStringToFile($i18n_php, $output);
-			}
-		}
+
 		// This is the i18n dir path for framework
 		$i18n_dir = $this->cwd . '/amp_conf/htdocs/admin/i18n';
 		if (is_dir($i18n_dir)) {
