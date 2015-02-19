@@ -323,30 +323,37 @@ EOF;
 		$core_dir = $this->cwd . '/../core';
 		$i18n_php = $this->cwd . '/' . $this->xml['rawname'] . '.i18n.php';
 
-		//Start the temporary PHP file where we will store strings
-		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 		//We need to handle two module.xml files - framework and core
 		// FRAMEWORK - module.xml
-		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
+		$frameworkXmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
+		// CORE - module.xml
+		$coreXmlData=simplexml_load_file($core_dir . '/module.xml'); //or die("Failed to load the module.xml file!")
+
+		if((string)$frameworkXmlData->supported->version != (string)$coreXmlData->supported->version) {
+			echo "ERROR: Please switch core to the same supproted release as Framework so translations can get updated! (Framework: ".$frameworkXmlData->supported->version."| Core: ".$coreXmlData->supported->version.")\n";
+			exit();
+		}
+
+		//Start the temporary PHP file where we will store strings
+		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 		//From module.xml - name, category, description
-		$this->addStringToFile($i18n_php, $xmlData->name);
-		$this->addStringToFile($i18n_php, $xmlData->category);
-		$this->addStringToFile($i18n_php, $xmlData->description);
+		$this->addStringToFile($i18n_php, $frameworkXmlData->name);
+		$this->addStringToFile($i18n_php, $frameworkXmlData->category);
+		$this->addStringToFile($i18n_php, $frameworkXmlData->description);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if (!empty($xmlData->menuitems)) {
-			foreach ($xmlData->menuitems->children() AS $child) {
+		if (!empty($frameworkXmlData->menuitems)) {
+			foreach ($frameworkXmlData->menuitems->children() AS $child) {
 				$this->addStringToFile($i18n_php, $child);
 			}
 		}
-		// CORE - module.xml
-		$xmlData=simplexml_load_file($core_dir . '/module.xml'); //or die("Failed to load the module.xml file!")
+
 		//From module.xml - name, category, description
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->name)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->category)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($xmlData->description)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($coreXmlData->name)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($coreXmlData->category)) . '");' . "\n", FILE_APPEND);
+		file_put_contents($i18n_php, '_("' . addslashes(trim($coreXmlData->description)) . '");' . "\n", FILE_APPEND);
 		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if ($xmlData->menuitems->children()) {
-			foreach ($xmlData->menuitems->children() AS $child) {
+		if ($coreXmlData->menuitems->children()) {
+			foreach ($coreXmlData->menuitems->children() AS $child) {
 				$this->addStringToFile($i18n_php, $child);
 			}
 		}
