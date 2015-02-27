@@ -354,6 +354,10 @@ EOF;
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
+		exec("/var/lib/asterisk/bin/module_admin i18n core",$output);
+		foreach($output as $line) {
+			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
+		}
 
 		// This is the i18n dir path for framework
 		$i18n_dir = $this->cwd . '/amp_conf/htdocs/admin/i18n';
