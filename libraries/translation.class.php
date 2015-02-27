@@ -537,7 +537,7 @@ EOF;
 		if(property_exists($xml,'name') && !empty($xml->name) && !in_array((string)$xml->name, $processed)) {
 			$string = (string)$xml->name;
 			$strings[] = '# Module.xml: name';
-			$strings[] = '_("'.addslashes(trim($string)).'");';
+			$strings[] = '_("'.$string.'");';
 			$processed[] = $string;
 		}
 
@@ -545,7 +545,7 @@ EOF;
 		if(property_exists($xml,'category') && !empty($xml->category) && !in_array((string)$xml->category, $processed)) {
 			$string = (string)$xml->category;
 			$strings[] = '# Module.xml: category';
-			$strings[] = '_("'.addslashes(trim($string)).'");';
+			$strings[] = '_("'.$string.'");';
 			$processed[] = $string;
 		}
 
@@ -553,7 +553,7 @@ EOF;
 		if(property_exists($xml,'description') && !empty($xml->description) && !in_array((string)$xml->description, $processed)) {
 			$string = (string)$xml->description;
 			$strings[] = '# Module.xml: description';
-			$strings[] = '_("'.addslashes(trim($string)).'");';
+			$strings[] = '_("'.$string.'");';
 			$processed[] = $string;
 		}
 
@@ -562,7 +562,7 @@ EOF;
 				if(!in_array((string)$item[0], $processed)) {
 					$string = (string)$item[0];
 					$strings[] = '# Module.xml: menuitem';
-					$strings[] = '_("'.addslashes(trim($string)).'");';
+					$strings[] = '_("'.$string.'");';
 					$processed[] = $string;
 				}
 
@@ -572,7 +572,7 @@ EOF;
 					}
 					$string = (string)$name;
 					$strings[] = '# Module.xml: menuitem '.(string)$item[0].' category';
-					$strings[] = '_("'.addslashes(trim($string)).'");';
+					$strings[] = '_("'.$string.'");';
 					$processed[] = $string;
 				}
 			}
