@@ -194,17 +194,8 @@ EOF;
 
 		//Prepare the temporary PHP file where we will store strings
 		file_put_contents($i18n_php, "<?php \nif(false) {\n");
-		$xmlData=simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
-		//From module.xml - name, category, description (we used to get this from module_admin)
-		$this->addStringToFile($i18n_php, $xmlData->name);
-		$this->addStringToFile($i18n_php, $xmlData->category);
-		$this->addStringToFile($i18n_php, $xmlData->description);
-		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if (!empty($xmlData->menuitems)) {
-			foreach ($xmlData->menuitems->children() AS $child) {
-				$this->addStringToFile($i18n_php, $child);
-			}
-		}
+		$xmlData = simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
+
 		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
 		//to be in tact with the latest information to work. It would be better to have this pick up the necessary strings
 		//from the latest source code alone if possible.
@@ -329,32 +320,12 @@ EOF;
 
 		//Start the temporary PHP file where we will store strings
 		file_put_contents($i18n_php, "<?php \nif(false) {\n");
-		//From module.xml - name, category, description
-		$this->addStringToFile($i18n_php, $frameworkXmlData->name);
-		$this->addStringToFile($i18n_php, $frameworkXmlData->category);
-		$this->addStringToFile($i18n_php, $frameworkXmlData->description);
-		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if (!empty($frameworkXmlData->menuitems)) {
-			foreach ($frameworkXmlData->menuitems->children() AS $child) {
-				$this->addStringToFile($i18n_php, $child);
-			}
-		}
 
-		//From module.xml - name, category, description
-		file_put_contents($i18n_php, '_("' . addslashes(trim($coreXmlData->name)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($coreXmlData->category)) . '");' . "\n", FILE_APPEND);
-		file_put_contents($i18n_php, '_("' . addslashes(trim($coreXmlData->description)) . '");' . "\n", FILE_APPEND);
-		//Logic for if there are <menuitems> - there can often be several of these so we need to loop over the code
-		if ($coreXmlData->menuitems->children()) {
-			foreach ($coreXmlData->menuitems->children() AS $child) {
-				$this->addStringToFile($i18n_php, $child);
-			}
-		}
 		exec("/var/lib/asterisk/bin/module_admin i18n framework",$output);
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
-		exec("/var/lib/asterisk/bin/module_admin i18n core",$output);
+		$output = $this->parseModuleXML($coreXmlData);
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
@@ -553,5 +524,59 @@ EOF;
 			return;
 		}
 		file_put_contents($file, '_("' . addslashes($string) . '");' . "\n", FILE_APPEND);
+	}
+
+	/**
+	 * Process a module XML looking for valid strings
+	 * @param SimpleXMLElement $xml The Simple XML Element Object
+	 */
+	private function parseModuleXML(SimpleXMLElement $xml) {
+		$strings = array();
+		$processed[] = array();
+		//Name
+		if(property_exists($xml,'name') && !empty($xml->name) && !in_array((string)$xml->name, $processed)) {
+			$string = (string)$xml->name;
+			$strings[] = '# Module.xml: name';
+			$strings[] = '_("'.addslashes(trim($string)).'");';
+			$processed[] = $string;
+		}
+
+		//Category
+		if(property_exists($xml,'category') && !empty($xml->category) && !in_array((string)$xml->category, $processed)) {
+			$string = (string)$xml->category;
+			$strings[] = '# Module.xml: category';
+			$strings[] = '_("'.addslashes(trim($string)).'");';
+			$processed[] = $string;
+		}
+
+		//Category
+		if(property_exists($xml,'description') && !empty($xml->description) && !in_array((string)$xml->description, $processed)) {
+			$string = (string)$xml->description;
+			$strings[] = '# Module.xml: description';
+			$strings[] = '_("'.addslashes(trim($string)).'");';
+			$processed[] = $string;
+		}
+
+		if(property_exists($xml,'menuitems') && !empty($xml->menuitems)) {
+			foreach($xml->menuitems->children() as $item) {
+				if(!in_array((string)$item[0], $processed)) {
+					$string = (string)$item[0];
+					$strings[] = '# Module.xml: menuitem';
+					$strings[] = '_("'.addslashes(trim($string)).'");';
+					$processed[] = $string;
+				}
+
+				foreach($item->attributes() as $key => $name) {
+					if((string)$key != "category" || in_array((string)$name, $processed)) {
+						continue;
+					}
+					$string = (string)$name;
+					$strings[] = '# Module.xml: menuitem '.(string)$item[0].' category';
+					$strings[] = '_("'.addslashes(trim($string)).'");';
+					$processed[] = $string;
+				}
+			}
+		}
+		return $strings;
 	}
 }
