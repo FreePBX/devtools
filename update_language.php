@@ -33,7 +33,7 @@ $mode = !empty($vars['mode']) ? $vars['mode'] : 'ssh';
 $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__));
 
 $help = array(
-	array('-m', 'The module to update'),
+	array('-m', 'The module to update')
 );
 $longopts  = array(
 	"help",
