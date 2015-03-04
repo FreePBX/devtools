@@ -590,4 +590,26 @@ class freepbx {
 			return version_compare($version1, $version2);
 		}
 	}
+
+	public static function get_license_from_link($licenseLink) {
+		$ch = curl_init();
+
+		curl_setopt($ch,  CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_URL, $licenseLink);
+
+		$licenseText = curl_exec($ch);
+
+		$httpStatusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+		switch($httpStatusCode) {
+		  case '200':
+		    return $licenseText;
+		    break;
+		  default:
+		    freepbx::out("An error occurred trying to get license from " . $licenseLink);
+		    break;
+		}
+
+		return false;
+	}
 }
