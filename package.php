@@ -205,8 +205,7 @@ freepbx::out("Using ".$vars['directory']);
 chdir($vars['directory']);
 update_devtools();
 foreach ($modules as $module) {
-	//this isnt really used
-	$file_scan_exclude_list = ($module == 'framework') ? array("modules") : array();
+	$file_scan_exclude_list = ($module == 'framework') ? array("modules","Symfony") : array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
 
