@@ -242,7 +242,10 @@ if(isset($options['addmergedriver'])) {
 			freepbx::out("Skipping");
 			continue;
 		}
-		$repo->add_merge_driver();
+		$gitatts = $repo->add_merge_driver();
+		if(!empty($gitatts)) {
+                	file_put_contents($dir.'/.gitattributes', $gitatts);
+        	}
 	}
 	exit(0);
 }
