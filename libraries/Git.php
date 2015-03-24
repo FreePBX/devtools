@@ -435,7 +435,8 @@ class GitRepo {
 		$this->run("config merge.ours.name '\"always keep ours\" merge driver'");
 		$this->run("config merge.ours.driver 'touch %A'");
 		$this->run("config merge.merge-gettext-po.name 'merge driver for gettext po files'");
-		$this->run("config merge.merge-gettext-po.driver '".dirname(__DIR__)."/mergedrivers/git-merge-gettext-po %O %A %B'");
+		$this->run("config merge.merge-gettext-po.driver '".dirname(__DIR__)."/mergedrivers/git-merge-po %A %O %B'");
+		$this->run("config merge.merge-gettext-po.recursive 'binary'");
 		if(file_exists(dirname(__DIR__).'/mergedrivers/.gitattributes')) {
 			return file_get_contents(dirname(__DIR__).'/mergedrivers/.gitattributes');
 		}
