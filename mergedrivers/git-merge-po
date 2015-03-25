@@ -70,7 +70,7 @@ msgmerge --silent --no-wrap --no-fuzzy-matching "$MERGED2" "$TEMPLATE2" > "$OUTP
 # show some results to stdout
 if grep -q '#-#-#-#-#' "$OUTPUT"
 then
-    FUZZY=$(cat "$OUTPUT" | msgattrib --only-fuzzy --no-obsolete --color | perl -npe 'BEGIN{ undef $/; }; s/^.*?msgid "".*?\n\n//s')
+    FUZZY=$(cat "$OUTPUT" | msgattrib --only-fuzzy --no-obsolete | perl -npe 'BEGIN{ undef $/; }; s/^.*?msgid "".*?\n\n//s')
     if test -n "$FUZZY"
     then
         echo "-------------------------------"
