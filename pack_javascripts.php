@@ -69,7 +69,10 @@ $skip = array(
 		"|$dir/typeahead\.bundle\.min\.js|",
 		"|$dir/search\.js|",
 		"|$dir/jed\.js|",
-		"|$dir/zxcvbn\.js|"
+		"|$dir/zxcvbn\.js|",
+		"|$dir/bootstrap-table-locale|",
+		"|$dir/bootstrap-multiselect\.js|",
+		"|$dir/chosen.jquery.min.js|"
 );
 foreach ($output as $file) {
 
