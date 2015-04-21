@@ -34,17 +34,6 @@ foreach(glob($directory."/*", GLOB_ONLYDIR) as $moduleDir) {
 	if($module == 'fw_langpacks') {
 		continue;
 	}
-	freepbx::outn("Checking for i18n folder in ".$module."...");
-	if(!file_exists($moduleDir."/i18n")) {
-		if($module != "framework") {
-			freepbx::out("Not Present, Skipping");
-			continue;
-		} else {
-			freepbx::out("Framework, Special Case");
-		}
-	} else {
-		freepbx::out("found");
-	}
 	try {
 		$repo = Git::open($moduleDir);
 	} catch (Exception $e) {
@@ -54,8 +43,22 @@ foreach(glob($directory."/*", GLOB_ONLYDIR) as $moduleDir) {
 
 	$branch = $repo->active_branch();
 	$stashed = $repo->add_stash();
+	freepbx::outn("Checking out master in ".$module."...");
 	$repo->checkout('master');
 	$repo->pull('origin', 'master');
+	freepbx::out("Done");
+
+        freepbx::outn("\tChecking for i18n folder in ".$module."...");
+        if(!file_exists($moduleDir."/i18n")) {
+                if($module != "framework") {
+                        freepbx::out("Not Present, Skipping");
+                        continue;
+                } else {
+                        freepbx::out("Framework, Special Case");
+                }
+        } else {
+                freepbx::out("found");
+        }
 
 	if($module == "framework") {
 		$moduleDir = $moduleDir . '/amp_conf/htdocs/admin';
@@ -68,8 +71,16 @@ foreach(glob($directory."/*", GLOB_ONLYDIR) as $moduleDir) {
 			if(!file_exists($fwlangpacksReop."/mo/".$lang)) {
 				mkdir($fwlangpacksReop."/mo/".$lang);
 			}
-			freepbx::out("\tProcessing ".$lang." in ".$module);
+			freepbx::out("\tProcessing ".$lang.".mo in ".$module);
 			copy($file, $fwlangpacksReop."/mo/".$lang."/".$module.".mo");
+		}
+		if(file_exists($langDir."/LC_MESSAGES/".$module.".po")) {
+			$file = $langDir."/LC_MESSAGES/".$module.".po";
+			if(!file_exists($fwlangpacksReop."/po/".$lang)) {
+				mkdir($fwlangpacksReop."/po/".$lang);
+			}
+			freepbx::out("\tProcessing ".$lang.".po in ".$module);
+			copy($file, $fwlangpacksReop."/po/".$lang."/".$module.".po");
 		}
 	}
 
@@ -79,3 +90,4 @@ foreach(glob($directory."/*", GLOB_ONLYDIR) as $moduleDir) {
 		$repo->drop_stash();
 	}
 }
+freepbx::out("Finished!");
