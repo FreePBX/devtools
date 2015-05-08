@@ -205,7 +205,7 @@ freepbx::out("Using ".$vars['directory']);
 chdir($vars['directory']);
 update_devtools();
 foreach ($modules as $module) {
-	$file_scan_exclude_list = ($module == 'framework') ? array("modules","Symfony") : array();
+	$file_scan_exclude_list = ($module == 'framework') ? array("modules","Symfony","Composer") : array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
 
@@ -419,7 +419,7 @@ foreach ($modules as $module) {
 	if ($license) {
 		if (!empty($licenselink)) {
 			$licensetext = freepbx::get_license_from_link($licenselink);
-			
+
 			if ($licensetext === false) {
 				freepbx::out('Unable to add license text');
 				continue;
