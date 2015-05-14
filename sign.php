@@ -115,7 +115,7 @@ function listPrivateKeys() {
 	}
 	$retarr = array();
 	foreach ($output as $l) {
-		if (preg_match('/^sec::\d+:\d:([0-9A-F]+):/', $l, $out)) {
+		if (preg_match('/^sec::\d+:\d+:([0-9A-F]+):/', $l, $out)) {
 			$retarr[] = $out[1];
 		}
 	}
