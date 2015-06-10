@@ -69,6 +69,7 @@ $skip = array(
 		"|$dir/typeahead\.bundle\.js|",
 		"|$dir/typeahead\.bundle\.min\.js|",
 		"|$dir/search\.js|",
+		"|$dir/respond\.min\.js|",
 		"|$dir/jed\.js|",
 		"|$dir/zxcvbn\.js|",
 		"|$dir/bootstrap-table-locale|",
