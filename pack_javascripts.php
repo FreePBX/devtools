@@ -64,6 +64,7 @@ $skip = array(
 		"|$dir/module_admin\.js|",
 		"|$dir/modernizr\.js|",
 		"|$dir/browser-support\.js|",
+		"|$dir/outdatedbrowser\.min\.js|",
 		"|$dir/selectivizr\.js|",
 		"|$dir/typeahead\.bundle\.js|",
 		"|$dir/typeahead\.bundle\.min\.js|",
