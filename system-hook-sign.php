@@ -77,7 +77,7 @@ fwrite($fh, ";################################################
 ");
 
 fwrite($fh, "[config]\n");
-fwrite($fh, "xtype=system\n");
+fwrite($fh, "type=system\n");
 fwrite($fh, "version=1\n");
 fwrite($fh, "hash=sha256\n");
 fwrite($fh, "signedwith=$key\n");
