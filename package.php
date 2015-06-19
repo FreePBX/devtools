@@ -372,6 +372,8 @@ foreach ($modules as $module) {
 		$vars['log'] = true;
 	}
 
+	fix_publisher($module);
+
 	//add changelog if requested
 	if ($vars['log'] && !$vars['debug']) {
 		freepbx::outn("\tUpdating Changelog...");
@@ -787,6 +789,31 @@ function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 	}
 
 	return $list;
+}
+
+function fix_publisher($mod) {
+	global $mod_dir, $vars;
+	$invalidPublishers = array(
+		"Schmooze Com Inc",
+		"Sangoma Technologies, Inc",
+		"Schmooze Com, Inc.",
+		"POSSA",
+		"Schmooze Com, Inc",
+		"Schmoozecom.com",
+		"Schmooze Com Inc.",
+		"FreePBX",
+		"Sangoma"
+	);
+	$xml = simplexml_load_file($mod_dir . '/module.xml');
+	$publisher = trim((string)$xml->publisher);
+	if(in_array($publisher,$invalidPublishers)) {
+		freepbx::outn("\tInvalid Publisher...");
+		$xml->publisher = "Sangoma Technologies Corporation";
+		$xml = trim(preg_replace('/^\<\?xml.*?\?\>/', '', $xml->asXML()));
+		file_put_contents($mod_dir . '/module.xml', $xml);
+		freepbx::out("Fixed");
+	}
+
 }
 
 //auto-bump module version, bumps last part by defualt
