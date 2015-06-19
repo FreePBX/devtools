@@ -813,7 +813,6 @@ function fix_publisher($mod) {
 		file_put_contents($mod_dir . '/module.xml', $xml);
 		freepbx::out("Fixed");
 	}
-
 }
 
 //auto-bump module version, bumps last part by defualt
