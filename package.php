@@ -333,6 +333,7 @@ foreach ($modules as $module) {
 	}
 	//check php files for syntax errors
 	freepbx::outn("\tChecking for PHP Syntax Errors...");
+	$syntaxt_errors = array();
 	$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
 		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
