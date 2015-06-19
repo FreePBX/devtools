@@ -74,7 +74,8 @@ $skip = array(
 		"|$dir/zxcvbn\.js|",
 		"|$dir/bootstrap-table-locale|",
 		"|$dir/bootstrap-multiselect\.js|",
-		"|$dir/chosen.jquery.min.js|"
+		"|$dir/chosen\.jquery\.min\.js|",
+		"|$dir/kclc\.js|"
 );
 foreach ($output as $file) {
 
