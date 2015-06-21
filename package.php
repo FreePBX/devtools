@@ -333,23 +333,23 @@ foreach ($modules as $module) {
 	}
 	//check php files for syntax errors
 	freepbx::outn("\tChecking for PHP Syntax Errors...");
-	$syntaxt_errors = array();
+	$syntax_errors = array();
 	$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
 		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
 			if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, (!$vars['debug'] && !$vars['verbose']), true)) {
 				//add errors to array
-				$syntaxt_errors[] = 'syntax error detected in ' . $f . PHP_EOL;
+				$syntax_errors[] = 'syntax error detected in ' . $f . PHP_EOL;
 			}
 		}
 	}
 	unset($files);
 
 	//if there are syntax errors then display them
-	if (isset($syntaxt_errors)) {
-		$final_status[$module] = implode(PHP_EOL, $syntaxt_errors);
+	if ($syntax_errors) {
+		$final_status[$module] = implode(PHP_EOL, $syntax_errors);
 		freepbx::out("\t".$final_status[$module]);
-		freepbx::out("Module " . $module . " will not be tagged!");
+		freepbx::out("XModule " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("There are no errors");
