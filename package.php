@@ -349,7 +349,7 @@ foreach ($modules as $module) {
 	if ($syntax_errors) {
 		$final_status[$module] = implode(PHP_EOL, $syntax_errors);
 		freepbx::out("\t".$final_status[$module]);
-		freepbx::out("XModule " . $module . " will not be tagged!");
+		freepbx::out("Module " . $module . " will not be tagged!");
 		continue;
 	}
 	freepbx::out("There are no errors");
