@@ -76,7 +76,12 @@ $skip = array(
 		"|$dir/bootstrap-multiselect\.js|",
 		"|$dir/chosen\.jquery\.min\.js|",
 		"|$dir/kclc\.js|",
-		"|$dir/eventsource\.min\.js|"
+		"|$dir/eventsource\.min\.js|",
+		"|$dir/jquery\.fileupload.*\.js|",
+		"|$dir/jquery\.smartWizard\.js|",
+		"|$dir/modgettext\.js|",
+		"|$dir/Sortable\.min\.js|",
+		"|$dir/class\.js|",
 );
 foreach ($output as $file) {
 

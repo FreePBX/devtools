@@ -33,19 +33,30 @@ $mode = !empty($vars['mode']) ? $vars['mode'] : 'ssh';
 $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__));
 
 $help = array(
-	array('-m', 'The module to update')
+	array('-m', 'The module to update'),
+	array('-p', 'Package language of module (Update all mo files)')
 );
 $longopts  = array(
 	"help",
 	"module:",
+	"package:",
 );
-$options = getopt("m:",$longopts);
+$options = getopt("m:p:",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('update_language.php',$help);
 	exit(0);
 }
 
+$m = $p = false;
 $module = !empty($options['module']) ? $options['module'] : (!empty($options['m']) ? $options['m'] : "");
+if(!empty($module)) {
+	$m = true;
+}
+$package = !empty($options['package']) ? $options['package'] : (!empty($options['p']) ? $options['p'] : "");
+if(!empty($package)) {
+	$p = true;
+	$module = $package;
+}
 
 if(empty($module)) {
 	die('Undefined Module!');
@@ -57,7 +68,38 @@ if(!file_exists($vars['repo_directory'].'/'.$module)) {
 $repodir = $vars['repo_directory'].'/'.$module;
 
 switch(true) {
-	case !empty($module):
+	case !empty($p):
+		freepbx::out("\tProcessing localizations...");
+		freepbx::outn("\t\tUpdating localization...");
+		$translation = new Translation($repodir);
+		if(!preg_match('/(core|framework)$/i',$repodir)) {
+			//if no i18n folder then make an english one!
+			if(!file_exists($repodir.'/i18n')) {
+				$translation->makeLanguage("en_US");
+			}
+			//pray that this works..
+			$translation->update_i18n();
+			freepbx::out("Done");
+			foreach(glob($repodir.'/i18n/*',GLOB_ONLYDIR) as $langDir) {
+				$lang = basename($langDir);
+				freepbx::outn("\t\tUpdating individual localization for ".$lang);
+				$o = $translation->merge_i18n($lang);
+				freepbx::out($o);
+			}
+		} elseif(preg_match('/framework$/i',$repodir)) {
+			$translation->update_i18n_amp();
+			foreach(glob($repodir.'/amp_conf/htdocs/admin/i18n/*',GLOB_ONLYDIR) as $langDir) {
+				$lang = basename($langDir);
+				freepbx::outn("\t\tUpdating individual localization for ".$lang);
+				$o = $translation->merge_i18n_amp($lang);
+				freepbx::out($o);
+			}
+			freepbx::out("Done");
+		} else {
+			freepbx::out("Core is done through framework");
+		}
+	break;
+	case !empty($m):
 		FreePBX::refreshRepo($repodir);
 		$repo = Git::open($repodir);
 		$moduleMasterXmlString = $repo->show('origin/master','module.xml');
