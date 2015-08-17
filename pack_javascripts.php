@@ -82,6 +82,7 @@ $skip = array(
 		"|$dir/modgettext\.js|",
 		"|$dir/Sortable\.min\.js|",
 		"|$dir/class\.js|",
+		"|$dir/jquery\.jplayer\.min\.js|"
 );
 foreach ($output as $file) {
 
