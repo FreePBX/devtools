@@ -58,6 +58,7 @@ $skip = array(
 		"|$dir/jquery.selector-set-.*\.js|",
 		"|$dir/selector-set-.*\.js|",
 		"|$dir/less-.*\.js|",
+		"|$dir/toastr-.*\.js|",
 		"|$libfreepbx|",
 		"|$dir/bootstrap-.*\.js|",
 		"|$dir/html5shiv\.js|",
