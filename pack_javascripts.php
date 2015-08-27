@@ -79,11 +79,15 @@ $skip = array(
 		"|$dir/kclc\.js|",
 		"|$dir/eventsource\.min\.js|",
 		"|$dir/jquery\.fileupload.*\.js|",
+		"|$dir/jquery\.iframe-transport\.js|",
+		"|$dir/load-image\.all\.min\.js|",
 		"|$dir/jquery\.smartWizard\.js|",
 		"|$dir/modgettext\.js|",
 		"|$dir/Sortable\.min\.js|",
+		"|$dir/toastr-.*\.js|",
 		"|$dir/class\.js|",
-		"|$dir/jquery\.jplayer\.min\.js|"
+		"|$dir/jquery\.jplayer\.min\.js|",
+		"|$dir/XMLHttpRequest\.js|"
 );
 foreach ($output as $file) {
 
