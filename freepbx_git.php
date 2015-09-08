@@ -112,7 +112,7 @@ if(isset($options['clean']) && isset($options['m'])) {
 	}
 	exit(0);
 } elseif(isset($options['clean'])) {
-	$modules = glob($vars['directory'].'/*', GLOB_ONLYDIR);
+	$modules = glob($directory.'/*', GLOB_ONLYDIR);
 	foreach($modules as $mod_dir) {
 		freepbx::outn('Cleaning '.$mod_dir.'...');
 		try {
