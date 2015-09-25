@@ -464,7 +464,7 @@ To contribute code or modules back into the [FreePBX](http://www.freepbx.org/ "F
 Please file bug reports at http://issues.freepbx.org
 HERE;
 	$readmetxt = str_replace(array_keys($reps),array_values($reps), $template);
-	if($module != "framework") {
+	if($module != "framework" && strtolower($license) != "commercial") {
 		if (!file_put_contents($mod_dir.'/README.md', $readmetxt)) {
 			freepbx::out('Unable to write to README.md');
 			continue;
