@@ -435,6 +435,42 @@ foreach ($modules as $module) {
 		}
 	}
 
+$reps = array('!!NAME!!'=> $rawname,
+	'!!DESCRIPTION!!'=> $description,
+	'!!LICENSE!!' => $license,
+	'!!LICENSELINK!!' => $licenselink);
+$template = <<<HERE
+```
+ ______             _____  ______   __
+|  ____|           |  __ \|  _ \ \ / /
+| |__ _ __ ___  ___| |__) | |_) \ V /
+|  __| '__/ _ \/ _ \  ___/|  _ < > <
+| |  | | |  __/  __/ |    | |_) / . \
+|_|  |_|  \___|\___|_|    |____/_/ \_\
+Your Open Source Asterisk PBX GUI Solution
+```
+### What?
+!!NAME!!
+This is a module for [FreePBX©](http://www.freepbx.org/ "FreePBX Home Page"). [FreePBX](http://www.freepbx.org/ "FreePBX Home Page") is an open source GUI (graphical user interface) that controls and manages [Asterisk©](http://www.asterisk.org/ "Asterisk Home Page") (PBX). FreePBX is licensed under GPL.
+[FreePBX](http://www.freepbx.org/ "FreePBX Home Page") is a completely modular GUI for Asterisk written in PHP and Javascript. Meaning you can easily write any module you can think of and distribute it free of cost to your clients so that they can take advantage of beneficial features in [Asterisk](http://www.asterisk.org/ "Asterisk Home Page")
+!!DESCRIPTION!!
+### Setting up a FreePBX system
+[See our WIKI](http://wiki.freepbx.org/display/FOP/Install+FreePBX)
+### License
+[This modules code is licensed as !!LICENSE!!](!!LICENSELINK!!)
+### Contributing
+To contribute code or modules back into the [FreePBX](http://www.freepbx.org/ "FreePBX Home Page") ecosystem you must fully read our Code License Agreement. We are not able to look at or accept patches or code of any kind until this document is filled out. Please take a look at [http://wiki.freepbx.org/display/DC/Code+License+Agreement](http://wiki.freepbx.org/display/DC/Code+License+Agreement) for more information
+### Issues
+Please file bug reports at http://issues.freepbx.org
+HERE;
+	$readmetxt = str_replace(array_keys($reps),array_values($reps), $template);
+	if($module != "framework") {
+		if (!file_put_contents($mod_dir.'/README.md', $readmetxt)) {
+			freepbx::out('Unable to write to README.md');
+			continue;
+		}
+	}
+
 	//GIT Processing here
 	freepbx::out("\tRunning GIT...");
 	freepbx::outn("\t\tAdding/Updating Merge Drivers....");

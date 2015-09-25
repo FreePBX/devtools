@@ -1,0 +1,6 @@
+{
+    "require": {
+        "phpunit/phpunit": "4.8",
+        "knplabs/github-api": "^1.5"
+    }
+}
