@@ -9,12 +9,23 @@
 // performed.
 
 if (!isset($argv[1])) {
-	print $argv[0].": /location/of/module <keyfingerprint>\n";
+	print $argv[0].": /location/of/module [--local] <keyfingerprint>\n";
 	print "Key fingerprint is optional\n";
 	exit(1);
 }
 
 $loc = $argv[1];
+
+if ($argv[2] == "--local") {
+	if (posix_geteuid() !== 0) {
+		throw new \Exception("--local must be run as root. You are not root");
+	}
+	$local = true;
+	$keyindex = 3;
+} else {
+	$local = false;
+	$keyindex = 2;
+}
 
 if (substr($loc, -1) == "/") {
 	// Strip off any trailing slash
@@ -44,8 +55,8 @@ if ($retcode != 0) {
 
 // Now, figure out which key we want to use to sign this
 // package with
-if (isset($argv[2])) {
-	$key = getSigningKey($argv[2]);
+if (isset($argv[$keyindex])) {
+	$key = getSigningKey($argv[$keyindex]);
 } else {
 	$key = getSigningKey();
 }
@@ -54,12 +65,32 @@ if (!$key) {
 	exit(1);
 }
 
-print "Signing $loc with $key\n";
+if ($local) {
+	$ldir = "/etc/freepbx.secure";
+	print "Installing to local signing directory\n";
+	if (is_link($ldir)) {
+		throw new \Exception("Secure Directory ($ldir) is a link");
+	}
+	if (!file_exists($ldir)) {
+		// Make it
+		mkdir($ldir);
+	}
+	if (!is_dir($ldir)) {
+		throw new \Exception("Secure Directory ($ldir) is not a dir");
+	}
+	$xml = new SimpleXmlElement(file_get_contents($loc."/module.xml"));
+	$name = $xml->rawname;
+	$sig = "$ldir/$name.sig";
+} else {
+	$sig = "$loc/module.sig";
+}
+
+print "Signing with $key\n";
 print "\tGenerating file list...";
-@unlink("$loc/module.sig");
+@unlink($sig);
 $files = $gpg->getHashes($loc);
-print "\n\tSigning $loc/module.sig..";
-$fh = popen("gpg --default-key $key --clearsign > $loc/module.sig", "w");
+print "\n\tSigning $sig..";
+$fh = popen("gpg --default-key $key --clearsign > $sig", "w");
 
 fwrite($fh, ";################################################
 ;#        FreePBX Module Signature File         #
@@ -72,13 +103,22 @@ fwrite($fh, ";################################################
 ");
 
 fwrite($fh, "[config]\n");
-fwrite($fh, "version=1\n");
+fwrite($fh, "version=2\n");
 fwrite($fh, "hash=sha256\n");
 fwrite($fh, "signedwith=$key\n");
 fwrite($fh, "signedby=sign.php\n");
 fwrite($fh, "repo=manual\n");
+if ($local) {
+	fwrite($fh, "type=local\n");
+} else {
+	fwrite($fh, "type=public\n");
+}
 fwrite($fh, "[hashes]\n");
 foreach ($files as $f => $h) {
+	// Don't try to validate yourself.
+	if ($f == "module.sig") {
+		continue;
+	}
 	fwrite($fh, "$f = $h\n");
 }
 fwrite ($fh, ";# End\n");
@@ -86,8 +126,33 @@ pclose($fh);
 
 print "\nDone\n";
 
-// We're just assuming the filename is the last part of the directory.
-$filename = basename($loc).".tar.gz";
+if ($local) {
+	print "Tagging module for local signing...";
+	$fh = popen("gpg --default-key $key --clearsign > $loc/module.sig", "w");
+
+	fwrite($fh, ";################################################
+;#        FreePBX Module Signature File         #
+;################################################
+;# Do not alter the contents of this file!  If  #
+;# this file is tampered with, the module will  #
+;# fail validation and be marked as invalid!    #
+;################################################
+
+");
+
+	fwrite($fh, "[config]\n");
+	fwrite($fh, "version=2\n");
+	fwrite($fh, "hash=sha256\n");
+	fwrite($fh, "signedwith=$key\n");
+	fwrite($fh, "signedby=sign.php\n");
+	fwrite($fh, "repo=local\n");
+	fwrite($fh, "type=local\n");
+	fwrite($fh, "[hashes]\n");
+	fwrite($fh, "$name.sig = ".hash_file("sha256", $sig)."\n");
+	pclose($fh);
+	print "\nDone\n";
+}
+
 function getSigningKey($key = false) {
 	// Figure out what our valid signing key is.
 	if ($key) {
