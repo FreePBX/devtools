@@ -88,7 +88,8 @@ $skip = array(
 		"|$dir/class\.js|",
 		"|$dir/jquery\.jplayer\.min\.js|",
 		"|$dir/XMLHttpRequest\.js|",
-		"|$dir/jquery\.form\.min\.js|"
+		"|$dir/jquery\.form\.min\.js|",
+		"|$dir/selectize\.min\.js|"
 );
 foreach ($output as $file) {
 
