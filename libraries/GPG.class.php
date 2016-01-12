@@ -36,7 +36,7 @@ class GPG {
 	private $freepbxkey = '2016349F5BC6F49340FCCAF99F9169F4B33B4659';
 
 	// Our path to GPG.
-	private $gpg = "/usr/bin/gpg";
+	private $gpg;
 	// Default options.
 	private $gpgopts = "--no-permission-warning --keyserver-options auto-key-retrieve=true";
 
@@ -44,7 +44,17 @@ class GPG {
 	// This may need to be tuned on things like the pi.
 	public $timeout = 3;
 
-
+	// Look around for gpg in a few likely places
+	public function __construct() {
+		echo "in __construct()!\n";
+		if (file_exists('/usr/local/bin/gpg')) {
+			$this->gpg = '/usr/local/bin/gpg';
+		} elseif (file_exists('/usr/bin/gpg')) {
+			$this->gpg = '/usr/bin/gpg';
+		} else {
+			$this->gpg = 'gpg';
+		}
+	}
 	/**
 	 * Validate a file using WoT
 	 * @param string $file Filename (explicit or relative path)

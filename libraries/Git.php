@@ -31,7 +31,7 @@ class Git {
 	 *
 	 * @var string
 	 */
-	protected static $bin = '/usr/bin/git';
+	protected static $bin;
 
 	/**
 	 * Sets git executable path
@@ -39,14 +39,14 @@ class Git {
 	 * @param string $path executable location
 	 */
 	public static function set_bin($path) {
-		self::$bin = $path;
+		static::$bin = $path;
 	}
 
 	/**
 	 * Gets git executable path
 	 */
 	public static function get_bin() {
-		return self::$bin;
+		return static::$bin;
 	}
 
 	/**
@@ -155,6 +155,13 @@ class GitRepo {
 	public function __construct($repo_path = null, $create_new = false, $_init = true) {
 		if (is_string($repo_path)) {
 			$this->set_repo_path($repo_path, $create_new, $_init);
+		}
+		if (file_exists('/usr/local/bin/git')) {
+			Git::set_bin('/usr/local/bin/git');
+		} elseif (file_exists('/usr/bin/git')) {
+			Git::set_bin('/usr/bin/git');
+		} else {
+			Git::set_bin('git');
 		}
 	}
 
