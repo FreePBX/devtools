@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
 require_once('libraries/freepbx.php');
 $help = array();
@@ -95,3 +95,4 @@ foreach($modules as $mod_dir) {
 		freepbx::out("Done");
 	}
 }
+?>

@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
 
 $commands = '';
@@ -16,3 +16,4 @@ exec('git commit '.$commands,$out,$ret);
 foreach($out as $o) {
 	echo $o."\n";
 }
+?>

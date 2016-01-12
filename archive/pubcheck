@@ -1,4 +1,4 @@
-#!/usr/bin/php
+#!/usr/bin/env php
 <?php
 /* pubcheck:
  * This script checks your current working repository as is against the online
@@ -43,3 +43,4 @@ foreach ($mod_xml as $m => $c) {
 		printf($format, $cr, $ohash[$cr],$cv);
 	}
 }
+?>

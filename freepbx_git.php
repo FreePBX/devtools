@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
 /**
  * Copyright 2013 by Schmooze Com, Inc.
@@ -277,3 +277,4 @@ if(isset($options['setup'])) {
 freepbx::out("Invalid Command");
 freepbx::showHelp('freepbx_git.php',$help);
 exit;
+?>

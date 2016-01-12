@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
 /**
  * Copyright 2013 by Schmooze Com, Inc.
@@ -1005,3 +1005,4 @@ function update_devtools() {
 	}
 	freepbx::out("Done. Thanks for using FreePBX!");
 }
+?>

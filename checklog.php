@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
 /**
  * Copyright 2013 by Schmooze Com, Inc.
@@ -120,3 +120,4 @@ function checklog($moddir) {
 	} 
 	return;
 }
+?>

@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # This script (sculpted from publish.pl) will check the last tarball (which must be there)
 # based on the fw_langpacks xml version number and then run svn log against all updates since

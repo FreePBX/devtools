@@ -1,4 +1,4 @@
-#!/usr/bin/php -q
+#!/usr/bin/env php
 <?php
 require_once('libraries/freepbx.php');
 $help = array();
@@ -114,3 +114,4 @@ function make_mo($src,$lang,$langRepoPath) {
 	}
 	copy($target,$langRepoPath."/mo/".$lang."/".$pi['filename'].".mo");
 }
+?>
