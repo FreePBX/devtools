@@ -46,7 +46,6 @@ class GPG {
 
 	// Look around for gpg in a few likely places
 	public function __construct() {
-		echo "in __construct()!\n";
 		if (file_exists('/usr/local/bin/gpg')) {
 			$this->gpg = '/usr/local/bin/gpg';
 		} elseif (file_exists('/usr/bin/gpg')) {
