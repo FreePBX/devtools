@@ -7,6 +7,7 @@ require_once('Git.php');
 require_once('xml2Array.class.php');
 
 class freepbx {
+	public static $vcache = array();
 
 	/**
 	 * Setup FreePBX Class to talk to FreePBX.org services
@@ -582,13 +583,19 @@ class freepbx {
 
 	// version_compare that works with FreePBX version numbers
 	public static function version_compare_freepbx($version1, $version2, $op = null) {
+		if(isset(self::$vcache[$version1][$version2][$op])) {
+			return self::$vcache[$version1][$version2][$op];
+		}
+
 		$version1 = str_replace("rc","RC", strtolower($version1));
 		$version2 = str_replace("rc","RC", strtolower($version2));
 		if (!is_null($op)) {
-			return version_compare($version1, $version2, $op);
+			$out = version_compare($version1, $version2, $op);
 		} else {
-			return version_compare($version1, $version2);
+			$out = version_compare($version1, $version2);
 		}
+		self::$vcache[$version1][$version2][$op] = $out;
+		return $out;
 	}
 
 	public static function get_license_from_link($licenseLink) {
