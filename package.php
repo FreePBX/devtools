@@ -509,9 +509,9 @@ HERE;
 	freepbx::outn("\t\tUpdating master localization...");
 	$translation = new Translation($mod_dir);
 	if(!preg_match('/(core|framework)$/i',$mod_dir)) {
-		//if no i18n folder then make an english one!
+		//if no i18n folder then make a spanish one!
 		if(!file_exists($mod_dir.'/i18n')) {
-			$translation->makeLanguage("en_US");
+			$translation->makeLanguage("es_ES");
 		}
 		//pray that this works..
 		$translation->update_i18n();
