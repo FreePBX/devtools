@@ -424,6 +424,7 @@ foreach ($modules as $module) {
 	//	licenselink tag and generate a LICENSE file
 	if ($license) {
 		if (!empty($licenselink)) {
+			freepbx::outn("\tAttempting to get license from: ".$licenselink);
 			$licensetext = freepbx::get_license_from_link($licenselink);
 
 			if ($licensetext === false) {
@@ -435,6 +436,7 @@ foreach ($modules as $module) {
 				freepbx::out('Unable to get License from License link in module.xml');
 				continue;
 			}
+			freepbx::out("Done");
 		}
 	}
 
