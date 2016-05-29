@@ -16,7 +16,7 @@ if (!isset($argv[1])) {
 
 $loc = $argv[1];
 
-if ($argv[2] == "--local") {
+if (isset($argv[2]) && $argv[2] == "--local") {
 	if (posix_geteuid() !== 0) {
 		throw new \Exception("--local must be run as root. You are not root");
 	}
