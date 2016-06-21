@@ -126,8 +126,16 @@ print_r($final);
 
 foreach ($final as $f) {
 	echo "\npacking " . $f ."...";
-	$js[] = JSMin::minify(file_get_contents($f));
-	echo 'done!';
+	$data = file_get_contents($f);
+	$name = basename($f);
+	if(preg_match("/\.min/",$name)) {
+		$js[] = $data;
+		echo 'already packed!';
+	} else {
+		$js[] = JSMin::minify($data);
+		echo 'done!';
+	}
+
 }
 echo "\n\n\n";
 

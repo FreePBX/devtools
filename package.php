@@ -357,6 +357,7 @@ foreach ($modules as $module) {
 	//run unit tests
 	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.phar')) {
 		freepbx::outn("\tDetected Unit Tests...");
+		$config = '';
 		if(file_exists($mod_dir."/utests/utests.xml")) {
 			$config = "-c ".$mod_dir."/utests/utests.xml";
 		}

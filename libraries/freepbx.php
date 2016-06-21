@@ -2,6 +2,7 @@
 if (version_compare(PHP_VERSION, '5.3.0') <= 0) {
 	die("This Script Requires PHP 5.3.0+\n");
 }
+require_once(dirname(__DIR__)."/vendor/autoload.php");
 require_once('stash.php');
 require_once('Git.php');
 require_once('xml2Array.class.php');
