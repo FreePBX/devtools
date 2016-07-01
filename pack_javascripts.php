@@ -91,7 +91,9 @@ $skip = array(
 		"|$dir/jquery\.form\.min\.js|",
 		"|$dir/selectize\.min\.js|",
 		"|$dir/recorder\.js|",
-		"|$dir/recorderWorker\.js|"
+		"|$dir/recorderWorker\.js|",
+		"|$dir/moment-with-locales\.min\.js|",
+		"|$dir/moment-timezone\.min\.js|"
 );
 foreach ($output as $file) {
 
