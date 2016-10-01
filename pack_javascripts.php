@@ -32,6 +32,10 @@ $dir = $vars['directory'] . '/amp_conf/htdocs/admin/assets/js';
 $output=array();
 
 exec("ls $dir/*.js",$output,$ret);
+if(file_exists("$dir/bootstrap-table-extensions-1.11.0/")) {
+	exec("ls $dir/bootstrap-table-extensions-1.11.0/*.js",$output2,$ret);
+	$output = array_merge($output,$output2);
+}
 $final=$finalB=array();
 /*
  * to order js files: files will be appened to the array in the order they appear
@@ -51,70 +55,109 @@ Array
 [6] => /usr/src/freepbx/framework/amp_conf/htdocs/admin/assets/js/tabber-minimized.js
 )
  */
-$skip = array(
-		"|$dir/progress-polyfill.min.js|",
-		"|$dir/jquery-.*\.js|",
-		"|$dir/jquery-ui-.*\.js$|",
-		"|$dir/jquery.selector-set-.*\.js|",
-		"|$dir/selector-set-.*\.js|",
-		"|$dir/less-.*\.js|",
-		"|$dir/toastr-.*\.js|",
+$xml = simplexml_load_file($vars['directory']."/module.xml");
+if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
+	$skip = array(
+			"|$dir/progress-polyfill.min.js|",
+			"|$dir/jquery-.*\.js|",
+			"|$dir/jquery-ui-.*\.js$|",
+			"|$dir/jquery.selector-set-.*\.js|",
+			"|$dir/selector-set-.*\.js|",
+			"|$dir/less-.*\.js|",
+			"|$dir/toastr-.*\.js|",
+			"|$libfreepbx|",
+			"|$dir/bootstrap-.*\.js|",
+			"|$dir/html5shiv\.js|",
+			"|$dir/module_admin\.js|",
+			"|$dir/modernizr\.js|",
+			"|$dir/browser-support\.js|",
+			"|$dir/outdatedbrowser\.min\.js|",
+			"|$dir/selectivizr\.js|",
+			"|$dir/typeahead\.bundle\.js|",
+			"|$dir/typeahead\.bundle\.min\.js|",
+			"|$dir/search\.js|",
+			"|$dir/respond\.min\.js|",
+			"|$dir/jed\.js|",
+			"|$dir/zxcvbn\.js|",
+			"|$dir/bootstrap-table-locale|",
+			"|$dir/bootstrap-multiselect\.js|",
+			"|$dir/chosen\.jquery\.min\.js|",
+			"|$dir/kclc\.js|",
+			"|$dir/eventsource\.min\.js|",
+			"|$dir/jquery\.fileupload.*\.js|",
+			"|$dir/jquery\.iframe-transport\.js|",
+			"|$dir/load-image\.all\.min\.js|",
+			"|$dir/jquery\.smartWizard\.js|",
+			"|$dir/modgettext\.js|",
+			"|$dir/Sortable\.min\.js|",
+			"|$dir/toastr-.*\.js|",
+			"|$dir/class\.js|",
+			"|$dir/jquery\.jplayer\.min\.js|",
+			"|$dir/XMLHttpRequest\.js|",
+			"|$dir/jquery\.form\.min\.js|",
+			"|$dir/selectize\.min\.js|",
+			"|$dir/recorder\.js|",
+			"|$dir/recorderWorker\.js|",
+			"|$dir/moment-with-locales\.min\.js|",
+			"|$dir/moment-timezone\.min\.js|",
+			"|$dir/browser-locale\.min\.js|"
+	);
+} else {
+	$skip = array(
 		"|$libfreepbx|",
-		"|$dir/bootstrap-.*\.js|",
-		"|$dir/html5shiv\.js|",
-		"|$dir/module_admin\.js|",
-		"|$dir/modernizr\.js|",
-		"|$dir/browser-support\.js|",
-		"|$dir/outdatedbrowser\.min\.js|",
-		"|$dir/selectivizr\.js|",
-		"|$dir/typeahead\.bundle\.js|",
-		"|$dir/typeahead\.bundle\.min\.js|",
-		"|$dir/search\.js|",
-		"|$dir/respond\.min\.js|",
-		"|$dir/jed\.js|",
-		"|$dir/zxcvbn\.js|",
-		"|$dir/bootstrap-table-locale|",
-		"|$dir/bootstrap-multiselect\.js|",
-		"|$dir/chosen\.jquery\.min\.js|",
-		"|$dir/kclc\.js|",
-		"|$dir/eventsource\.min\.js|",
-		"|$dir/jquery\.fileupload.*\.js|",
-		"|$dir/jquery\.iframe-transport\.js|",
-		"|$dir/load-image\.all\.min\.js|",
-		"|$dir/jquery\.smartWizard\.js|",
-		"|$dir/modgettext\.js|",
-		"|$dir/Sortable\.min\.js|",
-		"|$dir/toastr-.*\.js|",
+		"|$dir/jquery-\d.*\.js|",
+		"|$dir/zxcvbn-.*\.min\.js|",
+		"|$dir/outdatedbrowser-.*\.min\.js|",
+		"|$dir/selector-set-.*\.js|",
+		"|$dir/jquery.selector-set-.*\.js|",
 		"|$dir/class\.js|",
-		"|$dir/jquery\.jplayer\.min\.js|",
-		"|$dir/XMLHttpRequest\.js|",
-		"|$dir/jquery\.form\.min\.js|",
-		"|$dir/selectize\.min\.js|",
-		"|$dir/recorder\.js|",
-		"|$dir/recorderWorker\.js|",
-		"|$dir/moment-with-locales\.min\.js|",
-		"|$dir/moment-timezone\.min\.js|"
-);
+		"|$dir/jed-.*\.js|",
+		"|$dir/modgettext\.js|",
+		"|$dir/kclc\.js|",
+		"|$dir/module_admin\.js|",
+		"|$dir/eventsource-.*\.min\.js|"
+	);
+	$finalB = array(
+
+	);
+}
+
 foreach ($output as $file) {
 
 	//skip the files in the skip array
 	foreach ($skip as $s) {
 		if (preg_match($s, $file)) {
+			echo "skipping $file\n";
 			continue 2;
 		}
 	}
 
-	//add files
-	switch(true){
-		case preg_match("|$dir/jquery.cookie.js$|",$file)://jquery ui
-			$finalB[] = $file;
-		break;
-		case $file==$dir.'/script.legacy.js'://legacy script
-			$finalB[] = $file;
-		break;
-		case $file != $dir.'/script.legacy.js'://default
-			$final[] = $file;
-		break;
+	if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
+		//add files
+		switch(true){
+			case preg_match("|$dir/jquery\.cookie\.js|",$file):
+				$finalB[] = $file;
+			break;
+			case $file==$dir.'/script.legacy.js'://legacy script
+				$finalB[] = $file;
+			break;
+			case $file != $dir.'/script.legacy.js'://default
+				$final[] = $file;
+			break;
+		}
+	} else {
+		//add files
+		switch(true){
+			case preg_match("|$dir/moment-with-locales-.*\.min\.js|",$file):
+				$finalB[] = $file;
+			break;
+			case $file==$dir.'/script.legacy.js'://legacy script
+				$finalB[] = $file;
+			break;
+			case $file != $dir.'/script.legacy.js'://default
+				$final[] = $file;
+			break;
+		}
 	}
 }
 
@@ -527,4 +570,15 @@ class JSMin {
 
 // -- Exceptions ---------------------------------------------------------------
 class JSMinException extends Exception {}
+
+
+function version_compare_freepbx($version1, $version2, $op = null) {
+	$version1 = str_replace("rc","RC", strtolower($version1));
+	$version2 = str_replace("rc","RC", strtolower($version2));
+	if (!is_null($op)) {
+		return version_compare($version1, $version2, $op);
+	} else {
+		return version_compare($version1, $version2);
+	}
+}
 ?>
