@@ -229,6 +229,9 @@ class freepbx {
 	 */
 	function getLowerBranch($branch) {
 		$parts = explode("/",$branch);
+		if (!isset($parts[1])) {
+			return false;
+		}
 		$release = $parts[1];
 		switch($release) {
 			case version_compare($release, "13.0", ">="):
