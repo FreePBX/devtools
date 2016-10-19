@@ -175,7 +175,7 @@ class freepbx {
 	 */
 	function setupDevRepos($directory,$force=false,$mode='ssh',$branch='master',$project_key='freepbx') {
 		//NOTE: 'fw_ari', 'userpaneltab' need to be moved to Contributed.
-		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade', 'fw_langpacks', 'fw_ari', 'userpaneltab');
+		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade', 'fw_langpacks', 'fw_ari', 'userpaneltab', 'tools','custom-freepbx-modules','sipstation_module');
 		$o = $this->stash->getAllRepos($project_key);
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
 			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
