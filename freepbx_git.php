@@ -44,25 +44,27 @@ $help = array(
 	array('-s', 'Setup symlinks into Framework for install'),
 	array('-r', 'Declare Stash Project Key for single module checkout'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
-  array('--setuplang', 'Setup language dev tools, requires that --setup was already run (use --force to re-setup environment)'),
+	array('--setuplang', 'Setup language dev tools, requires that --setup was already run (use --force to re-setup environment)'),
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes (!!you will lose all untracked branches!!)'),
 	array('--addmergedriver', 'Updates/Adds Relevant Merge Drivers'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
 	array('--mode=<ssh|http>', 'What Mode to Use GIT in, Default is SSH. Use HTTP if you dont have SSH access or you dont know'),
-	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory'])
+	array('--directory', 'The directory location of the modules, will default to: '.$vars['repo_directory']),
+	array('--keys', 'Comma separated project keys [freepbx,mykey]')
 );
 $longopts  = array(
 	"help",
 	"setup",
-  "force",
+	"force",
 	"refresh",
 	"clean",
-  "setuplang",
+	"setuplang",
 	"addmergedriver",
 	"directory::",
 	"switch::",
-	"mode::"
+	"mode::",
+	"keys::"
 );
 $options = getopt("m:r:s",$longopts);
 if(empty($options) || isset($options['help'])) {
@@ -161,8 +163,7 @@ if(isset($options['m'])) {
 		} else {
 			$stash = new Stash($username,$password);
 			foreach($projects as $project => $description) {
-				$stash->project_key = $project;
-				$repo = $stash->getRepo($options['m']);
+				$repo = $stash->getRepo($options['m'],$project);
 				if ($repo === false) {
 					freepbx::out("[WARN] ".$options['m']." is NOT in the ".$description);
 				} else {
@@ -251,6 +252,11 @@ if(isset($options['addmergedriver'])) {
 }
 
 if(isset($options['setup'])) {
+	if(is_link($directory)) {
+		freepbx::out("Confused. $directory is a symbolic link. Please resolve then run this again");
+		exit(1);
+	}
+
 	if (empty($vars['username'])) {
 		$username = freepbx::getInput("FreePBX Username");
 	} else {
@@ -268,13 +274,20 @@ if(isset($options['setup'])) {
 		exit(1);
 	}
 
+	if(isset($options['keys'])) {
+		$pkeys = explode(",",$options['keys']);
+	} else {
+		$pkeys = array("freepbx");
+	}
+
 	$force = isset($options['force']) ? true : false;
 	$branch = isset($options['switch']) && !empty($options['switch']) ? $options['switch'] : 'develop';
-	$freepbx->setupDevRepos($directory,$force,$mode,$branch);
+	foreach($pkeys as $k) {
+		$freepbx->setupDevRepos($directory,$force,$mode,$branch,$k);
+	}
 	$freepbx->setupSymLinks($directory);
 	exit(0);
 }
 freepbx::out("Invalid Command");
 freepbx::showHelp('freepbx_git.php',$help);
 exit;
-?>

@@ -55,7 +55,11 @@ class freepbx {
 			$repo->checkout($branch);
 			freepbx::out("Done");
 		} catch (Exception $e) {
-			freepbx::out("Branch Doesnt Exist...Skipping");
+			freepbx::out("$branch Doesnt Exist! Attempting to go lower");
+			$branch = $this->getLowerBranch($branch);
+			if($branch === false) {
+				freepbx::outn("\tCan't find any branch to work with skipping...");
+			}
 		}
 		if(!empty($stash) && empty($final_branch)) {
 			freepbx::outn("\tRestoring Uncommited changes...");
@@ -169,9 +173,10 @@ class freepbx {
 	 * @param   bool $force True or False on whether to rm -Rf and then recreate the repo
 	 * @return  array
 	 */
-	function setupDevRepos($directory,$force=false,$mode='ssh',$branch='develop') {
-		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade');
-		$o = $this->stash->getAllRepos();
+	function setupDevRepos($directory,$force=false,$mode='ssh',$branch='master',$project_key='freepbx') {
+		//NOTE: 'fw_ari', 'userpaneltab' need to be moved to Contributed.
+		$skipr = array('devtools','moh_sounds','freepbxlocalization','versionupgrade', 'fw_langpacks', 'fw_ari', 'userpaneltab');
+		$o = $this->stash->getAllRepos($project_key);
 		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
 			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
 			die();
@@ -208,8 +213,8 @@ class freepbx {
 					$branch = $this->getLowerBranch($branch);
 					if($branch === false) {
 						try {
-							freepbx::outn("\tChecking you out into the develop branch...");
-							$repo->checkout('develop');
+							freepbx::outn("\tChecking you out into the master branch...");
+							$repo->checkout('master');
 							freepbx::out("Done");
 						} catch (Exception $e) {
 							//TODO: error?

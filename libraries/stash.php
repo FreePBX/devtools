@@ -3,16 +3,15 @@ if(!class_exists('PestJSON')) {
 	require_once('pest/PestJSON.php');
 }
 class Stash {
-	public $project_key = 'freepbx';
 	private $api_url = 'http://git.freepbx.org/rest/api/1.0';
 	private $pest;
-	
+
 	/**
 	 * Constructor for Stash
 	 *
 	 * Also checks for valid credentials before construct can finish
 	 *
-	 * @param   string $username Stash Username 
+	 * @param   string $username Stash Username
 	 * @param   string $password Stash password
 	 * @return  string
 	 */
@@ -23,11 +22,11 @@ class Stash {
 			throw new Exception('Username/Password Not Valid');
 		}
 	}
-	
+
 	/**
 	 * Gets all information about said user from Stash
 	 *
-	 * @param   string $username Stash Username 
+	 * @param   string $username Stash Username
 	 * @return  array
 	 */
 	function getUser($username) {
@@ -38,32 +37,32 @@ class Stash {
 		}
 		return $o;
 	}
-	
+
 	/**
 	 * Gets all repos for said project
 	 *
 	 * @return  string
 	 */
-	function getAllRepos() {
+	function getAllRepos($project_key='freepbx') {
 		try {
-			$o = $this->pest->get('/projects/'.$this->project_key.'/repos?limit=200');
+			$o = $this->pest->get('/projects/'.$project_key.'/repos?limit=200');
 		} catch (Exception $e) {
 			return false;
 		}
 		foreach($o['values'] as $key => $repo) {
-			$o['values'][$key]['cloneSSH'] = "ssh://git@git.freepbx.org/".$this->project_key."/".$repo['name'].".git";
+			$o['values'][$key]['cloneSSH'] = "ssh://git@git.freepbx.org/".$project_key."/".$repo['name'].".git";
 		}
 		return $o;
 	}
-	
-	function getRepo($repoName) {
+
+	function getRepo($repoName,$project_key='freepbx') {
 		try {
-			$o = $this->pest->get('/projects/'.$this->project_key.'/repos/'.$repoName);
+			$o = $this->pest->get('/projects/'.$project_key.'/repos/'.$repoName);
 		} catch (Exception $e) {
 			return false;
 		}
 		if (is_array($o)) {
-			$o['cloneSSH'] = "ssh://git@git.freepbx.org/".$this->project_key."/".$o['name'].".git";
+			$o['cloneSSH'] = "ssh://git@git.freepbx.org/".$project_key."/".$o['name'].".git";
 		}
 		return $o;
 	}
