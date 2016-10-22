@@ -75,7 +75,7 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 }
 
 //set up some other settings
-$vars['php_-l']	= 'php -l';
+$vars['php_-l'] = 'php -l';
 $vars['remote'] = isset($vars['remote']) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
 $vars['directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : (!empty($vars['directory']) ? $vars['directory'] : '/usr/src/freepbx_packaging/repos');
@@ -208,6 +208,12 @@ foreach ($modules as $module) {
 	$file_scan_exclude_list = ($module == 'framework') ? array("modules","Symfony","Composer") : array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
+
+	if(file_exists($mod_dir . '/.lintignore')) {
+		$raw = file_get_contents($mod_dir . '/.lintignore');
+		$ignores = explode("\n",$raw);
+		$file_scan_exclude_list = array_merge($file_scan_exclude_list,$ignores);
+	}
 
 	//Bail out if module.xml doesnt exist....its sort-of-important
 	if (!file_exists($mod_dir . '/module.xml')) {
