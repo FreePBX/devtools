@@ -607,6 +607,14 @@ class freepbx {
 	}
 
 	public static function get_license_from_link($licenseLink) {
+		// Do we ALREADY have this licence? If so, we don't
+		// need to download it.
+		$lic = basename($licenseLink);
+		if (file_exists(__DIR__."/licences/$lic")) {
+			freepbx::out(" Done! (Cached $lic)");
+			return file_get_contents(__DIR__."/licences/$lic");
+		}
+
 		$ch = curl_init();
 
 		curl_setopt($ch,  CURLOPT_RETURNTRANSFER, true);
@@ -618,11 +626,10 @@ class freepbx {
 
 		switch($httpStatusCode) {
 		  case '200':
+		    freepbx::out(" Done! (Retrieved $licenseLink)");
 		    return $licenseText;
-		    break;
 		  default:
 		    freepbx::out("An error occurred trying to get license from " . $licenseLink);
-		    break;
 		}
 
 		return false;
