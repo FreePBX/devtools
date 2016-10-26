@@ -447,11 +447,13 @@ foreach ($modules as $module) {
 		}
 	}
 
-$reps = array('!!NAME!!'=> $rawname,
-	'!!DESCRIPTION!!'=> $description,
-	'!!LICENSE!!' => $license,
-	'!!LICENSELINK!!' => $licenselink);
-$template = <<<HERE
+	$description = isset($modulexml['description'])?$modulexml['description']:'';
+
+	$reps = array('!!NAME!!'=> $rawname,
+		'!!DESCRIPTION!!'=> $description,
+		'!!LICENSE!!' => $license,
+		'!!LICENSELINK!!' => $licenselink);
+	$template = <<<HERE
 ```
  ______             _____  ______   __
 |  ____|           |  __ \|  _ \ \ / /
