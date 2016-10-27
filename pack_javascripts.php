@@ -115,7 +115,7 @@ if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
 		"|$dir/modgettext\.js|",
 		"|$dir/kclc\.js|",
 		"|$dir/module_admin\.js|",
-		"|$dir/eventsource-.*\.min\.js|"
+		"|$dir/eventsource-.*\.min\.js|",
 	);
 	$finalB = array(
 
@@ -165,6 +165,12 @@ sort($finalB);
 sort($final);
 
 $final=array_merge($finalB,$final);
+
+echo "\narray(\n";
+foreach($final as $f) {
+	echo '"'."assets/js".preg_replace("/^".preg_quote($dir,"/")."/","",$f).'",'."\n";
+}
+echo ")\n";
 
 echo "creating $libfreepbx with:\n\n";
 print_r($final);
