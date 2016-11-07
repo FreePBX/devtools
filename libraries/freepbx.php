@@ -56,7 +56,7 @@ class freepbx {
 			freepbx::out("Done");
 		} catch (Exception $e) {
 			freepbx::out("$branch Doesnt Exist! Attempting to go lower");
-			$branch = $this->getLowerBranch($branch);
+			$branch = self::getLowerBranch($branch);
 			if($branch === false) {
 				freepbx::outn("\tCan't find any branch to work with skipping...");
 			}
@@ -209,7 +209,7 @@ class freepbx {
 					break;
 				} catch (Exception $e) {
 					freepbx::out("Doesnt Exist!");
-					$branch = $this->getLowerBranch($branch);
+					$branch = self::getLowerBranch($branch);
 					if($branch === false) {
 						try {
 							freepbx::outn("\tChecking you out into the master branch...");
@@ -231,7 +231,7 @@ class freepbx {
 	 * This function could be better but it works the way it is for now
 	 * @param {string} $branch Branch name in the form of 'release/x.y'
 	 */
-	function getLowerBranch($branch) {
+	public static function getLowerBranch($branch) {
 		$parts = explode("/",$branch);
 		if (!isset($parts[1])) {
 			return false;
