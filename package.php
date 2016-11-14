@@ -360,6 +360,27 @@ foreach ($modules as $module) {
 	}
 	freepbx::out("There are no errors");
 
+	// Make sure composer exists, in case someone renames or updates it or something
+	$composer = __DIR__."/composer-1.1.1.phar";
+
+	if (!file_exists($composer)) {
+		throw new \Exception("Composer file missing. This repo should contain the composer phar");
+	}
+
+	// Do some framework-specifc things.
+	if($module == 'framework') {
+		freepbx::outn("\tFramework detected!\n\t\tPackaging javascripts...");
+		// Package javascript because Andrew always forgets
+		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php --directory '.$vars['directory']);
+		freepbx::out("Done");
+		freepbx::outn("\t\tRebuilding Composer Autoloader...");
+		$pushd = getcwd();
+		chdir($vars['directory']."/framework/amp_conf/htdocs/admin/libraries/Composer");
+		`$composer dump-autoload --optimize`;
+		chdir($pushd);
+		freepbx::out("Done");
+	}
+
 	//run unit tests
 	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.phar')) {
 		freepbx::outn("\tDetected Unit Tests...");
@@ -419,13 +440,6 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::out("Done");
-
-	//Package javascript because Andrew always forgets
-	if($module == 'framework') {
-		freepbx::outn("\tFramework, packaging javascripts...");
-		exec('/usr/bin/env php '.dirname(__FILE__).'/pack_javascripts.php --directory '.$vars['directory']);
-		freepbx::out("Done");
-	}
 
 	//If we have a license, which we are required to have by this point, get the
 	//	licenselink tag and generate a LICENSE file
