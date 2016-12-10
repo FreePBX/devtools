@@ -361,7 +361,7 @@ foreach ($modules as $module) {
 	freepbx::out("There are no errors");
 
 	// Make sure composer exists, in case someone renames or updates it or something
-	$composer = __DIR__."/composer-1.1.1.phar";
+	$composer = __DIR__."/binaries/composer.phar";
 
 	if (!file_exists($composer)) {
 		throw new \Exception("Composer file missing. This repo should contain the composer phar");
@@ -382,13 +382,14 @@ foreach ($modules as $module) {
 	}
 
 	//run unit tests
-	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.phar')) {
+	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.php')) {
 		freepbx::outn("\tDetected Unit Tests...");
 		$config = '';
 		if(file_exists($mod_dir."/utests/utests.xml")) {
 			$config = "-c ".$mod_dir."/utests/utests.xml";
 		}
-		if(!run_cmd(__DIR__.'/phpunit.phar '.$config.' '.$mod_dir.'/utests',$outline,true)) {
+		if(!run_cmd(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests',$outline,true)) {
+			freepbx::out(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests');
 			freepbx::out("Unit tests failed");
 			freepbx::out("Module " . $module . " will not be tagged!");
 			continue;
