@@ -79,7 +79,8 @@ Provides a list of changes since the last time modules were published
 This script packages javascript files in frameworks assets/js directory in pbxlib.js
 
 ###Help Options
-```  --help              Show this menu and exit
+```
+  --help              Show this menu and exit
   --directory         Directory Location of framework root, always assumed to
                       be ../freepbx from this location
 ```
