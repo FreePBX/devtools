@@ -79,7 +79,8 @@ Provides a list of changes since the last time modules were published
 This script packages javascript files in frameworks assets/js directory in pbxlib.js
 
 ###Help Options
-```  --help              Show this menu and exit
+```
+  --help              Show this menu and exit
   --directory         Directory Location of framework root, always assumed to
                       be ../freepbx from this location
 ```
@@ -92,7 +93,7 @@ This script packages javascript files in frameworks assets/js directory in pbxli
 License
 ----
 
-GPLv2 or Later
+GPLv2 or Later (unless otherwise specified)
 
 >FreePBX. An opensource GUI (graphical user interface) that controls and manages Asterisk (PBX)
 >Copyright (C) 2013, Schmoozecom, INC
