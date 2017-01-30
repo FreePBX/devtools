@@ -58,7 +58,7 @@ class Translation {
 # For licensing information, please see the file named LICENSE located in the module directory
 #
 # FreePBX language template for $module
-# Copyright (C) 2008-$year Sangoma, Inc.
+# Copyright (C) 2008-$year Sangoma Technologies, Inc.
 #
 
 EOF;
@@ -167,7 +167,6 @@ EOF;
 
 	/**
 	 * Update i18n files for normal modules
-	 * @param  {string} $module Module rawname
 	 */
 	function update_i18n() {
 
@@ -182,13 +181,13 @@ EOF;
 			exit();
 		}
 
-		if(!file_exists('/var/lib/asterisk/bin/module_admin') || !is_executable("/var/lib/asterisk/bin/module_admin")) {
-			echo "Coulnt find /var/lib/asterisk/bin/module_admin, I need this to generate strings from Advanced Settings\n";
+		if(!file_exists('/var/lib/asterisk/bin/fwconsole') || !is_executable("/var/lib/asterisk/bin/fwconsole")) {
+			echo "Coulnt find /var/lib/asterisk/bin/fwconsole, I need this to generate strings from Advanced Settings\n";
 			exit();
 		}
 
 		$i18n_php = $this->cwd . '/' . $this->xml['rawname'] . '.i18n.php';
-		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
+		//Running fwconsole should probably be avoided because it requires the PBX system to be installed and the DB
 		//to be in tact with the latest information to work. It would be better to have this pick up the necessary strings
 		//from the latest source code alone if possible.
 
@@ -196,10 +195,10 @@ EOF;
 		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 		$xmlData = simplexml_load_file($this->cwd . '/module.xml'); //or die("Failed to load the module.xml file!")
 
-		//Running module_admin should probably be avoided because it requires the PBX system to be installed and the DB
+		//Running fwconsole should probably be avoided because it requires the PBX system to be installed and the DB
 		//to be in tact with the latest information to work. It would be better to have this pick up the necessary strings
 		//from the latest source code alone if possible.
-		exec("/var/lib/asterisk/bin/module_admin i18n ".$this->xml['rawname'],$output);
+		exec("/var/lib/asterisk/bin/fwconsole i18n ".$this->xml['rawname'],$output);
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
@@ -313,15 +312,15 @@ EOF;
 			echo "ERROR: Please switch core to the same supproted release as Framework so translations can get updated! (Framework: ".$frameworkXmlData->supported->version."| Core: ".$coreXmlData->supported->version.")\n";
 			exit();
 		}
-		if(!file_exists('/var/lib/asterisk/bin/module_admin') || !is_executable("/var/lib/asterisk/bin/module_admin")) {
-			echo "Coulnt find /var/lib/asterisk/bin/module_admin, I need this to generate strings from Advanced Settings\n";
+		if(!file_exists('/var/lib/asterisk/bin/fwconsole') || !is_executable("/var/lib/asterisk/bin/fwconsole")) {
+			echo "Coulnt find /var/lib/asterisk/bin/fwconsole, I need this to generate strings from Advanced Settings\n";
 			exit();
 		}
 
 		//Start the temporary PHP file where we will store strings
 		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 
-		exec("/var/lib/asterisk/bin/module_admin i18n framework",$output);
+		exec("/var/lib/asterisk/bin/fwconsole i18n framework",$output);
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
