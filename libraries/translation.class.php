@@ -198,7 +198,7 @@ EOF;
 		//Running fwconsole should probably be avoided because it requires the PBX system to be installed and the DB
 		//to be in tact with the latest information to work. It would be better to have this pick up the necessary strings
 		//from the latest source code alone if possible.
-		exec("/var/lib/asterisk/bin/fwconsole i18n ".$this->xml['rawname'],$output);
+		exec("/var/lib/asterisk/bin/fwconsole ma i18n ".$this->xml['rawname'],$output);
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
@@ -320,7 +320,7 @@ EOF;
 		//Start the temporary PHP file where we will store strings
 		file_put_contents($i18n_php, "<?php \nif(false) {\n");
 
-		exec("/var/lib/asterisk/bin/fwconsole i18n framework",$output);
+		exec("/var/lib/asterisk/bin/fwconsole ma i18n framework",$output);
 		foreach($output as $line) {
 			file_put_contents($i18n_php, $line."\n", FILE_APPEND);
 		}
