@@ -4,6 +4,7 @@
 				"phpunit/phpunit": "4.8",
         "knplabs/github-api": "^1.5",
         "mrclay/minify": "^2.3",
-        "tedivm/jshrink": "^1.1"
+        "tedivm/jshrink": "^1.1",
+        "phpseclib/phpseclib": "~2.0"
     }
 }
