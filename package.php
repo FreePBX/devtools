@@ -752,38 +752,31 @@ echo '----------------------' . PHP_EOL . PHP_EOL;
 if ($vars['interactive'] && !empty($supported['version']) && !empty($final_status)) {
 	$publish = freepbx::getInput('Publish?','n');
 	if($publish == 'y' || $publish == 'yes') {
-		if(function_exists('ssh2_connect')) {
-			foreach ($final_status as $module => $status) {
-				$supported = freepbx::getInput('Supported Version to Publish for?',$supported['version']);
-				$user = posix_getpwuid(posix_geteuid());
-				$username = freepbx::getInput('Username?',$user['name']);
+		$user = posix_getpwuid(posix_geteuid());
+		$username = freepbx::getInput('Username?',$user['name']);
+		$agent = new \phpseclib\System\SSH\Agent();
+		$ssh = new phpseclib\Net\SSH2('mirror1.freepbx.org');
 
-				$agent = new \phpseclib\System\SSH\Agent();
-				$ssh = new phpseclib\Net\SSH2('mirror1.freepbx.org');
-				if (!$ssh->login($username, $agent)) {
-					freepbx::out('Autentication rejected by server');
-					exit(1);
-				}
+		if (!$ssh->login($username, $agent)) {
+			freepbx::out('Autentication rejected by server');
+			exit(1);
+		}
 
-				$agent->startSSHForwarding($ssh);
+		$agent->startSSHForwarding($ssh);
 
-				$packager = "/usr/src/freepbx-server-dev-tools/server_packaging.php";
+		$packager = "/usr/src/freepbx-server-dev-tools/server_packaging.php";
+		$ret = $ssh->exec('ls '.$packager);
+		if(trim($ret) != $packager) {
+			freepbx::out('Cant Find Package Scripts');
+			exit(1);
+		}
 
-				$ret = $ssh->exec('ls '.$packager);
-				if(trim($ret) != $packager) {
-					freepbx::out('Cant Find Package Scripts');
-					exit(1);
-				}
+		foreach ($final_status as $module => $status) {
+			$supported = freepbx::getInput('Supported Version to Publish '.$module.' for?',$supported['version']);
 
-				$ret = $ssh->exec($packager . " -s " . $supported . " -m " . $module, function($data) {
-					echo $data;
-				});
-			}
-		} else {
-			freepbx::out("ssh php libs not detected, you may has success with runing these commands:");
-			freepbx::out("yum install libssh2*",2);
-			freepbx::out("pecl install -f ssh2",2);
-			freepbx::out("Then add the required extension to php.ini");
+			$ret = $ssh->exec($packager . " -s " . $supported . " -m " . $module, function($data) {
+				echo $data;
+			});
 		}
 	}
 }
