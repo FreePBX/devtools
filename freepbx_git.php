@@ -161,7 +161,12 @@ if(isset($options['m'])) {
 				exit(0);
 			}
 		} else {
-			$stash = new Stash($username,$password);
+			try{
+				$stash = new Stash($username,$password);
+			}catch(Exception $e){
+				echo $e->getMessage().PHP_EOL;
+				return false;
+			}
 			foreach($projects as $project => $description) {
 				$repo = $stash->getRepo($options['m'],$project);
 				if ($repo === false) {

@@ -3,7 +3,7 @@ if(!class_exists('PestJSON')) {
 	require_once('pest/PestJSON.php');
 }
 class Stash {
-	private $api_url = 'http://git.freepbx.org/rest/api/1.0';
+	private $api_url = 'https://git.freepbx.org/rest/api/1.0';
 	private $pest;
 
 	/**
@@ -16,7 +16,7 @@ class Stash {
 	 * @return  string
 	 */
 	function __construct($username,$password) {
-		$this->pest = new PestJSON('http://git.freepbx.org');
+		$this->pest = new PestJSON('https://git.freepbx.org');
 		$this->pest->setupAuth($username,$password);
 		if(!$this->getUser($username)) {
 			throw new Exception('Username/Password Not Valid');
