@@ -344,7 +344,7 @@ foreach ($modules as $module) {
 	$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
 		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
-			if (!run_cmd($vars['php_-l'] . ' ' . $f, $outline, (!$vars['debug'] && !$vars['verbose']), true)) {
+			if (!run_cmd($vars['php_-l'] . ' ' . escapeshellarg($f), $outline, (!$vars['debug'] && !$vars['verbose']), true)) {
 				//add errors to array
 				$syntax_errors[] = 'syntax error detected in ' . $f . PHP_EOL;
 			}
