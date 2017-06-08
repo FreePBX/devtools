@@ -55,8 +55,10 @@ class freepbx {
 			$repo->checkout($branch);
 			freepbx::out("Done");
 		} catch (Exception $e) {
-			freepbx::out("$branch Doesnt Exist! Attempting to go lower");
-			$branch = self::getLowerBranch($branch);
+			$oldBranch = $branch;
+			$branch = self::getLowerBranch($oldBranch);
+			freepbx::out("$oldBranch Doesnt Exist! Attempting to go lower to $branch");
+			self::switchBranch($directory,$branch);
 			if($branch === false) {
 				freepbx::outn("\tCan't find any branch to work with skipping...");
 			}

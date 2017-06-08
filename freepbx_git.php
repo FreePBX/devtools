@@ -184,6 +184,9 @@ if(isset($options['m'])) {
 			$dir = $directory.'/'.$options['m'];
 			freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
 			$repo = Git::create($dir, $uri);
+			if(isset($options['switch']) && !empty($options['switch'])) {
+				freepbx::switchBranch($dir,$options['switch']);
+			}
 			$repo->add_merge_driver();
 			freepbx::out("Done");
 			$freepbx = new freepbx($username,$password);
