@@ -31,7 +31,7 @@ $help[] = array('--help', 'Show this menu and exit');
 $help[] = array('--log', 'Update module.xml\'s changelog. [Done by default if bumping]');
 $help[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples)');
 $help[] = array('--directory', 'Directory Location of modules root, always assumed to be ../freepbx from this location');
-$help[] = array('--msg', 'Optional commit message.');
+$help[] = array('--msg', 'Optional changelog/commit message.');
 $help[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
 $help[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
 $help[] = array('--forcetag', 'Force this sha1 onto the server if the tag already exists');
@@ -49,7 +49,8 @@ $longopts = array(
 	're::',
 	'verbose::',
 	'forcetag',
-	'remote::'
+	'remote::',
+	'sshuser::'
 );
 $vars = getopt('m:d::v::c::', $longopts);
 
@@ -749,18 +750,31 @@ foreach ($final_status as $module => $status) {
 }
 echo '----------------------' . PHP_EOL . PHP_EOL;
 
-if ($vars['interactive'] && !empty($supported['version']) && !empty($final_status)) {
-	$publish = freepbx::getInput('Publish?','n');
+if (!empty($supported['version']) && !empty($final_status)) {
+	if($vars['interactive'] && !isset($vars['publish'])) {
+		$publish = freepbx::getInput('Publish?','n');
+	} else {
+		$publish = isset($vars['publish']) ? 'yes' : '';
+	}
+
 	if($publish == 'y' || $publish == 'yes') {
 		$user = posix_getpwuid(posix_geteuid());
-		$username = freepbx::getInput('Username?',$user['name']);
+		if($vars['interactive'] && !isset($vars['publish'])) {
+			$username = freepbx::getInput('Username?',$user['name']);
+		} else {
+			$username = !empty($vars['sshuser']) ? $vars['sshuser'] : $user['name'];
+		}
+
+
 		$agent = new \phpseclib\System\SSH\Agent();
 		$ssh = new phpseclib\Net\SSH2('mirror1.freepbx.org');
 
 		if (!$ssh->login($username, $agent)) {
-			freepbx::out('Autentication rejected by server');
+			freepbx::out('Authentication rejected by server');
 			exit(1);
 		}
+
+		$ssh->setTimeout(false);
 
 		$agent->startSSHForwarding($ssh);
 
@@ -772,9 +786,13 @@ if ($vars['interactive'] && !empty($supported['version']) && !empty($final_statu
 		}
 
 		foreach ($final_status as $module => $status) {
-			$supported = freepbx::getInput('Supported Version to Publish '.$module.' for?',$supported['version']);
+			if($vars['interactive'] && !isset($vars['publish'])) {
+				$supported = freepbx::getInput('Supported Version to Publish '.$module.' for?',$supported['version']);
+			} else {
+				$supported = $supported['version'];
+			}
 
-			$ret = $ssh->exec($packager . " -s " . $supported . " -m " . $module, function($data) {
+			$ret = $ssh->exec($packager . " -s " . $supported . " -m " . $module . " --skipzendcheck", function($data) {
 				echo $data;
 			});
 		}
