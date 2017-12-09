@@ -56,7 +56,7 @@ $modules = array_merge($vars['m'], $vars['module']);
 
 //if no modules are set, grab all of them
 if (isset($modules) && empty($modules)) {
-	$allmods = glob($vars['directory'].'/*', GLOB_ONLYDIR); 
+	$allmods = glob($vars['directory'].'/*', GLOB_ONLYDIR);
 	foreach($allmods as $mod) {
 		$modules[] = str_replace($vars['directory'] . '/', '', $mod);
 	}
@@ -70,7 +70,7 @@ foreach($modules as $module) {
        	        exit(1);
 	} else {
 		$repo = Git::open($moddir);
-		
+
 		freepbx::out('================================== ' . $module . ' ('.$repo->active_branch().') START =========================================');
 		freepbx::out(checklog($moddir));
 		freepbx::out('================================== ' . $module . ' STOP =========================================');
@@ -80,7 +80,7 @@ foreach($modules as $module) {
 /**
  * Check Log
  *
- * This function finds that last tag for the current release and shows you 
+ * This function finds that last tag for the current release and shows you
  * any changes between them
  *
  * @param The git module directory
@@ -102,10 +102,8 @@ function checklog($moddir) {
 	//cycle through the tags and create a new array with relavant tags
 	$tagArray = array();
 	foreach ($ltags as $tag) {
-		if(preg_match('/release\/(.*)/i',$tag,$matches)) {
-			if (strpos($matches[1],$rver) !== false) {	
-				$tagArray[] = $matches[1];
-			}
+		if(preg_match('/release\/(.*)/i',$tag,$matches) && (strpos($matches[1],$rver) !== false)) {
+			$tagArray[] = $matches[1];
 		}
 	}
 
@@ -115,9 +113,8 @@ function checklog($moddir) {
 		$htag = array_pop($tagArray);
 
 		$tagref = $repo->show_ref_tag($htag);
-	
+
 		return $repo->log($tagref,'HEAD');
-	} 
+	}
 	return;
 }
-?>
