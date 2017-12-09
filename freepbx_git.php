@@ -108,7 +108,7 @@ if(isset($options['clean']) && isset($options['m'])) {
 			$repo->delete_all_tags();
 		} catch (Exception $e) {
 			freepbx::out($e->getMessage());
-			continue;
+			exit(1);
 		}
 		freepbx::out('Done');
 	}
@@ -123,7 +123,7 @@ if(isset($options['clean']) && isset($options['m'])) {
 			$repo->delete_all_tags();
 		} catch (Exception $e) {
 			freepbx::out($e->getMessage());
-			continue;
+			exit(1);
 		}
 		freepbx::out('Done');
 	}
@@ -158,7 +158,7 @@ if(isset($options['m'])) {
 			$repo = $stash->getRepo($options['r']);
 			if ($repo === false) {
 				freepbx::out("[ERROR] Unable to find ".$options['m']);
-				exit(0);
+				exit(1);
 			}
 		} else {
 			try{
@@ -288,7 +288,7 @@ if(isset($options['setup'])) {
 		$pkeys = array("freepbx");
 	}
 
-	$force = isset($options['force']) ? true : false;
+	$force = isset($options['force']);
 	$branch = isset($options['switch']) && !empty($options['switch']) ? $options['switch'] : 'develop';
 	foreach($pkeys as $k) {
 		$freepbx->setupDevRepos($directory,$force,$mode,$branch,$k);
