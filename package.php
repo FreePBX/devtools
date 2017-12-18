@@ -925,6 +925,8 @@ function package_update_changelog($mod, $msg) {
 	$xml = simplexml_load_file($mod_dir . '/module.xml');
 	$log = explode("\n", (string) $xml->changelog);
 
+	$msg = htmlspecialchars($msg, ENT_NOQUOTES);
+
 	//firt element is ususally blank, remove it
 	array_shift($log);
 
