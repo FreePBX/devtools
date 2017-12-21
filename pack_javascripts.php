@@ -181,7 +181,8 @@ foreach ($final as $f) {
 		$js[] = $data;
 		echo 'already packed!';
 	} else {
-		$js[] = JSMin::minify($data);
+		// Second param is purely for debugging
+		$js[] = JSMin::minify($data, $f);
 		echo 'done!';
 	}
 
@@ -252,6 +253,9 @@ class JSMin {
   protected $lookAhead   = null;
   protected $output      = '';
 
+  public $lineno = 0;
+  private $filename;
+
   // -- Public Static Methods --------------------------------------------------
 
   /**
@@ -260,10 +264,11 @@ class JSMin {
    * @uses __construct()
    * @uses min()
    * @param string $js Javascript to be minified
+   * @param string $filename Filename to be displayed on error
    * @return string
    */
-  public static function minify($js) {
-    $jsmin = new JSMin($js);
+  public static function minify($js, $filename = "unknown") {
+    $jsmin = new JSMin($js, $filename);
     return $jsmin->min();
   }
 
@@ -274,7 +279,8 @@ class JSMin {
    *
    * @param string $input Javascript to be minified
    */
-  public function __construct($input) {
+  public function __construct($input, $filename = "unknown") {
+    $this->filename    = $filename;
     $this->input       = str_replace("\r\n", "\n", $input);
     $this->inputLength = strlen($this->input);
   }
@@ -316,7 +322,7 @@ class JSMin {
             }
 
             if (ord($this->a) <= self::ORD_LF) {
-              throw new JSMinException('Unterminated string literal.');
+              throw new JSMinException('Unterminated string literal in file '.$this->filename.' on line '.$this->lineno);
             }
 
             if ($this->a === '\\') {
@@ -356,7 +362,7 @@ class JSMin {
                   $this->output .= $this->a;
                   $this->a       = $this->get();
                 } elseif (ord($this->a) <= self::ORD_LF) {
-                  throw new JSMinException('Unterminated regular expression set in regex literal.');
+                  throw new JSMinException('Unterminated regular expression set in regex literal in file '.$this->filename.' on line '.$this->lineno);
                 }
               }
             } elseif ($this->a === '/') {
@@ -365,7 +371,7 @@ class JSMin {
               $this->output .= $this->a;
               $this->a       = $this->get();
             } elseif (ord($this->a) <= self::ORD_LF) {
-              throw new JSMinException('Unterminated regular expression literal.');
+               throw new JSMinException('Unterminated regular expression literal in file '.$this->filename.' on line '.$this->lineno);
             }
 
             $this->output .= $this->a;
@@ -382,6 +388,7 @@ class JSMin {
    * @return string|null
    */
   protected function get() {
+
     $c = $this->lookAhead;
     $this->lookAhead = null;
 
@@ -392,6 +399,9 @@ class JSMin {
       } else {
         $c = null;
       }
+    }
+    if ($c === "\r" || $c === "\n") {
+	    $this->lineno++;
     }
 
     if ($c === "\r") {
@@ -536,20 +546,24 @@ class JSMin {
           }
 
         case '*':
-          $this->get();
+		$this->get();
 
-          for (;;) {
-						if ($this->get() != "*") {
-							throw new JSMinException('Unterminated comment.');
-						}
-						if ($this->peek() === '/') {
-							$this->get();
-							return ' ';
-						}
-          }
+		for (;;) {
+			switch($this->get()) {
+			case '*':
+				if ($this->peek() === '/') {
+					$this->get();
+					return ' ';
+				}
+				break;
 
-        default:
-          return $c;
+			case null:
+				throw new JSMinException('Unterminated comment  in file '.$this->filename.' on line '.$this->lineno);
+			}
+		}
+
+	default:
+		return $c;
       }
     }
 
