@@ -88,6 +88,11 @@ class freepbx {
 	 * @return  bool
 	 */
 	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null) {
+		$rawname = basename($directory);
+		if($rawname === 'framework') {
+			freepbx::out("Refusing to refresh framework as it will break everything. Do it manually");
+			return true;
+		}
 		exec('fwconsole ma list --format=json',$output,$ret);
 		if($ret !== 0) {
 			throw new \Exception("Unable to run fwconsole command");
@@ -182,10 +187,9 @@ class freepbx {
 
 		$repo->add_merge_driver();
 
-		$module = basename($directory);
-		if(in_array($module, $installedModules)) {
-			freepbx::outn("ReInstalling ".$module."...");
-			exec('fwconsole ma install '.$module);
+		if(in_array($rawname, $installedModules)) {
+			freepbx::outn("ReInstalling ".$rawname."...");
+			exec('fwconsole ma install '.$rawname);
 			freepbx::out("Done");
 		}
 	}
