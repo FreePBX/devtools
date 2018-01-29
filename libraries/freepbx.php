@@ -88,6 +88,21 @@ class freepbx {
 	 * @return  bool
 	 */
 	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null) {
+		exec('fwconsole ma list --format=json',$output,$ret);
+		if($ret !== 0) {
+			throw new \Exception("Unable to run fwconsole command");
+		}
+		$installedModules = array();
+		foreach($output as $line) {
+			$out = json_decode(trim($line),true);
+			if(!empty($out['data']) && is_array($out['data'])) {
+				foreach($out['data'] as $module) {
+					if($module[2] === 'Enabled') {
+						$installedModules[] = $module[0];
+					}
+				}
+			}
+		}
 		freepbx::outn("Attempting to open ".$directory."...");
 		//Attempt to open the module as a git repo, bail if it's not a repo
 		try {
@@ -166,6 +181,13 @@ class freepbx {
 		}
 
 		$repo->add_merge_driver();
+
+		$module = basename($directory);
+		if(in_array($module, $installedModules)) {
+			freepbx::outn("ReInstalling ".$module."...");
+			exec('fwconsole ma install '.$module);
+			freepbx::out("Done");
+		}
 	}
 
 	/**
