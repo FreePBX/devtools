@@ -32,8 +32,8 @@ $dir = $vars['directory'] . '/amp_conf/htdocs/admin/assets/js';
 $output=array();
 
 exec("ls $dir/*.js",$output,$ret);
-if(file_exists("$dir/bootstrap-table-extensions-1.11.0/")) {
-	exec("ls $dir/bootstrap-table-extensions-1.11.0/*.js",$output2,$ret);
+if(file_exists("$dir/bootstrap-table-extensions-dev/")) {
+	exec("ls $dir/bootstrap-table-extensions-dev/*.js",$output2,$ret);
 	$output = array_merge($output,$output2);
 }
 $final=$finalB=array();
@@ -100,6 +100,7 @@ if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
 		"|$dir/recorderWorker\.js|",
 		"|$dir/moment-with-locales\.min\.js|",
 		"|$dir/moment-timezone\.min\.js|",
+		"|$dir/moment-duration-format-\.js|",
 		"|$dir/browser-locale\.min\.js|"
 	);
 } else {
@@ -146,6 +147,9 @@ foreach ($output as $file) {
 	} else {
 		//add files
 		switch(true){
+			case preg_match("|$dir/moment-duration-format-.*\.js|",$file):
+				$finalB[] = $file;
+			break;
 			case preg_match("|$dir/moment-with-locales-.*\.min\.js|",$file):
 				$finalB[] = $file;
 			break;
