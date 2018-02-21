@@ -27,13 +27,13 @@ class Translation {
 		//Check to make sure get text is installed
 		exec("/usr/bin/env xgettext --version 2>/dev/null",$out,$ret);
 		if($ret !== 0) {
-			echo ("Error with xgettext, is it installed?\n");
+			echo "Error with xgettext, is it installed?\n";
 			exit($ret);
 		}
 		//check to make sure msg merge is installed as well
 		exec("/usr/bin/env msgmerge --version 2>/dev/null",$out,$ret);
 		if($ret !== 0) {
-			echo ("Error with msgmerge, is it installed?\n");
+			echo "Error with msgmerge, is it installed?\n";
 			exit($ret);
 		}
 		$xml = simplexml_load_file($cwd."/module.xml");
@@ -422,9 +422,12 @@ EOF;
 		$files = array();
 		while (true) {
 			$file = "$dir/.gitignore";
-			if (is_file($file)) $files[] = $file;
-			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
-			if (dirname($dir) === '.') break;                         # and here
+			if (is_file($file)) {
+				$files[] = $file;
+			}
+			if ((is_dir("$dir/.git") && !is_link("$dir/.git")) || dirname($dir) === '.') {
+				break; //stop here
+			}
 			$dir = dirname($dir);
 		}
 		return $files;
@@ -439,9 +442,12 @@ EOF;
 		$files = array();
 		while (true) {
 			$file = "$dir/.langignore";
-			if (is_file($file)) $files[] = $file;
-			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
-			if (dirname($dir) === '.') break;                         # and here
+			if (is_file($file)) {
+				$files[] = $file;
+			}
+			if ((is_dir("$dir/.git") && !is_link("$dir/.git")) || dirname($dir) === '.') {
+			 break; //stop here
+			}
 			$dir = dirname($dir);
 		}
 		return $files;
@@ -458,9 +464,13 @@ EOF;
 		$lines = file($file);
 		foreach ($lines as $line) {
 			$line = trim($line);
-			if ($line === '') continue;                 // empty line
-			if (substr($line, 0, 1) == '#') continue;   // a comment
-			if (substr($line, 0, 1) == '!') {           // negated glob
+			if ($line === '') {
+				continue; // empty line
+			}
+			if (substr($line, 0, 1) == '#') {
+				continue; // a comment
+			}
+			if (substr($line, 0, 1) == '!') { // negated glob
 				$line = substr($line, 1);
 				$matches = array_diff($matches, array("$dir/$line"));
 				continue;
@@ -476,9 +486,8 @@ EOF;
 
 	/**
 	 * Parse all Ignore Files
-	 * @param string $directory The starting directory
 	 */
-	private function parseIgnoreFiles($directory) {
+	private function parseIgnoreFiles() {
 		$gitIgnoreFiles = $this->find_gitignore_files($this->cwd);
 		$langIgnoreFiles = $this->find_langignore_files($this->cwd);
 		$ignoreFiles = array_merge($gitIgnoreFiles, $langIgnoreFiles);

@@ -17,8 +17,8 @@ $helpArray = array(
 
 //if help was requested, show help and exit
 if (isset($vars['h'])) {
-        echo freepbx::showHelp(basename(__FILE__),$helpArray,true);
-        exit(0);
+	echo freepbx::showHelp(basename(__FILE__),$helpArray,true);
+	exit(0);
 }
 
 if(isset($vars['help'])) {
@@ -58,49 +58,49 @@ Array
 $xml = simplexml_load_file($vars['directory']."/module.xml");
 if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
 	$skip = array(
-			"|$dir/progress-polyfill.min.js|",
-			"|$dir/jquery-.*\.js|",
-			"|$dir/jquery-ui-.*\.js$|",
-			"|$dir/jquery.selector-set-.*\.js|",
-			"|$dir/selector-set-.*\.js|",
-			"|$dir/less-.*\.js|",
-			"|$dir/toastr-.*\.js|",
-			"|$libfreepbx|",
-			"|$dir/bootstrap-.*\.js|",
-			"|$dir/html5shiv\.js|",
-			"|$dir/module_admin\.js|",
-			"|$dir/modernizr\.js|",
-			"|$dir/browser-support\.js|",
-			"|$dir/outdatedbrowser\.min\.js|",
-			"|$dir/selectivizr\.js|",
-			"|$dir/typeahead\.bundle\.js|",
-			"|$dir/typeahead\.bundle\.min\.js|",
-			"|$dir/search\.js|",
-			"|$dir/respond\.min\.js|",
-			"|$dir/jed\.js|",
-			"|$dir/zxcvbn\.js|",
-			"|$dir/bootstrap-table-locale|",
-			"|$dir/bootstrap-multiselect\.js|",
-			"|$dir/chosen\.jquery\.min\.js|",
-			"|$dir/kclc\.js|",
-			"|$dir/eventsource\.min\.js|",
-			"|$dir/jquery\.fileupload.*\.js|",
-			"|$dir/jquery\.iframe-transport\.js|",
-			"|$dir/load-image\.all\.min\.js|",
-			"|$dir/jquery\.smartWizard\.js|",
-			"|$dir/modgettext\.js|",
-			"|$dir/Sortable\.min\.js|",
-			"|$dir/toastr-.*\.js|",
-			"|$dir/class\.js|",
-			"|$dir/jquery\.jplayer\.min\.js|",
-			"|$dir/XMLHttpRequest\.js|",
-			"|$dir/jquery\.form\.min\.js|",
-			"|$dir/selectize\.min\.js|",
-			"|$dir/recorder\.js|",
-			"|$dir/recorderWorker\.js|",
-			"|$dir/moment-with-locales\.min\.js|",
-			"|$dir/moment-timezone\.min\.js|",
-			"|$dir/browser-locale\.min\.js|"
+		"|$dir/progress-polyfill.min.js|",
+		"|$dir/jquery-.*\.js|",
+		"|$dir/jquery-ui-.*\.js$|",
+		"|$dir/jquery.selector-set-.*\.js|",
+		"|$dir/selector-set-.*\.js|",
+		"|$dir/less-.*\.js|",
+		"|$dir/toastr-.*\.js|",
+		"|$libfreepbx|",
+		"|$dir/bootstrap-.*\.js|",
+		"|$dir/html5shiv\.js|",
+		"|$dir/module_admin\.js|",
+		"|$dir/modernizr\.js|",
+		"|$dir/browser-support\.js|",
+		"|$dir/outdatedbrowser\.min\.js|",
+		"|$dir/selectivizr\.js|",
+		"|$dir/typeahead\.bundle\.js|",
+		"|$dir/typeahead\.bundle\.min\.js|",
+		"|$dir/search\.js|",
+		"|$dir/respond\.min\.js|",
+		"|$dir/jed\.js|",
+		"|$dir/zxcvbn\.js|",
+		"|$dir/bootstrap-table-locale|",
+		"|$dir/bootstrap-multiselect\.js|",
+		"|$dir/chosen\.jquery\.min\.js|",
+		"|$dir/kclc\.js|",
+		"|$dir/eventsource\.min\.js|",
+		"|$dir/jquery\.fileupload.*\.js|",
+		"|$dir/jquery\.iframe-transport\.js|",
+		"|$dir/load-image\.all\.min\.js|",
+		"|$dir/jquery\.smartWizard\.js|",
+		"|$dir/modgettext\.js|",
+		"|$dir/Sortable\.min\.js|",
+		"|$dir/toastr-.*\.js|",
+		"|$dir/class\.js|",
+		"|$dir/jquery\.jplayer\.min\.js|",
+		"|$dir/XMLHttpRequest\.js|",
+		"|$dir/jquery\.form\.min\.js|",
+		"|$dir/selectize\.min\.js|",
+		"|$dir/recorder\.js|",
+		"|$dir/recorderWorker\.js|",
+		"|$dir/moment-with-locales\.min\.js|",
+		"|$dir/moment-timezone\.min\.js|",
+		"|$dir/browser-locale\.min\.js|"
 	);
 } else {
 	$skip = array(
@@ -117,9 +117,7 @@ if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
 		"|$dir/module_admin\.js|",
 		"|$dir/eventsource-.*\.min\.js|",
 	);
-	$finalB = array(
-
-	);
+	$finalB = array();
 }
 
 foreach ($output as $file) {
@@ -183,7 +181,8 @@ foreach ($final as $f) {
 		$js[] = $data;
 		echo 'already packed!';
 	} else {
-		$js[] = JSMin::minify($data);
+		// Second param is purely for debugging
+		$js[] = JSMin::minify($data, $f);
 		echo 'done!';
 	}
 
@@ -254,6 +253,9 @@ class JSMin {
   protected $lookAhead   = null;
   protected $output      = '';
 
+  public $lineno = 0;
+  private $filename;
+
   // -- Public Static Methods --------------------------------------------------
 
   /**
@@ -262,10 +264,11 @@ class JSMin {
    * @uses __construct()
    * @uses min()
    * @param string $js Javascript to be minified
+   * @param string $filename Filename to be displayed on error
    * @return string
    */
-  public static function minify($js) {
-    $jsmin = new JSMin($js);
+  public static function minify($js, $filename = "unknown") {
+    $jsmin = new JSMin($js, $filename);
     return $jsmin->min();
   }
 
@@ -276,7 +279,8 @@ class JSMin {
    *
    * @param string $input Javascript to be minified
    */
-  public function __construct($input) {
+  public function __construct($input, $filename = "unknown") {
+    $this->filename    = $filename;
     $this->input       = str_replace("\r\n", "\n", $input);
     $this->inputLength = strlen($this->input);
   }
@@ -318,7 +322,7 @@ class JSMin {
             }
 
             if (ord($this->a) <= self::ORD_LF) {
-              throw new JSMinException('Unterminated string literal.');
+              throw new JSMinException('Unterminated string literal in file '.$this->filename.' on line '.$this->lineno);
             }
 
             if ($this->a === '\\') {
@@ -358,7 +362,7 @@ class JSMin {
                   $this->output .= $this->a;
                   $this->a       = $this->get();
                 } elseif (ord($this->a) <= self::ORD_LF) {
-                  throw new JSMinException('Unterminated regular expression set in regex literal.');
+                  throw new JSMinException('Unterminated regular expression set in regex literal in file '.$this->filename.' on line '.$this->lineno);
                 }
               }
             } elseif ($this->a === '/') {
@@ -367,7 +371,7 @@ class JSMin {
               $this->output .= $this->a;
               $this->a       = $this->get();
             } elseif (ord($this->a) <= self::ORD_LF) {
-              throw new JSMinException('Unterminated regular expression literal.');
+               throw new JSMinException('Unterminated regular expression literal in file '.$this->filename.' on line '.$this->lineno);
             }
 
             $this->output .= $this->a;
@@ -384,6 +388,7 @@ class JSMin {
    * @return string|null
    */
   protected function get() {
+
     $c = $this->lookAhead;
     $this->lookAhead = null;
 
@@ -394,6 +399,9 @@ class JSMin {
       } else {
         $c = null;
       }
+    }
+    if ($c === "\r" || $c === "\n") {
+	    $this->lineno++;
     }
 
     if ($c === "\r") {
@@ -538,24 +546,24 @@ class JSMin {
           }
 
         case '*':
-          $this->get();
+		$this->get();
 
-          for (;;) {
-            switch($this->get()) {
-              case '*':
-                if ($this->peek() === '/') {
-                  $this->get();
-                  return ' ';
-                }
-                break;
+		for (;;) {
+			switch($this->get()) {
+			case '*':
+				if ($this->peek() === '/') {
+					$this->get();
+					return ' ';
+				}
+				break;
 
-              case null:
-                throw new JSMinException('Unterminated comment.');
-            }
-          }
+			case null:
+				throw new JSMinException('Unterminated comment  in file '.$this->filename.' on line '.$this->lineno);
+			}
+		}
 
-        default:
-          return $c;
+	default:
+		return $c;
       }
     }
 

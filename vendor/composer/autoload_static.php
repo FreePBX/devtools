@@ -25,6 +25,10 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
         array (
             'Github\\' => 7,
         ),
+        'F' => 
+        array (
+            'Faker\\' => 6,
+        ),
         'D' => 
         array (
             'Doctrine\\Instantiator\\' => 22,
@@ -47,6 +51,10 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
         'Github\\' => 
         array (
             0 => __DIR__ . '/..' . '/knplabs/github-api/lib/Github',
+        ),
+        'Faker\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fzaninotto/faker/src/Faker',
         ),
         'Doctrine\\Instantiator\\' => 
         array (

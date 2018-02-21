@@ -31,7 +31,7 @@ $help[] = array('--help', 'Show this menu and exit');
 $help[] = array('--log', 'Update module.xml\'s changelog. [Done by default if bumping]');
 $help[] = array('--module', 'Module to be packaged. You can use one module per --module argument (for multiples)');
 $help[] = array('--directory', 'Directory Location of modules root, always assumed to be ../freepbx from this location');
-$help[] = array('--msg', 'Optional commit message.');
+$help[] = array('--msg', 'Optional changelog/commit message.');
 $help[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. "re #627...")');
 $help[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
 $help[] = array('--forcetag', 'Force this sha1 onto the server if the tag already exists');
@@ -49,7 +49,8 @@ $longopts = array(
 	're::',
 	'verbose::',
 	'forcetag',
-	'remote::'
+	'remote::',
+	'sshuser::'
 );
 $vars = getopt('m:d::v::c::', $longopts);
 
@@ -343,11 +344,9 @@ foreach ($modules as $module) {
 	$syntax_errors = array();
 	$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
 	foreach ($files as $f) {
-		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens'])) {
-			if (!run_cmd($vars['php_-l'] . ' ' . escapeshellarg($f), $outline, (!$vars['debug'] && !$vars['verbose']), true)) {
-				//add errors to array
-				$syntax_errors[] = 'syntax error detected in ' . $f . PHP_EOL;
-			}
+		if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens']) && (!run_cmd($vars['php_-l'] . ' ' . escapeshellarg($f), $outline, (!$vars['debug'] && !$vars['verbose']), true))) {
+			//add errors to array
+			$syntax_errors[] = 'syntax error detected in ' . $f . PHP_EOL;
 		}
 	}
 	unset($files);
@@ -717,22 +716,20 @@ HERE;
 		freepbx::out("Debugging, Not Ran");
 	}
 
-	if(freepbx::version_compare_freepbx((string)$masterXML->supported->version, $supported['version'], "=")) {
-		if(freepbx::version_compare_freepbx((string)$masterXML->version, $ver, "<=")) {
-			freepbx::outn("\t\tMaster is the same supported release as this branch. Merging release/".$mver." into master...");
-			if(!$vars['debug']) {
-				$repo->checkout("master");
-				$merged = $repo->pull($vars['remote'],"release/".$mver);
-				if(!$merged) {
-					freepbx::out("\t\t\tMerge from release/".$mver." into master failed");
-					freepbx::out("Module " . $module . " will not be tagged!");
-					continue;
-				}
-				$repo->push($vars['remote'], "master");
-				$repo->checkout("release/".$mver);
+	if(freepbx::version_compare_freepbx((string)$masterXML->supported->version, $supported['version'], "=") && (freepbx::version_compare_freepbx((string)$masterXML->version, $ver, "<="))) {
+		freepbx::outn("\t\tMaster is the same supported release as this branch. Merging release/".$mver." into master...");
+		if(!$vars['debug']) {
+			$repo->checkout("master");
+			$merged = $repo->pull($vars['remote'],"release/".$mver);
+			if(!$merged) {
+				freepbx::out("\t\t\tMerge from release/".$mver." into master failed");
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
 			}
-			freepbx::out("Done");
+			$repo->push($vars['remote'], "master");
+			$repo->checkout("release/".$mver);
 		}
+		freepbx::out("Done");
 	}
 
 	$tense = !$vars['debug'] ? 'has' : 'would have';
@@ -749,18 +746,31 @@ foreach ($final_status as $module => $status) {
 }
 echo '----------------------' . PHP_EOL . PHP_EOL;
 
-if ($vars['interactive'] && !empty($supported['version']) && !empty($final_status)) {
-	$publish = freepbx::getInput('Publish?','n');
+if (!empty($supported['version']) && !empty($final_status)) {
+	if($vars['interactive'] && !isset($vars['publish'])) {
+		$publish = freepbx::getInput('Publish?','n');
+	} else {
+		$publish = isset($vars['publish']) ? 'yes' : '';
+	}
+
 	if($publish == 'y' || $publish == 'yes') {
 		$user = posix_getpwuid(posix_geteuid());
-		$username = freepbx::getInput('Username?',$user['name']);
+		if($vars['interactive'] && !isset($vars['publish'])) {
+			$username = freepbx::getInput('Username?',$user['name']);
+		} else {
+			$username = !empty($vars['sshuser']) ? $vars['sshuser'] : $user['name'];
+		}
+
+
 		$agent = new \phpseclib\System\SSH\Agent();
 		$ssh = new phpseclib\Net\SSH2('mirror1.freepbx.org');
 
 		if (!$ssh->login($username, $agent)) {
-			freepbx::out('Autentication rejected by server');
+			freepbx::out('Authentication rejected by server');
 			exit(1);
 		}
+
+		$ssh->setTimeout(false);
 
 		$agent->startSSHForwarding($ssh);
 
@@ -772,9 +782,13 @@ if ($vars['interactive'] && !empty($supported['version']) && !empty($final_statu
 		}
 
 		foreach ($final_status as $module => $status) {
-			$supported = freepbx::getInput('Supported Version to Publish '.$module.' for?',$supported['version']);
+			if($vars['interactive'] && !isset($vars['publish'])) {
+				$supported = freepbx::getInput('Supported Version to Publish '.$module.' for?',$supported['version']);
+			} else {
+				$supported = $supported['version'];
+			}
 
-			$ret = $ssh->exec($packager . " -s " . $supported . " -m " . $module, function($data) {
+			$ret = $ssh->exec($packager . " -s " . $supported . " -m " . $module . " --skipzendcheck", function($data) {
 				echo $data;
 			});
 		}
@@ -834,7 +848,7 @@ function package_scandirr($dir, $absolute = false, $exclude_list=array()) {
 	return $list;
 }
 
-function fix_publisher($mod) {
+function fix_publisher() {
 	global $mod_dir, $vars;
 	$invalidPublishers = array(
 		"Schmooze Com Inc",
@@ -911,6 +925,8 @@ function package_update_changelog($mod, $msg) {
 	$xml = simplexml_load_file($mod_dir . '/module.xml');
 	$log = explode("\n", (string) $xml->changelog);
 
+	$msg = htmlspecialchars($msg, ENT_NOQUOTES);
+
 	//firt element is ususally blank, remove it
 	array_shift($log);
 
@@ -922,16 +938,13 @@ function package_update_changelog($mod, $msg) {
 	 */
 
 	//if the current message is already the last, dont duplicate it
-	if ($log[0] == $ver . ' ' . $msg) {
-		if ($vars['verbose'] || $vars['debug']) {
-			echo 'No need to update changelog - last entry matches proposed entry';
-			return true;
-		}
+	if ($log[0] == $ver . ' ' . $msg && ($vars['verbose'] || $vars['debug'])) {
+		echo 'No need to update changelog - last entry matches proposed entry';
+		return true;
 	}
 
 	//add new mesage
 	array_unshift($log, '*' . $ver . '*' . ' ' . $msg);
-
 
 	if ($vars['verbose']) {
 		echo 'Adding to ' . $mod . 's changelog: ' . $ver . ' ' . $msg;
@@ -1002,7 +1015,7 @@ function update_devtools() {
 	}
 	if(!$merged) {
 		freepbx::out("\t\t\tMerge from master to this branch failed");
-		freepbx::out("Module " . $module . " will not be tagged!");
+		freepbx::out("devtools will not be merged!");
 		exit();
 	}
 	if($stashable) {

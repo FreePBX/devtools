@@ -29,13 +29,13 @@ class xml2Array {
 	var $attributes;
 	var $data;
 
-	function __construct($strInputXML = false) {
+	public function __construct($strInputXML = false) {
 		if (!empty($strInputXML)) {
 			$this->data = $this->parseAdvanced($strInputXML);
 		}
 	}
 
-	function parse($strInputXML) {
+	public function parse($strInputXML) {
 
 			$this->resParser = xml_parser_create ();
 			xml_set_object($this->resParser,$this);
@@ -54,12 +54,12 @@ class xml2Array {
 
 			return $this->arrOutput;
 	}
-	function tagOpen($parser, $name, $attrs) {
+	public function tagOpen($parser, $name, $attrs) {
 		$tag=array("name"=>$name,"attrs"=>$attrs);
 		@array_push($this->arrOutput,$tag);
 	}
 
-	function tagData($parser, $tagData) {
+	public function tagData($parser, $tagData) {
 		if(trim($tagData)) {
 			if(isset($this->arrOutput[count($this->arrOutput)-1]['tagData'])) {
 				$this->arrOutput[count($this->arrOutput)-1]['tagData'] .= "\n".$tagData;
@@ -70,12 +70,12 @@ class xml2Array {
 		}
 	}
 
-	function tagClosed($parser, $name) {
+	public function tagClosed($parser, $name) {
 		@$this->arrOutput[count($this->arrOutput)-2]['children'][] = isset($this->arrOutput[count($this->arrOutput)-1]) ? $this->arrOutput[count($this->arrOutput)-1] : '';
 		array_pop($this->arrOutput);
 	}
 
-	function recursive_parseLevel($items, &$attrs, $path = "") {
+	public function recursive_parseLevel($items, &$attrs, $path = "") {
 		$array = array();
 		foreach (array_keys($items) as $idx) {
 			@$items[$idx]['name'] = isset($items[$idx]['name']) ? strtolower($items[$idx]['name']) : '';
@@ -127,7 +127,7 @@ class xml2Array {
 		return $array;
 	}
 
-	function parseAdvanced($strInputXML) {
+	public function parseAdvanced($strInputXML) {
 		$array = $this->parse($strInputXML);
 		$this->attributes = array();
 		return $this->data = $this->recursive_parseLevel($array, $this->attributes);
@@ -138,7 +138,7 @@ class xml2Array {
 	Return a much more manageable assoc array with module data.
 */
 class xml2ModuleArray extends xml2Array {
-	function parseModulesXML($strInputXML) {
+	public function parseModulesXML($strInputXML) {
 		$array = $this->parseAdvanced($strInputXML);
 		if (isset($array['xml'])) {
 			foreach ($array['xml'] as $key=>$module) {
