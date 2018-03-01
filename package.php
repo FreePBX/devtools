@@ -381,6 +381,28 @@ foreach ($modules as $module) {
 		freepbx::out("Done");
 	}
 
+	freepbx::outn("\tChecking for symlinks...");
+	$cmd = "find $mod_dir -type l -print";
+	exec($cmd, $output, $ret);
+	if ($output) {
+		freepbx::out("Error! Found Symlinks! Cannot package");
+		var_dump($output);
+		exit;
+	} else {
+		freepbx::out("None found");
+	}
+
+	freepbx::outn("\tChecking for bad files...");
+	$cmd = "find $mod_dir -path $mod_dir/.git -prune -o -name .DS_Store -o -name *swp -o -regex '.*/[0-9]+' -print";
+	exec($cmd, $output, $ret);
+	if ($output) {
+		freepbx::out("Error! Found Bad files! Cannot package");
+		var_dump($output);
+		exit;
+	} else {
+		freepbx::out("None found");
+	}
+
 	//run unit tests
 	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.php')) {
 		freepbx::outn("\tDetected Unit Tests...");
