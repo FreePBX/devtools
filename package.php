@@ -382,7 +382,7 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::outn("\tChecking for symlinks...");
-	$cmd = "find $mod_dir -type l -print";
+	$cmd = "find $mod_dir -path $mod_dir/node -prune -o -type l -print";
 	exec($cmd, $output, $ret);
 	if ($output) {
 		freepbx::out("Error! Found Symlinks! Cannot package");
