@@ -387,7 +387,7 @@ foreach ($modules as $module) {
 		if ($output) {
 			freepbx::out("Error! Found Symlinks! Cannot package");
 			var_dump($output);
-			exit;
+			exit(255);
 		} else {
 			freepbx::out("None found");
 		}
@@ -399,7 +399,7 @@ foreach ($modules as $module) {
 	if ($output) {
 		freepbx::out("Error! Found Bad files! Cannot package");
 		var_dump($output);
-		exit;
+		exit(255);
 	} else {
 		freepbx::out("None found");
 	}
