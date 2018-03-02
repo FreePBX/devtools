@@ -379,17 +379,18 @@ foreach ($modules as $module) {
 		`$composer dump-autoload --optimize`;
 		chdir($pushd);
 		freepbx::out("Done");
-	}
-
-	freepbx::outn("\tChecking for symlinks...");
-	$cmd = "find $mod_dir -path $mod_dir/node -prune -o -type l -print";
-	exec($cmd, $output, $ret);
-	if ($output) {
-		freepbx::out("Error! Found Symlinks! Cannot package");
-		var_dump($output);
-		exit;
 	} else {
-		freepbx::out("None found");
+		// Framework is allowed to have symlinks
+		freepbx::outn("\tChecking for symlinks...");
+		$cmd = "find $mod_dir -path $mod_dir/node -prune -o -type l -print";
+		exec($cmd, $output, $ret);
+		if ($output) {
+			freepbx::out("Error! Found Symlinks! Cannot package");
+			var_dump($output);
+			exit;
+		} else {
+			freepbx::out("None found");
+		}
 	}
 
 	freepbx::outn("\tChecking for bad files...");
