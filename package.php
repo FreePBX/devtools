@@ -394,7 +394,7 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::outn("\tChecking for bad files...");
-	$cmd = "find $mod_dir -path $mod_dir/.git -prune -o -name .DS_Store -o -name *swp -o -regex '.*/[0-9]+' -print";
+	$cmd = "find $mod_dir -path $mod_dir/.git -prune -o -type f -a \( -name .DS_Store -o -name *swp -o -regex '.*/[0-9]+' \) -print";
 	exec($cmd, $output, $ret);
 	if ($output) {
 		freepbx::out("Error! Found Bad files! Cannot package");
