@@ -260,10 +260,10 @@ EOF;
 			//If not then revert to the old Pot file
 			//this is so we dont have useless commits
 			//Remove the date which is usually the only thing that changes
-			$tmpOldPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$oldPotFile);
+			$tmpOldPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$potFile);
 			$tmpNewPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$newPotFile);
 			if(strcmp($tmpOldPotFile, $tmpNewPotFile) === 0) {
-				file_put_contents($potFile, $oldPotFile);
+				file_put_contents($potFile, $potFile);
 			}
 
 			//Remove the .tmp file created above
