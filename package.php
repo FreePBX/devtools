@@ -397,9 +397,9 @@ foreach ($modules as $module) {
 	$cmd = "find $mod_dir -path $mod_dir/.git -prune -o -type f -a \( -name *swp -o -regex '.*/[0-9]+' \) -print";
 	exec($cmd, $output, $ret);
 	if ($output) {
-		freepbx::out("Error! Found Bad files! Cannot package");
+		freepbx::out("Bad files might have been found. Please check");
 		var_dump($output);
-		exit(255);
+		//exit(255);
 	} else {
 		freepbx::out("None found");
 	}
