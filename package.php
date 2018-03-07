@@ -385,9 +385,9 @@ foreach ($modules as $module) {
 		$cmd = "find $mod_dir -path $mod_dir/node -prune -o -type l -print";
 		exec($cmd, $output, $ret);
 		if ($output) {
-			freepbx::out("Error! Found Symlinks! Cannot package");
-			var_dump($output);
-			exit(255);
+			freepbx::out("Error! Found Symlinks! Make sure these are ok!");
+			//var_dump($output);
+			//exit(255);
 		} else {
 			freepbx::out("None found");
 		}
