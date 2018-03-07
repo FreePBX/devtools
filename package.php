@@ -386,7 +386,7 @@ foreach ($modules as $module) {
 		exec($cmd, $output, $ret);
 		if ($output) {
 			freepbx::out("Error! Found Symlinks! Make sure these are ok!");
-			//var_dump($output);
+			var_dump($output);
 			//exit(255);
 		} else {
 			freepbx::out("None found");
