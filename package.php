@@ -367,6 +367,9 @@ foreach ($modules as $module) {
 		throw new \Exception("Composer file missing. This repo should contain the composer phar");
 	}
 
+	$translation = new Translation($mod_dir);
+	$ignored = $translation->parseIgnoreFiles();
+	$skip = "\( -not -path ".implode(" -not -path $mod_dir/",$ignored)." \)";
 	// Do some framework-specifc things.
 	if($module == 'framework') {
 		freepbx::outn("\tFramework detected!\n\t\tPackaging javascripts...");
@@ -382,24 +385,24 @@ foreach ($modules as $module) {
 	} else {
 		// Framework is allowed to have symlinks
 		freepbx::outn("\tChecking for symlinks...");
-		$cmd = "find $mod_dir -path $mod_dir/node -prune -o -type l -print";
+		$cmd = "find $mod_dir -path $mod_dir/node -prune -o -type l $skip -print";
 		exec($cmd, $output, $ret);
 		if ($output) {
 			freepbx::out("Error! Found Symlinks! Make sure these are ok!");
 			var_dump($output);
-			//exit(255);
+			exit(255);
 		} else {
 			freepbx::out("None found");
 		}
 	}
 
 	freepbx::outn("\tChecking for bad files...");
-	$cmd = "find $mod_dir -path $mod_dir/.git -prune -o -type f -a \( -name *swp -o -regex '.*/[0-9]+' \) -print";
+	$cmd = "find $mod_dir -path $mod_dir/.git -prune -o -type f -a \( -name *swp -o -regex '.*/[0-9]+' \) $skip -print";
 	exec($cmd, $output, $ret);
 	if ($output) {
 		freepbx::out("Bad files might have been found. Please check");
 		var_dump($output);
-		//exit(255);
+		exit(255);
 	} else {
 		freepbx::out("None found");
 	}
@@ -559,7 +562,6 @@ HERE;
 
 	freepbx::out("\tProcessing localizations...");
 	freepbx::outn("\t\tUpdating master localization...");
-	$translation = new Translation($mod_dir);
 	if(!preg_match('/(core|framework)$/i',$mod_dir)) {
 		//if no i18n folder then make a spanish one!
 		if(!file_exists($mod_dir.'/i18n')) {

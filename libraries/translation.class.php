@@ -458,7 +458,7 @@ EOF;
 	 * @param  string $file .gitignore file to parse
 	 * @return array       File list to ignore
 	 */
-	private function parse_git_ignore_file($file) { // $file = '/absolute/path/to/.gitignore'
+	private function parse_ignore_file($file) { // $file = '/absolute/path/to/.gitignore'
 		$dir = dirname($file);
 		$matches = array();
 		$lines = file($file);
@@ -487,7 +487,7 @@ EOF;
 	/**
 	 * Parse all Ignore Files
 	 */
-	private function parseIgnoreFiles() {
+	public function parseIgnoreFiles() {
 		$gitIgnoreFiles = $this->find_gitignore_files($this->cwd);
 		$langIgnoreFiles = $this->find_langignore_files($this->cwd);
 		$ignoreFiles = array_merge($gitIgnoreFiles, $langIgnoreFiles);
@@ -496,7 +496,7 @@ EOF;
 		}
 		$ignores = array();
 		foreach($ignoreFiles as $file) {
-			$i = $this->parse_git_ignore_file($file);
+			$i = $this->parse_ignore_file($file);
 			if(!empty($i) && is_array($i)) {
 				$ignores = array_merge($i, $ignores);
 			}
