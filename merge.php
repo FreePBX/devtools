@@ -145,7 +145,7 @@ switch(true) {
 			array(
 				'name' => $rawname,
 				'description' => "Module of FreePBX (".trim($name).") :: ".trim(strip_tags(str_replace(array("\r", "\n"), '', $description))),
-				'default_branch' => 'release/13.0',
+				'default_branch' => 'release/'.$options['updatemaster'],
 				'homepage' => 'http://www.freepbx.org',
 				"has_issues" => false,
 				"has_wiki" => false,

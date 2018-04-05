@@ -36,12 +36,12 @@ if(file_exists("$dir/bootstrap-table-extensions-dev/")) {
 	exec("ls $dir/bootstrap-table-extensions-dev/*.js",$output2,$ret);
 	$output = array_merge($output,$output2);
 }
-$final=$finalB=array();
+$final=$firstJS=$lastJS=array();
 /*
  * to order js files: files will be appened to the array in the order they appear
  * in the switch statmenet below. To give a file priority, create a case for it and
- * add it to the $finalB array. All other files will be appended to the $final array.
- * $finalB is then merged with $final, with $finalB being put first
+ * add it to the $firstJS array. All other files will be appended to the $final array.
+ * $firstJS is then merged with $final, with $firstJS being put first
  */
 /*
 Array
@@ -118,7 +118,7 @@ if(version_compare_freepbx((string)$xml->version,"14.0","<")) {
 		"|$dir/module_admin\.js|",
 		"|$dir/eventsource-.*\.min\.js|",
 	);
-	$finalB = array();
+	$firstJS = array();
 }
 
 foreach ($output as $file) {
@@ -135,10 +135,10 @@ foreach ($output as $file) {
 		//add files
 		switch(true){
 			case preg_match("|$dir/jquery\.cookie\.js|",$file):
-				$finalB[] = $file;
+				$firstJS[] = $file;
 			break;
 			case $file==$dir.'/script.legacy.js'://legacy script
-				$finalB[] = $file;
+				$firstJS[] = $file;
 			break;
 			case $file != $dir.'/script.legacy.js'://default
 				$final[] = $file;
@@ -148,13 +148,13 @@ foreach ($output as $file) {
 		//add files
 		switch(true){
 			case preg_match("|$dir/moment-duration-format-.*\.js|",$file):
-				$finalB[] = $file;
+				$lastJS[] = $file;
 			break;
 			case preg_match("|$dir/moment-with-locales-.*\.min\.js|",$file):
-				$finalB[] = $file;
+				$firstJS[] = $file;
 			break;
 			case $file==$dir.'/script.legacy.js'://legacy script
-				$finalB[] = $file;
+				$firstJS[] = $file;
 			break;
 			case $file != $dir.'/script.legacy.js'://default
 				$final[] = $file;
@@ -163,10 +163,11 @@ foreach ($output as $file) {
 	}
 }
 
-sort($finalB);
+sort($lastJS);
+sort($firstJS);
 sort($final);
 
-$final=array_merge($finalB,$final);
+$final=array_merge($firstJS,$final,$lastJS);
 
 echo "\narray(\n";
 foreach($final as $f) {
