@@ -1,7 +1,6 @@
 #!/usr/bin/env php
 <?php
-//deprecated no longer usered see https://issues.freepbx.org/browse/FREEPBX-17228
-exit(0);
+exit(0);//no longer needed
 require_once('libraries/freepbx.php');
 
 //get cli opts
