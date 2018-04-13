@@ -390,7 +390,7 @@ foreach ($modules as $module) {
 		$cmd = "find $mod_dir $skip -type l -print";
 		exec($cmd, $output, $ret);
 		if ($output) {
-			freepbx::out("Error! Found Symlinks! Make sure these are ok!");
+			freepbx::out("Error! Found Symlinks!");
 			var_dump($output);
 			exit(255);
 		} else {
@@ -402,7 +402,7 @@ foreach ($modules as $module) {
 	$cmd = "find $mod_dir $skip -type f -a \( -name *swp -o -regex '.*/[0-9]+' \) -print";
 	exec($cmd, $output, $ret);
 	if ($output) {
-		freepbx::out("Bad files might have been found. Please check");
+		freepbx::out("Bad files have been found!");
 		var_dump($output);
 		exit(255);
 	} else {
