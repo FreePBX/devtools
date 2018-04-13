@@ -477,7 +477,7 @@ EOF;
 			} elseif(preg_match('/\*/i',$line)) {
 				$files = glob("$dir/$line");
 			} else {
-				$files = array("$line");
+				$files = array("$dir/$line");
 			}
 			$matches = array_merge($matches, $files);
 		}
