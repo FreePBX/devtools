@@ -371,7 +371,12 @@ foreach ($modules as $module) {
 	$ignored = $translation->parseIgnoreFiles();
 	$ignored[] = $mod_dir."/node";
 	$ignored[] = $mod_dir."/.git";
-	$skip = "\( -not -path ".implode(" -not -path ",$ignored)." \)";
+
+	array_walk($ignored, function(&$value, $key){
+		$value = rtrim($value, '/');
+	});
+
+	$skip = "\( -path ".implode(" -o -path ",$ignored)." \)";
 	// Do some framework-specifc things.
 	if($module == 'framework') {
 		freepbx::outn("\tFramework detected!\n\t\tPackaging javascripts...");
@@ -387,7 +392,7 @@ foreach ($modules as $module) {
 	} else {
 		// Framework is allowed to have symlinks
 		freepbx::outn("\tChecking for symlinks...");
-		$cmd = "find $mod_dir $skip -type l -print";
+		$cmd = "find $mod_dir $skip -prune -o -type l -print";
 		exec($cmd, $output, $ret);
 		if ($output) {
 			freepbx::out("Error! Found Symlinks!");
@@ -399,7 +404,7 @@ foreach ($modules as $module) {
 	}
 
 	freepbx::outn("\tChecking for bad files...");
-	$cmd = "find $mod_dir $skip -type f -a \( -name *swp -o -regex '.*/[0-9]+' \) -print";
+	$cmd = "find $mod_dir $skip -prune -o -type f -a \( -name *swp -o -regex '.*/[0-9]+' \) -print";
 	exec($cmd, $output, $ret);
 	if ($output) {
 		freepbx::out("Bad files have been found!");
