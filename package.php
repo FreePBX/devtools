@@ -391,6 +391,14 @@ foreach ($modules as $module) {
 		freepbx::out("Done");
 	} else {
 		// Framework is allowed to have symlinks
+		if(file_exists($mod_dir."/composer.json")) {
+			freepbx::outn("\t\tRebuilding Composer Autoloader...");
+			$pushd = getcwd();
+			chdir($mod_dir);
+			`$composer dump-autoload --optimize`;
+			chdir($pushd);
+			freepbx::out("Done");
+		}
 		freepbx::outn("\tChecking for symlinks...");
 		$cmd = "find $mod_dir $skip -prune -o -type l -print";
 		exec($cmd, $output, $ret);
