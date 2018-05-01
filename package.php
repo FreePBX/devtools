@@ -374,6 +374,7 @@ foreach ($modules as $module) {
 
 	array_walk($ignored, function(&$value, $key){
 		$value = rtrim($value, '/');
+		$value = addcslashes($value, '[]()');
 	});
 
 	$skip = "\( -path ".implode(" -o -path ",$ignored)." \)";
