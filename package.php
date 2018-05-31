@@ -207,7 +207,7 @@ freepbx::out("Using ".$vars['directory']);
 chdir($vars['directory']);
 update_devtools();
 foreach ($modules as $module) {
-	$file_scan_exclude_list = ($module == 'framework') ? array("modules","Symfony","Composer") : array();
+	$file_scan_exclude_list = ($module == 'framework') ? array("modules","Symfony","Composer","vendor") : array();
 	freepbx::out("Processing ".$module."...");
 	$mod_dir = $vars['directory'].'/'.$module;
 
@@ -604,7 +604,6 @@ HERE;
 	} else {
 		freepbx::out("Core is done through framework");
 	}
-
 	freepbx::out("\tRunning GIT (again)...");
 	freepbx::outn("\t\tChecking for Modified or New files...");
 	$status = $repo->status();
