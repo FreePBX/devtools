@@ -49,6 +49,7 @@ $longopts = array(
 	're::',
 	'verbose::',
 	'forcetag',
+	'skipunittests',
 	'remote::',
 	'sshuser::'
 );
@@ -77,6 +78,7 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 }
 
 //set up some other settings
+$var['run_unittests'] = isset($vars['skipunittests']) ? false : true;
 $vars['php_-l'] = 'php -l';
 $vars['remote'] = isset($vars['remote']) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
@@ -426,17 +428,21 @@ foreach ($modules as $module) {
 	//run unit tests
 	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.php')) {
 		freepbx::outn("\tDetected Unit Tests...");
-		$config = '';
-		if(file_exists($mod_dir."/utests/utests.xml")) {
-			$config = "-c ".$mod_dir."/utests/utests.xml";
+		if($var['run_unittests']) {
+			$config = '';
+			if(file_exists($mod_dir."/utests/utests.xml")) {
+				$config = "-c ".$mod_dir."/utests/utests.xml";
+			}
+			if(!run_cmd(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests',$outline,true)) {
+				freepbx::out(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests');
+				freepbx::out("Unit tests failed");
+				freepbx::out("Module " . $module . " will not be tagged!");
+				continue;
+			}
+			freepbx::out("all unit tests passed");
+		} else {
+			freepbx::out("skipping");
 		}
-		if(!run_cmd(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests',$outline,true)) {
-			freepbx::out(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests');
-			freepbx::out("Unit tests failed");
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
-		}
-		freepbx::out("all unit tests passed");
 	}
 
 	//bump version if requested
