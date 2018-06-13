@@ -61,10 +61,10 @@ $longopts  = array(
 	"clean",
 	"setuplang",
 	"addmergedriver",
-	"directory::",
-	"switch::",
-	"mode::",
-	"keys::"
+	"directory:",
+	"switch:",
+	"mode:",
+	"keys:"
 );
 $options = getopt("m:r:s",$longopts);
 if(empty($options) || isset($options['help'])) {
