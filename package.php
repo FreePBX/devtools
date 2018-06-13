@@ -82,7 +82,7 @@ $var['run_unittests'] = isset($vars['skipunittests']) ? false : true;
 $vars['php_-l'] = 'php -l';
 $vars['remote'] = isset($vars['remote']) ? $vars['remote'] : 'origin';
 $vars['php_extens'] = array('php', 'agi'); //extens to be considered as php for syntax checking
-$vars['directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : (!empty($vars['directory']) ? $vars['directory'] : '/usr/src/freepbx_packaging/repos');
+$vars['directory'] = !empty($vars['directory']) ? $vars['directory'] : (!empty($vars['repo_directory']) ? $vars['repo_directory'] : '/usr/src/freepbx_packaging/repos');
 $modules = array();
 $final_status = array();//status message to be printed after script is run
 
