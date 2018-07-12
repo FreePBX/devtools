@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "881bcaa0eb4fc37e1351bec90b81a00e",
+    "content-hash": "4c8b02745613dcdaeb00f030cff714f4",
     "packages": [
         {
             "name": "doctrine/instantiator",
@@ -250,6 +250,45 @@
                 "test"
             ],
             "time": "2015-05-11T14:41:42+00:00"
+        },
+        {
+            "name": "jimbojsb/pseudo",
+            "version": "v0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jimbojsb/pseudo.git",
+                "reference": "9d31d40c6536e33966d5569df961182f86eaa8fc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jimbojsb/pseudo/zipball/9d31d40c6536e33966d5569df961182f86eaa8fc",
+                "reference": "9d31d40c6536e33966d5569df961182f86eaa8fc",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Pseudo": "src/"
+                },
+                "files": [
+                    "src/php-sql-parser.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Josh Butts",
+                    "email": "josh@joshbutts.com"
+                }
+            ],
+            "description": "PDO/MySQL Connection Mocking",
+            "time": "2018-07-08T15:49:11+00:00"
         },
         {
             "name": "knplabs/github-api",

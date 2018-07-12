@@ -6,6 +6,7 @@
         "mrclay/minify": "^2.3",
         "tedivm/jshrink": "^1.1",
         "phpseclib/phpseclib": "~2.0",
-        "fzaninotto/faker": "^1.7"
+        "fzaninotto/faker": "^1.7",
+        "jimbojsb/pseudo": "^0.3.0"
     }
 }
