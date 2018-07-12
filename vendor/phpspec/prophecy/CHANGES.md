@@ -1,3 +1,42 @@
+1.7.5 / 2018/04/18
+==================
+
+* Allow sebastian/comparator ^3.0 (@sebastianbergmann)
+
+1.7.4 / 2018/02/11
+==================
+
+* Fix issues with PHP 7.2 (thanks @greg0ire)
+* Support object type hints in PHP 7.2 (thanks @@jansvoboda11)
+
+1.7.3 / 2017/11/24
+==================
+
+* Fix SplInfo ClassPatch to work with Symfony 4 (Thanks @gnugat)
+
+1.7.2 / 2017-10-04
+==================
+
+* Reverted "check method predictions only once" due to it breaking Spies
+
+1.7.1 / 2017-10-03
+==================
+
+* Allow PHP5 keywords methods generation on PHP7 (thanks @bycosta)
+* Allow reflection-docblock v4 (thanks @GrahamCampbell)
+* Check method predictions only once (thanks @dontub)
+* Escape file path sent to \SplFileObjectConstructor when running on Windows (thanks @danmartin-epiphany)
+
+1.7.0 / 2017-03-02
+==================
+
+* Add full PHP 7.1 Support (thanks @prolic)
+* Allow `sebastian/comparator ^2.0` (thanks @sebastianbergmann)
+* Allow `sebastian/recursion-context ^3.0` (thanks @sebastianbergmann)
+* Allow `\Error` instances in `ThrowPromise` (thanks @jameshalsall)
+* Support `phpspec/phpspect ^3.2` (thanks @Sam-Burns)
+* Fix failing builds (thanks @Sam-Burns)
+
 1.6.2 / 2016-11-21
 ==================
 

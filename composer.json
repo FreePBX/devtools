@@ -1,12 +1,18 @@
 {
-    "require": {
-        "mockery/mockery": "0.9.*",
-				"phpunit/phpunit": "4.8",
-        "knplabs/github-api": "^1.5",
-        "mrclay/minify": "^2.3",
-        "tedivm/jshrink": "^1.1",
-        "phpseclib/phpseclib": "~2.0",
-        "fzaninotto/faker": "^1.7",
-        "jimbojsb/pseudo": "^0.3.0"
-    }
+	"repositories": [
+		{
+			"type": "github",
+			"url": "https://github.com/sangoma/pseudo"
+		}
+	],
+	"require": {
+		"mockery/mockery": "0.9.*",
+		"phpunit/phpunit": "4.8",
+		"knplabs/github-api": "^1.5",
+		"mrclay/minify": "^2.3",
+		"tedivm/jshrink": "^1.1",
+		"phpseclib/phpseclib": "~2.0",
+		"fzaninotto/faker": "^1.7",
+		"jimbojsb/pseudo": "v0.3.1"
+	}
 }
