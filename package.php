@@ -435,6 +435,9 @@ foreach ($modules as $module) {
 				freepbx::out("Module " . $module . " will not be tagged!");
 				continue;
 			}
+			if(file_exists('/var/www/html/coverage')) {
+				@exec("rm -Rf /var/www/html/coverage");
+			}
 			freepbx::out("all unit tests passed");
 		} else {
 			freepbx::out("skipping");
