@@ -429,12 +429,8 @@ foreach ($modules as $module) {
 	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.php')) {
 		freepbx::outn("\tDetected Unit Tests...");
 		if($var['run_unittests']) {
-			$config = '';
-			if(file_exists($mod_dir."/utests/utests.xml")) {
-				$config = "-c ".$mod_dir."/utests/utests.xml";
-			}
-			if(!run_cmd(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests',$outline,true)) {
-				freepbx::out(__DIR__.'/binaries/phpunit.phar --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$mod_dir.'/utests');
+			if(!run_cmd(__DIR__.'/phpunit.php --moddir='.$mod_dir,$outline,true)) {
+				freepbx::out(__DIR__.'/phpunit.php --moddir='.$mod_dir);
 				freepbx::out("Unit tests failed");
 				freepbx::out("Module " . $module . " will not be tagged!");
 				continue;
