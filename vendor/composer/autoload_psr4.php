@@ -7,5 +7,8 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'phpseclib\\' => array($vendorDir . '/phpseclib/phpseclib/phpseclib'),
+    'phpmock\\mockery\\' => array($vendorDir . '/php-mock/php-mock-mockery/classes'),
+    'phpmock\\integration\\' => array($vendorDir . '/php-mock/php-mock-integration/classes'),
+    'phpmock\\' => array($vendorDir . '/php-mock/php-mock/classes', $vendorDir . '/php-mock/php-mock/tests'),
     'Faker\\' => array($vendorDir . '/fzaninotto/faker/src/Faker'),
 );

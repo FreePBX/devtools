@@ -125,4 +125,5 @@ return array(
     'Minify_YUI_CssCompressor' => $vendorDir . '/mrclay/minify/min/lib/Minify/YUI/CssCompressor.php',
     'MrClay\\Cli' => $vendorDir . '/mrclay/minify/min/lib/MrClay/Cli.php',
     'MrClay\\Cli\\Arg' => $vendorDir . '/mrclay/minify/min/lib/MrClay/Cli/Arg.php',
+    'Text_Template' => $vendorDir . '/phpunit/php-text-template/src/Template.php',
 );

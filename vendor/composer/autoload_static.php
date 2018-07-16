@@ -15,6 +15,9 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
         'p' => 
         array (
             'phpseclib\\' => 10,
+            'phpmock\\mockery\\' => 16,
+            'phpmock\\integration\\' => 20,
+            'phpmock\\' => 8,
         ),
         'F' => 
         array (
@@ -26,6 +29,19 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
         'phpseclib\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
+        'phpmock\\mockery\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-mock/php-mock-mockery/classes',
+        ),
+        'phpmock\\integration\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-mock/php-mock-integration/classes',
+        ),
+        'phpmock\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/php-mock/php-mock/classes',
+            1 => __DIR__ . '/..' . '/php-mock/php-mock/tests',
         ),
         'Faker\\' => 
         array (
@@ -177,6 +193,7 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
         'Minify_YUI_CssCompressor' => __DIR__ . '/..' . '/mrclay/minify/min/lib/Minify/YUI/CssCompressor.php',
         'MrClay\\Cli' => __DIR__ . '/..' . '/mrclay/minify/min/lib/MrClay/Cli.php',
         'MrClay\\Cli\\Arg' => __DIR__ . '/..' . '/mrclay/minify/min/lib/MrClay/Cli/Arg.php',
+        'Text_Template' => __DIR__ . '/..' . '/phpunit/php-text-template/src/Template.php',
     );
 
     public static function getInitializer(ClassLoader $loader)
