@@ -44,7 +44,6 @@ $help = array(
 	array('-s', 'Setup symlinks into Framework for install'),
 	array('-r', 'Declare Stash Project Key for single module checkout'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
-	array('--setuplang', 'Setup language dev tools, requires that --setup was already run (use --force to re-setup environment)'),
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes (!!you will lose all untracked branches!!)'),
 	array('--addmergedriver', 'Updates/Adds Relevant Merge Drivers'),
@@ -59,7 +58,6 @@ $longopts  = array(
 	"force",
 	"refresh",
 	"clean",
-	"setuplang",
 	"addmergedriver",
 	"directory:",
 	"switch:",
@@ -80,23 +78,6 @@ if(!file_exists($directory)) {
 	if($create == 'n' || !mkdir($directory)) {
 		die($directory . " Does Not Exist \n");
 	}
-}
-
-if(isset($options['setuplang'])) {
-  if(!file_exists($directory)) {
-    die($directory . " Does Not Exist \n");
-    exit(0);
-  } else {
-    if(!file_exists(dirname($directory).'/freepbxlocalization')) {
-      $uri = ($mode == 'http') ? 'http://git.freepbx.org/scm/freepbx/freepbxlocalization.git' : 'ssh://git@git.freepbx.org/freepbx/freepbxlocalization.git';
-      $dir = dirname($directory).'/freepbxlocalization';
-      freepbx::out("Cloning FreePBX Localization Repo into ".$dir);
-      $repo = Git::create($dir, $uri);
-    } else {
-      freepbx::out('Language Tools Already Exist?!?');
-    }
-    exit(0);
-  }
 }
 
 if(isset($options['clean']) && isset($options['m'])) {
