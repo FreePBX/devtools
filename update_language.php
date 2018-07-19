@@ -230,17 +230,15 @@ switch(true) {
 		freepbx::out("Done");
 
 		freepbx::outn("\tMaster is the same supported release as this branch. Merging this release into master...");
-		if(!$vars['debug']) {
-			$repo->checkout("master");
-			$merged = $repo->pull("origin","release/".$mver);
-			if(!$merged) {
-				freepbx::out("\t\tMerge from release/".$mver." into master failed");
-				freepbx::out("Module " . $module . " will not be tagged!");
-				continue;
-			}
-			$repo->push("origin", "master");
-			$repo->checkout("release/".$mver);
+		$repo->checkout("master");
+		$merged = $repo->pull("origin","release/".$mver);
+		if(!$merged) {
+			freepbx::out("\t\tMerge from release/".$mver." into master failed");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			continue;
 		}
+		$repo->push("origin", "master");
+		$repo->checkout("release/".$mver);
 		freepbx::out("Done");
 
 		freepbx::outn("\tChecking you back into ".$activeb."...");
