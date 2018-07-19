@@ -34,45 +34,66 @@ $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_director
 
 $help = array(
 	array('-m', 'The module to update'),
-	array('-p', 'Package language of module (Update all mo files)')
+	array('-u', 'Update i18n folder of module'),
+	array('-p', 'Package language of module (Update all mo files)'),
+	array('-s', 'Only update lanaguge is master is on supported release, eg -s 14.0'),
+	array('-a', 'All modules in the repo folder')
 );
 $longopts  = array(
 	"help",
 	"module:",
-	"package:",
+	"package",
+	"supportedlock:",
+	"all",
+	"update"
 );
-$options = getopt("m:p:",$longopts);
+$options = getopt("m:s:pau",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('update_language.php',$help);
 	exit(0);
 }
 
-$m = $p = false;
 $module = !empty($options['module']) ? $options['module'] : (!empty($options['m']) ? $options['m'] : "");
-if(!empty($module)) {
-	$m = true;
-}
-$package = !empty($options['package']) ? $options['package'] : (!empty($options['p']) ? $options['p'] : "");
-if(!empty($package)) {
-	$p = true;
-	$module = $package;
+
+$package = isset($options['package']) ? true : (isset($options['p']) ? true : false);
+
+$update = isset($options['update']) ? true : (isset($options['u']) ? true : false);
+
+$supportedLock = !empty($options['supportedlock']) ? $options['supportedlock'] : (!empty($options['s']) ? $options['s'] : null);
+
+$allModules = isset($options['all']) ? true : (isset($options['a']) ? true : false);
+
+if(!$allModules) {
+	if(empty($module)) {
+		die('Undefined Module!');
+	}
+	if(!file_exists($vars['repo_directory'].'/'.$module)) {
+		die('Cant find '.$vars['repo_directory'].'/'.$module);
+	}
+
+	$repodir = $vars['repo_directory'].'/'.$module;
 }
 
-if(empty($module)) {
-	die('Undefined Module!');
-}
-if(!file_exists($vars['repo_directory'].'/'.$module)) {
-	die('Cant find '.$vars['repo_directory'].'/'.$module);
-}
 
-$repodir = $vars['repo_directory'].'/'.$module;
 
 switch(true) {
-	case !empty($p):
-		generateMO($repodir);
+	case $package:
+		if(!$allModules) {
+			generateMO($repodir);
+		} else {
+			foreach(glob($vars['repo_directory']."/*", GLOB_ONLYDIR) as $dir) {
+				generateMO($dir);
+			}
+		}
 	break;
-	case !empty($m):
-		updateLanguage($repodir);
+	case $update:
+		if(!$allModules) {
+			updateLanguage($repodir, $supportedLock);
+		} else {
+			foreach(glob($vars['repo_directory']."/*", GLOB_ONLYDIR) as $dir) {
+				updateLanguage($dir, $supportedLock);
+			}
+		}
 	break;
 	default:
 		freepbx::showHelp('update_language.php',$help);
@@ -81,6 +102,13 @@ switch(true) {
 }
 
 function generateMO($repodir) {
+	FreePBX::refreshRepo($repodir);
+	try {
+		$repo = Git::open($repodir);
+	} catch(\Exception $e) {
+		freepbx::out($e->getMessage());
+		return;
+	}
 	freepbx::out("\tProcessing localizations...");
 	freepbx::outn("\t\tUpdating localization...");
 	$translation = new Translation($repodir);
@@ -112,14 +140,23 @@ function generateMO($repodir) {
 	}
 }
 
-function updateLanguge($repodir) {
+function updateLanguage($repodir,$supported=null) {
 	FreePBX::refreshRepo($repodir);
-	$repo = Git::open($repodir);
+	try {
+		$repo = Git::open($repodir);
+	} catch(\Exception $e) {
+		freepbx::out($e->getMessage());
+		return;
+	}
 	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
 	$masterXML = simplexml_load_string($moduleMasterXmlString);
 
 	$activeb = $repo->active_branch();
 	$sver = (string)$masterXML->supported->version;
+	if(!empty($supported) && $sver !== $supported) {
+		freepbx::out("Locked supported branch not equal to $supported [$sver !== $supported]");
+		return;
+	}
 
 	$rbranches = $repo->list_remote_branches();
 	foreach($rbranches as $branch) {
