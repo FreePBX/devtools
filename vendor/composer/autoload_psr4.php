@@ -10,5 +10,7 @@ return array(
     'phpmock\\mockery\\' => array($vendorDir . '/php-mock/php-mock-mockery/classes'),
     'phpmock\\integration\\' => array($vendorDir . '/php-mock/php-mock-integration/classes'),
     'phpmock\\' => array($vendorDir . '/php-mock/php-mock/classes', $vendorDir . '/php-mock/php-mock/tests'),
+    'Symfony\\Component\\EventDispatcher\\' => array($vendorDir . '/symfony/event-dispatcher'),
+    'Github\\' => array($vendorDir . '/knplabs/github-api/lib/Github'),
     'Faker\\' => array($vendorDir . '/fzaninotto/faker/src/Faker'),
 );

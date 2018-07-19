@@ -6,6 +6,7 @@
 		}
 	],
 	"require": {
+		"knplabs/github-api": "^1.5",
 		"mockery/mockery": "^1.1.0",
 		"mrclay/minify": "^2.3",
 		"tedivm/jshrink": "^1.1",

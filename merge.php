@@ -33,15 +33,19 @@ $mode = !empty($vars['mode']) ? $vars['mode'] : 'ssh';
 $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__));
 
 $help = array(
-	array('--updatemaster', ''),
-	array('-m', ''),
+	array('--updatemasterfromrelease=<release>', 'Release branch to merge into master, eg 14.0'),
+	array('--module=<module>', 'The module name, ed asteriskinfo'),
+	array('--all', 'Process all modules from release directory'),
+	array('--start=<module>', 'When running --all start on <module>')
 );
 $longopts  = array(
 	"help",
 	"module:",
-	"updatemaster:"
+	"updatemasterfromrelease:",
+	"all",
+	"start:"
 );
-$options = getopt("m:",$longopts);
+$options = getopt("",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('merge.php',$help);
 	exit(0);
@@ -49,113 +53,147 @@ if(empty($options) || isset($options['help'])) {
 
 $module = !empty($options['module']) ? $options['module'] : (!empty($options['m']) ? $options['m'] : "");
 
-if(empty($module)) {
-	die('Undefined Module!');
-}
 if(!file_exists($vars['repo_directory'].'/'.$module)) {
 	die('Cant find '.$vars['repo_directory'].'/'.$module);
 }
 
-$repodir = $vars['repo_directory'].'/'.$module;
-
 switch(true) {
-	case isset($options['updatemaster']):
-		FreePBX::refreshRepo($repodir);
-		$repo = Git::open($repodir);
-		$moduleMasterXmlString = $repo->show('origin/master','module.xml');
-		$masterXML = simplexml_load_string($moduleMasterXmlString);
-		try {
-			$moduleBranchXmlString = $repo->show('origin/release/'.$options['updatemaster'],'module.xml');
-			$branchXML = simplexml_load_string($moduleBranchXmlString);
-		} catch(\Exception $e) {
-			die($e->getMessage());
+	case isset($options['updatemasterfromrelease']):
+		switch(true) {
+			case isset($options['module']):
+				if(empty($module)) {
+					die('Undefined Module!');
+				}
+				mergeRepo($vars, $module, $options['updatemasterfromrelease']);
+			break;
+			case isset($options['all']):
+				$run = empty($options['start']);
+				foreach(glob($vars['repo_directory']."/*", GLOB_ONLYDIR) as $dir) {
+					$module = basename($dir);
+					if($module === 'framework') {
+						freepbx::out("Skipping framework. Please run with --module=framework instead");
+						continue;
+					}
+					if(!$run && $module !== $options['start']) {
+						freepbx::out("Skipping ".$module);
+						continue;
+					} elseif(!$run && $module === $options['start']) {
+						$run = true;
+					}
+					mergeRepo($vars, $module, $options['updatemasterfromrelease']);
+				}
+			break;
+			default:
+				freepbx::showHelp('merge.php',$help);
+				exit(0);
+			break;
 		}
-		$rawname = (string)$branchXML->rawname;
-		$name = (string)$branchXML->name;
-		$description = (string)$branchXML->description;
-
-		if(empty($vars['githubtoken'])) {
-			freepbx::out("If you add 'githubtoken' to your .freepbxconfig file you wont have to enter these credentials");
-			$username = freepbx::getInput("GitHub Username");
-			$password = freepbx::getPassword("GitHub Password", true);
-			$client = new \Github\Client();
-			$client->authenticate($username, $password, Github\Client::AUTH_HTTP_PASSWORD);
-		} else {
-			$client = new \Github\Client();
-			$client->authenticate($vars['githubtoken'], "", Github\Client::AUTH_HTTP_TOKEN);
-		}
-
-		$merge = true;
-		if(!freepbx::version_compare_freepbx((string)$masterXML->supported->version, (string)$branchXML->supported->version, "<=")) {
-			echo "Master is on a higher or equal supported version than ".$options['updatemaster']."\n";
-			$merge = false;
-		}
-		if(freepbx::version_compare_freepbx((string)$masterXML->version, (string)$branchXML->version, ">")) {
-			echo "Master is a higher (".(string)$masterXML->version.") version than this release (".(string)$branchXML->version.")? Scary? Aborting\n";
-			$merge = false;
-		}
-		if(freepbx::version_compare_freepbx((string)$masterXML->version, (string)$branchXML->version, "=")) {
-			echo "Master IS already this version\n";
-			$merge = false;
-		}
-
-		if($merge) {
-			freepbx::outn("Attempting to merge release/".$options['updatemaster']." into master...");
-			$repo->checkout("master");
-			$merged = $repo->pull("origin","release/".$options['updatemaster']);
-			if(!$merged) {
-				freepbx::out("\t\t\tMerge from release/".$options['updatemaster']." into master failed");
-				freepbx::out("Module " . $module . " will not be tagged!");
-				continue;
-			}
-			$repo->push("origin", "master");
-			freepbx::out("Done");
-			freepbx::outn("Checking you out into release/".$options['updatemaster']."...");
-			$repo->checkout("release/".$options['updatemaster']);
-			freepbx::out("Done");
-		}
-
-		$organizationApi = $client->api('organization');
-
-		$paginator  = new Github\ResultPager($client);
-		$parameters = array('freepbx');
-		$repos = $paginator->fetchAll($organizationApi, 'repositories', $parameters);
-		$core = array();
-		foreach($repos as $repo) {
-			$core[] = $repo['name'];
-		}
-
-		$paginator  = new Github\ResultPager($client);
-		$parameters = array('FreePBX-ContributedModules');
-		$repos = $paginator->fetchAll($organizationApi, 'repositories', $parameters);
-		$contrib = array();
-		foreach($repos as $repo) {
-			$contrib[] = $repo['name'];
-		}
-		if(in_array($rawname, $core)) {
-			$org = "freepbx";
-		} elseif(in_array($rawname, $contrib)) {
-			$org = "FreePBX-ContributedModules";
-		} else {
-			exit();
-		}
-		$repo = $client->api('repo')->update(
-			$org,
-			$rawname,
-			array(
-				'name' => $rawname,
-				'description' => "Module of FreePBX (".trim($name).") :: ".trim(strip_tags(str_replace(array("\r", "\n"), '', $description))),
-				'default_branch' => 'release/'.$options['updatemaster'],
-				'homepage' => 'http://www.freepbx.org',
-				"has_issues" => false,
-				"has_wiki" => false,
-				"had_downloads" => false
-			)
-		);
 	break;
 	default:
 		freepbx::showHelp('merge.php',$help);
 		exit(0);
 	break;
 }
-?>
+
+function mergeRepo($vars, $module, $release) {
+	$repodir = $vars['repo_directory'].'/'.$module;
+	FreePBX::refreshRepo($repodir);
+	try {
+		$repo = Git::open($repodir);
+	} catch(\Exception $e) {
+		freepbx::out($e->getMessage());
+		return;
+	}
+	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
+	$masterXML = simplexml_load_string($moduleMasterXmlString);
+	try {
+		$moduleBranchXmlString = $repo->show('origin/release/'.$release,'module.xml');
+		$branchXML = simplexml_load_string($moduleBranchXmlString);
+	} catch(\Exception $e) {
+		freepbx::out($e->getMessage());
+		return;
+	}
+	$rawname = (string)$branchXML->rawname;
+	$name = (string)$branchXML->name;
+	$description = (string)$branchXML->description;
+
+	if(empty($vars['githubtoken'])) {
+		freepbx::out("If you add 'githubtoken' to your .freepbxconfig file you wont have to enter these credentials");
+		$username = freepbx::getInput("GitHub Username");
+		$password = freepbx::getPassword("GitHub Password", true);
+		$client = new \Github\Client();
+		$client->authenticate($username, $password, Github\Client::AUTH_HTTP_PASSWORD);
+	} else {
+		$client = new \Github\Client();
+		$client->authenticate($vars['githubtoken'], "", Github\Client::AUTH_HTTP_TOKEN);
+	}
+
+	$merge = true;
+	if(!freepbx::version_compare_freepbx((string)$masterXML->supported->version, (string)$branchXML->supported->version, "<=")) {
+		echo "Master is on a higher or equal supported version than ".$release."\n";
+		$merge = false;
+	}
+	if(freepbx::version_compare_freepbx((string)$masterXML->version, (string)$branchXML->version, ">")) {
+		echo "Master is a higher (".(string)$masterXML->version.") version than this release (".(string)$branchXML->version.")? Scary? Aborting\n";
+		$merge = false;
+	}
+	if(freepbx::version_compare_freepbx((string)$masterXML->version, (string)$branchXML->version, "=")) {
+		echo "Master IS already this version\n";
+		$merge = false;
+	}
+
+	if($merge) {
+		freepbx::outn("Attempting to merge release/".$release." into master...");
+		$repo->checkout("master");
+		$merged = $repo->pull("origin","release/".$release);
+		if(!$merged) {
+			freepbx::out("\t\t\tMerge from release/".$release." into master failed");
+			freepbx::out("Module " . $module . " will not be tagged!");
+			return;
+		}
+		$repo->push("origin", "master");
+		freepbx::out("Done");
+		freepbx::outn("Checking you out into release/".$release."...");
+		$repo->checkout("release/".$release);
+		freepbx::out("Done");
+	}
+
+	$organizationApi = $client->api('organization');
+
+	$paginator  = new Github\ResultPager($client);
+	$parameters = array('freepbx');
+	$repos = $paginator->fetchAll($organizationApi, 'repositories', $parameters);
+	$core = array();
+	foreach($repos as $repo) {
+		$core[] = $repo['name'];
+	}
+
+	$paginator  = new Github\ResultPager($client);
+	$parameters = array('FreePBX-ContributedModules');
+	$repos = $paginator->fetchAll($organizationApi, 'repositories', $parameters);
+	$contrib = array();
+	foreach($repos as $repo) {
+		$contrib[] = $repo['name'];
+	}
+	if(in_array($rawname, $core)) {
+		$org = "freepbx";
+	} elseif(in_array($rawname, $contrib)) {
+		$org = "FreePBX-ContributedModules";
+	} else {
+		return;
+	}
+	$repo = $client->api('repo')->update(
+		$org,
+		$rawname,
+		array(
+			'name' => $rawname,
+			'description' => "Module of FreePBX (".trim($name).") :: ".trim(strip_tags(str_replace(array("\r", "\n"), '', $description))),
+			'default_branch' => 'release/'.$release,
+			'homepage' => 'http://www.freepbx.org',
+			"has_issues" => false,
+			"has_wiki" => false,
+			"had_downloads" => false
+		)
+	);
+	return;
+}

@@ -19,6 +19,14 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
             'phpmock\\integration\\' => 20,
             'phpmock\\' => 8,
         ),
+        'S' => 
+        array (
+            'Symfony\\Component\\EventDispatcher\\' => 34,
+        ),
+        'G' => 
+        array (
+            'Github\\' => 7,
+        ),
         'F' => 
         array (
             'Faker\\' => 6,
@@ -42,6 +50,14 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
         array (
             0 => __DIR__ . '/..' . '/php-mock/php-mock/classes',
             1 => __DIR__ . '/..' . '/php-mock/php-mock/tests',
+        ),
+        'Symfony\\Component\\EventDispatcher\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/event-dispatcher',
+        ),
+        'Github\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/knplabs/github-api/lib/Github',
         ),
         'Faker\\' => 
         array (
@@ -69,6 +85,17 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
             'JShrink' => 
             array (
                 0 => __DIR__ . '/..' . '/tedivm/jshrink/src',
+            ),
+        ),
+        'G' => 
+        array (
+            'Guzzle\\Tests' => 
+            array (
+                0 => __DIR__ . '/..' . '/guzzle/guzzle/tests',
+            ),
+            'Guzzle' => 
+            array (
+                0 => __DIR__ . '/..' . '/guzzle/guzzle/src',
             ),
         ),
     );
