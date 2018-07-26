@@ -6,7 +6,6 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
-    'Pseudo' => array($vendorDir . '/jimbojsb/pseudo/src'),
     'Mockery' => array($vendorDir . '/mockery/mockery/library'),
     'JShrink' => array($vendorDir . '/tedivm/jshrink/src'),
     'Guzzle\\Tests' => array($vendorDir . '/guzzle/guzzle/tests'),

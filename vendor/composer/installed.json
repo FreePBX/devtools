@@ -200,49 +200,6 @@
         ]
     },
     {
-        "name": "jimbojsb/pseudo",
-        "version": "v0.3.1",
-        "version_normalized": "0.3.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/sangoma/pseudo.git",
-            "reference": "cf7df4c300c5c805702aaeb1e4584ea1cad75305"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/sangoma/pseudo/zipball/cf7df4c300c5c805702aaeb1e4584ea1cad75305",
-            "reference": "cf7df4c300c5c805702aaeb1e4584ea1cad75305",
-            "shasum": ""
-        },
-        "require-dev": {
-            "phpunit/phpunit": "^5.0"
-        },
-        "time": "2018-07-12T22:07:01+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "Pseudo": "src/"
-            },
-            "files": [
-                "src/php-sql-parser.php"
-            ]
-        },
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Josh Butts",
-                "email": "josh@joshbutts.com"
-            }
-        ],
-        "description": "PDO/MySQL Connection Mocking",
-        "support": {
-            "source": "https://github.com/sangoma/pseudo/tree/v0.3.1"
-        }
-    },
-    {
         "name": "knplabs/github-api",
         "version": "1.7.1",
         "version_normalized": "1.7.1.0",

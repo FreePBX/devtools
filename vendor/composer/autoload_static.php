@@ -7,7 +7,6 @@ namespace Composer\Autoload;
 class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
 {
     public static $files = array (
-        'fe3edbbdf1f9a586b768b80837c5ead4' => __DIR__ . '/..' . '/jimbojsb/pseudo/src/php-sql-parser.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
     );
 
@@ -66,13 +65,6 @@ class ComposerStaticInit11de43c386863b0b20eb93bbf8169756
     );
 
     public static $prefixesPsr0 = array (
-        'P' => 
-        array (
-            'Pseudo' => 
-            array (
-                0 => __DIR__ . '/..' . '/jimbojsb/pseudo/src',
-            ),
-        ),
         'M' => 
         array (
             'Mockery' => 
