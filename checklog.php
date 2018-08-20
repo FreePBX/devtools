@@ -69,7 +69,11 @@ foreach($modules as $module) {
 		freepbx::out('Module '.$module.' does not exist in path: '.$vars['directory']);
        	        exit(1);
 	} else {
-		$repo = Git::open($moddir);
+		try {
+			$repo = Git::open($moddir);
+		} catch(\Exception $e) {
+			continue;
+		}
 
 		freepbx::out('================================== ' . $module . ' ('.$repo->active_branch().') START =========================================');
 		freepbx::out(checklog($moddir));

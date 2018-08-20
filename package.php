@@ -761,6 +761,7 @@ HERE;
 		freepbx::out("Debugging, Not Ran");
 	}
 	if(empty((string)$masterXML->supported->version)) {
+		print_r($masterXML);
 		freepbx::out("Aborting no supported tag!!");
 		continue;
 	}
