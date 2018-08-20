@@ -760,6 +760,10 @@ HERE;
 	} else {
 		freepbx::out("Debugging, Not Ran");
 	}
+	if(empty((string)$masterXML->supported->version)) {
+		freepbx::out("Aborting no supported tag!!");
+		continue;
+	}
 
 	if(freepbx::version_compare_freepbx((string)$masterXML->supported->version, $supported['version'], "=") && (freepbx::version_compare_freepbx((string)$masterXML->version, $ver, "<="))) {
 		freepbx::outn("\t\tMaster is the same supported release as this branch. Merging release/".$mver." into master...");
