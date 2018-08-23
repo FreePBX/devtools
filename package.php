@@ -760,8 +760,8 @@ HERE;
 	} else {
 		freepbx::out("Debugging, Not Ran");
 	}
-	$ver = (string)$masterXML->supported->version;
-	if(empty($ver)) {
+	$verTMP = (string)$masterXML->supported->version;
+	if(empty($verTMP)) {
 		freepbx::out("Aborting no supported tag!!");
 		continue;
 	}
