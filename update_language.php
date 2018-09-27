@@ -34,222 +34,264 @@ $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_director
 
 $help = array(
 	array('-m', 'The module to update'),
-	array('-p', 'Package language of module (Update all mo files)')
+	array('-u', 'Update i18n folder of module'),
+	array('-p', 'Package language of module (Update all mo files)'),
+	array('-s', 'Only update lanaguge is master is on supported release, eg -s 14.0'),
+	array('-a', 'All modules in the repo folder')
 );
 $longopts  = array(
 	"help",
 	"module:",
-	"package:",
+	"package",
+	"supportedlock:",
+	"all",
+	"update"
 );
-$options = getopt("m:p:",$longopts);
+$options = getopt("m:s:pau",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('update_language.php',$help);
 	exit(0);
 }
 
-$m = $p = false;
 $module = !empty($options['module']) ? $options['module'] : (!empty($options['m']) ? $options['m'] : "");
-if(!empty($module)) {
-	$m = true;
-}
-$package = !empty($options['package']) ? $options['package'] : (!empty($options['p']) ? $options['p'] : "");
-if(!empty($package)) {
-	$p = true;
-	$module = $package;
+
+$package = isset($options['package']) ? true : (isset($options['p']) ? true : false);
+
+$update = isset($options['update']) ? true : (isset($options['u']) ? true : false);
+
+$supportedLock = !empty($options['supportedlock']) ? $options['supportedlock'] : (!empty($options['s']) ? $options['s'] : null);
+
+$allModules = isset($options['all']) ? true : (isset($options['a']) ? true : false);
+
+if(!$allModules) {
+	if(empty($module)) {
+		die('Undefined Module!');
+	}
+	if(!file_exists($vars['repo_directory'].'/'.$module)) {
+		die('Cant find '.$vars['repo_directory'].'/'.$module);
+	}
+
+	$repodir = $vars['repo_directory'].'/'.$module;
 }
 
-if(empty($module)) {
-	die('Undefined Module!');
-}
-if(!file_exists($vars['repo_directory'].'/'.$module)) {
-	die('Cant find '.$vars['repo_directory'].'/'.$module);
-}
 
-$repodir = $vars['repo_directory'].'/'.$module;
 
 switch(true) {
-	case !empty($p):
-		freepbx::out("\tProcessing localizations...");
-		freepbx::outn("\t\tUpdating localization...");
-		$translation = new Translation($repodir);
-		if(!preg_match('/(core|framework)$/i',$repodir)) {
-			//if no i18n folder then make an english one!
-			if(!file_exists($repodir.'/i18n')) {
-				$translation->makeLanguage("en_US");
-			}
-			//pray that this works..
-			$translation->update_i18n();
-			freepbx::out("Done");
-			foreach(glob($repodir.'/i18n/*',GLOB_ONLYDIR) as $langDir) {
-				$lang = basename($langDir);
-				freepbx::outn("\t\tUpdating individual localization for ".$lang);
-				$o = $translation->merge_i18n($lang);
-				freepbx::out($o);
-			}
-		} elseif(preg_match('/framework$/i',$repodir)) {
-			$translation->update_i18n_amp();
-			foreach(glob($repodir.'/amp_conf/htdocs/admin/i18n/*',GLOB_ONLYDIR) as $langDir) {
-				$lang = basename($langDir);
-				freepbx::outn("\t\tUpdating individual localization for ".$lang);
-				$o = $translation->merge_i18n_amp($lang);
-				freepbx::out($o);
-			}
-			freepbx::out("Done");
+	case $package:
+		if(!$allModules) {
+			generateMO($repodir);
 		} else {
-			freepbx::out("Core is done through framework");
+			foreach(glob($vars['repo_directory']."/*", GLOB_ONLYDIR) as $dir) {
+				generateMO($dir);
+			}
 		}
 	break;
-	case !empty($m):
-		FreePBX::refreshRepo($repodir);
-		$repo = Git::open($repodir);
-		$moduleMasterXmlString = $repo->show('origin/master','module.xml');
-		$masterXML = simplexml_load_string($moduleMasterXmlString);
-
-		$activeb = $repo->active_branch();
-		$sver = (string)$masterXML->supported->version;
-
-		$rbranches = $repo->list_remote_branches();
-		foreach($rbranches as $branch) {
-			if(!preg_match("/^origin\/release\/(.*)/",$branch,$bmatch)) {
-				continue;
-			}
-			try{
-				$xml = $repo->show('refs/remotes/'.$branch,'module.xml');
-			} catch (Exception $e) {
-				//no module xml here...nothing to see move along and try next branch
-				freepbx::out("No Module.xml, skipping");
-				continue;
-			}
-			//load our xml string into our common parser
-			//we only get back three of the tags, rawname, version and supported
-			$bxml = freepbx::check_xml_string($xml);
-			if($bxml[2]['version'] == $sver) {
-				$mver = $bmatch[1];
-				break;
-			}
-		}
-		if(empty($mver)) {
-			freepbx::out("Could not find supported branch to work with!");
-			die();
-		}
-
-		$repo->checkout("release/".$mver);
-
-		freepbx::outn("\t\tMerging master into this branch...");
-		$stashable = $repo->add_stash();
-		$repo->fetch();
-		try {
-			$merged = $repo->pull('origin','master');
-		} catch(\Exception $e) {
-			$merged = false;
-		}
-		if(!$merged) {
-			freepbx::out("\t\tMerge from master to this branch failed");
-			freepbx::out("Module " . $module . " will not be tagged!");
-			continue;
-		}
-		freepbx::out("Done");
-		if($stashable) {
-			$repo->apply_stash();
-			$repo->drop_stash();
-		}
-
-		freepbx::out("\tProcessing localizations...");
-		freepbx::outn("\t\tUpdating master localization...");
-		$translation = new Translation($repodir);
-		if(!preg_match('/(core|framework)$/i',$repodir)) {
-			//if no i18n folder then make an english one!
-			if(!file_exists($repodir.'/i18n')) {
-				$translation->makeLanguage("en_US");
-			}
-			//pray that this works..
-			$translation->update_i18n();
-			freepbx::out("Done");
-			foreach(glob($repodir.'/i18n/*',GLOB_ONLYDIR) as $langDir) {
-				$lang = basename($langDir);
-				freepbx::outn("\t\tUpdating individual localization for ".$lang);
-				$o = $translation->merge_i18n($lang);
-				freepbx::out($o);
-			}
-		} elseif(preg_match('/framework$/i',$repodir)) {
-			$translation->update_i18n_amp();
-			foreach(glob($repodir.'/amp_conf/htdocs/admin/i18n/*',GLOB_ONLYDIR) as $langDir) {
-				$lang = basename($langDir);
-				freepbx::outn("\t\tUpdating individual localization for ".$lang);
-				$o = $translation->merge_i18n_amp($lang);
-				freepbx::out($o);
-			}
-			freepbx::out("Done");
+	case $update:
+		if(!$allModules) {
+			updateLanguage($repodir, $supportedLock);
 		} else {
-			freepbx::out("Core is done through framework");
-		}
-
-		freepbx::outn("\tChecking for Modified or New files...");
-		$status = $repo->status();
-		$commitable = false;
-		if(empty($status)) {
-			freepbx::out("No Modified or New Files");
-		} else {
-			freepbx::out("Found ".count($status['modified'])." Modified files and ".count($status['untracked'])." New files");
-			$commitable = true;
-		}
-
-		if($commitable) {
-			freepbx::outn("\t\tCheckin Outstanding Changes...");
-			//-A will do more than ., it will add any unstaged files...
-			try {
-				$repo->add('-A');
-			} catch (Exception $e) {
-				freepbx::out($e->getMessage());
-				freepbx::out("Module " . $module . " will not be tagged!");
-				continue;
+			foreach(glob($vars['repo_directory']."/*", GLOB_ONLYDIR) as $dir) {
+				updateLanguage($dir, $supportedLock);
 			}
-			freepbx::out("Done");
-			freepbx::outn("\t\tAdding Commit Message...");
-			//Commit with old commit message from before, but call it tag instead of commit.
-			try {
-				$repo->commit('[Automatic Language Updates]');
-			} catch (Exception $e) {
-				freepbx::out($e->getMessage());
-				freepbx::out("Problem Committing");
-				continue;
-			}
-			freepbx::out("Done");
 		}
-
-		freepbx::outn("\t\tPushing to origin...");
-		//push branch and tag to remote
-		//TODO: check to make sure the author/committer isn't 'root'
-		try {
-			$repo->push("origin", "release/".$mver);
-		} catch (Exception $e) {
-			freepbx::out($e->getMessage());
-			freepbx::out("Module " . $module . " will not be pushed!");
-			continue;
-		}
-		freepbx::out("Done");
-
-		freepbx::outn("\tMaster is the same supported release as this branch. Merging this release into master...");
-		if(!$vars['debug']) {
-			$repo->checkout("master");
-			$merged = $repo->pull("origin","release/".$mver);
-			if(!$merged) {
-				freepbx::out("\t\tMerge from release/".$mver." into master failed");
-				freepbx::out("Module " . $module . " will not be tagged!");
-				continue;
-			}
-			$repo->push("origin", "master");
-			$repo->checkout("release/".$mver);
-		}
-		freepbx::out("Done");
-
-		freepbx::outn("\tChecking you back into ".$activeb."...");
-		$repo->checkout($activeb);
-		freepbx::out("Done");
 	break;
 	default:
 		freepbx::showHelp('update_language.php',$help);
 		exit(0);
 	break;
 }
-?>
+
+function generateMO($repodir) {
+	FreePBX::refreshRepo($repodir);
+	try {
+		$repo = Git::open($repodir);
+	} catch(\Exception $e) {
+		freepbx::out($e->getMessage());
+		return;
+	}
+	freepbx::out("\tProcessing localizations...");
+	freepbx::outn("\t\tUpdating localization...");
+	$translation = new Translation($repodir);
+	if(!preg_match('/(core|framework)$/i',$repodir)) {
+		//if no i18n folder then make an english one!
+		if(!file_exists($repodir.'/i18n')) {
+			$translation->makeLanguage("en_US");
+		}
+		//pray that this works..
+		$translation->update_i18n();
+		freepbx::out("Done");
+		foreach(glob($repodir.'/i18n/*',GLOB_ONLYDIR) as $langDir) {
+			$lang = basename($langDir);
+			freepbx::outn("\t\tUpdating individual localization for ".$lang);
+			$o = $translation->merge_i18n($lang);
+			freepbx::out($o);
+		}
+	} elseif(preg_match('/framework$/i',$repodir)) {
+		$translation->update_i18n_amp();
+		foreach(glob($repodir.'/amp_conf/htdocs/admin/i18n/*',GLOB_ONLYDIR) as $langDir) {
+			$lang = basename($langDir);
+			freepbx::outn("\t\tUpdating individual localization for ".$lang);
+			$o = $translation->merge_i18n_amp($lang);
+			freepbx::out($o);
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Core is done through framework");
+	}
+}
+
+function updateLanguage($repodir,$supported=null) {
+	FreePBX::refreshRepo($repodir);
+	try {
+		$repo = Git::open($repodir);
+	} catch(\Exception $e) {
+		freepbx::out($e->getMessage());
+		return;
+	}
+	$moduleMasterXmlString = $repo->show('origin/master','module.xml');
+	$masterXML = simplexml_load_string($moduleMasterXmlString);
+
+	$activeb = $repo->active_branch();
+	$sver = (string)$masterXML->supported->version;
+	if(!empty($supported) && $sver !== $supported) {
+		freepbx::out("Locked supported branch not equal to $supported [$sver !== $supported]");
+		return;
+	}
+
+	$rbranches = $repo->list_remote_branches();
+	foreach($rbranches as $branch) {
+		if(!preg_match("/^origin\/release\/(.*)/",$branch,$bmatch)) {
+			continue;
+		}
+		try{
+			$xml = $repo->show('refs/remotes/'.$branch,'module.xml');
+		} catch (Exception $e) {
+			//no module xml here...nothing to see move along and try next branch
+			freepbx::out("No Module.xml, skipping");
+			continue;
+		}
+		//load our xml string into our common parser
+		//we only get back three of the tags, rawname, version and supported
+		$bxml = freepbx::check_xml_string($xml);
+		if($bxml[2]['version'] == $sver) {
+			$mver = $bmatch[1];
+			break;
+		}
+	}
+	if(empty($mver)) {
+		freepbx::out("Could not find supported branch to work with!");
+		die();
+	}
+
+	$repo->checkout("release/".$mver);
+
+	freepbx::outn("\t\tMerging master into this branch...");
+	$stashable = $repo->add_stash();
+	$repo->fetch();
+	try {
+		$merged = $repo->pull('origin','master');
+	} catch(\Exception $e) {
+		$merged = false;
+	}
+	if(!$merged) {
+		freepbx::out("\t\tMerge from master to this branch failed");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		return;
+	}
+	freepbx::out("Done");
+	if($stashable) {
+		$repo->apply_stash();
+		$repo->drop_stash();
+	}
+
+	freepbx::out("\tProcessing localizations...");
+	freepbx::outn("\t\tUpdating master localization...");
+	$translation = new Translation($repodir);
+	if(!preg_match('/(core|framework)$/i',$repodir)) {
+		//if no i18n folder then make an english one!
+		if(!file_exists($repodir.'/i18n')) {
+			$translation->makeLanguage("en_US");
+		}
+		//pray that this works..
+		$translation->update_i18n();
+		freepbx::out("Done");
+		foreach(glob($repodir.'/i18n/*',GLOB_ONLYDIR) as $langDir) {
+			$lang = basename($langDir);
+			freepbx::outn("\t\tUpdating individual localization for ".$lang);
+			$o = $translation->merge_i18n($lang);
+			freepbx::out($o);
+		}
+	} elseif(preg_match('/framework$/i',$repodir)) {
+		$translation->update_i18n_amp();
+		foreach(glob($repodir.'/amp_conf/htdocs/admin/i18n/*',GLOB_ONLYDIR) as $langDir) {
+			$lang = basename($langDir);
+			freepbx::outn("\t\tUpdating individual localization for ".$lang);
+			$o = $translation->merge_i18n_amp($lang);
+			freepbx::out($o);
+		}
+		freepbx::out("Done");
+	} else {
+		freepbx::out("Core is done through framework");
+	}
+
+	freepbx::outn("\tChecking for Modified or New files...");
+	$status = $repo->status();
+	$commitable = false;
+	if(empty($status)) {
+		freepbx::out("No Modified or New Files");
+	} else {
+		freepbx::out("Found ".count($status['modified'])." Modified files and ".count($status['untracked'])." New files");
+		$commitable = true;
+	}
+
+	if($commitable) {
+		freepbx::outn("\t\tCheckin Outstanding Changes...");
+		//-A will do more than ., it will add any unstaged files...
+		try {
+			$repo->add('-A');
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Module " . $module . " will not be tagged!");
+			return;
+		}
+		freepbx::out("Done");
+		freepbx::outn("\t\tAdding Commit Message...");
+		//Commit with old commit message from before, but call it tag instead of commit.
+		try {
+			$repo->commit('[Automatic Language Updates]');
+		} catch (Exception $e) {
+			freepbx::out($e->getMessage());
+			freepbx::out("Problem Committing");
+			return;
+		}
+		freepbx::out("Done");
+	}
+
+	freepbx::outn("\t\tPushing to origin...");
+	//push branch and tag to remote
+	//TODO: check to make sure the author/committer isn't 'root'
+	try {
+		$repo->push("origin", "release/".$mver);
+	} catch (Exception $e) {
+		freepbx::out($e->getMessage());
+		freepbx::out("Module " . $module . " will not be pushed!");
+		return;
+	}
+	freepbx::out("Done");
+
+	freepbx::outn("\tMaster is the same supported release as this branch. Merging this release into master...");
+	$repo->checkout("master");
+	$merged = $repo->pull("origin","release/".$mver);
+	if(!$merged) {
+		freepbx::out("\t\tMerge from release/".$mver." into master failed");
+		freepbx::out("Module " . $module . " will not be tagged!");
+		return;
+	}
+	$repo->push("origin", "master");
+	$repo->checkout("release/".$mver);
+	freepbx::out("Done");
+
+	freepbx::outn("\tChecking you back into ".$activeb."...");
+	$repo->checkout($activeb);
+	freepbx::out("Done");
+}

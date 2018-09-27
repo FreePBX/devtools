@@ -27,13 +27,13 @@ class Translation {
 		//Check to make sure get text is installed
 		exec("/usr/bin/env xgettext --version 2>/dev/null",$out,$ret);
 		if($ret !== 0) {
-			echo ("Error with xgettext, is it installed?\n");
+			echo "Error with xgettext, is it installed?\n";
 			exit($ret);
 		}
 		//check to make sure msg merge is installed as well
 		exec("/usr/bin/env msgmerge --version 2>/dev/null",$out,$ret);
 		if($ret !== 0) {
-			echo ("Error with msgmerge, is it installed?\n");
+			echo "Error with msgmerge, is it installed?\n";
 			exit($ret);
 		}
 		$xml = simplexml_load_file($cwd."/module.xml");
@@ -260,10 +260,10 @@ EOF;
 			//If not then revert to the old Pot file
 			//this is so we dont have useless commits
 			//Remove the date which is usually the only thing that changes
-			$tmpOldPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$oldPotFile);
+			$tmpOldPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$potFile);
 			$tmpNewPotFile = preg_replace('/"POT-Creation-Date: .*\n/i',"",$newPotFile);
 			if(strcmp($tmpOldPotFile, $tmpNewPotFile) === 0) {
-				file_put_contents($potFile, $oldPotFile);
+				file_put_contents($potFile, $potFile);
 			}
 
 			//Remove the .tmp file created above
@@ -422,9 +422,12 @@ EOF;
 		$files = array();
 		while (true) {
 			$file = "$dir/.gitignore";
-			if (is_file($file)) $files[] = $file;
-			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
-			if (dirname($dir) === '.') break;                         # and here
+			if (is_file($file)) {
+				$files[] = $file;
+			}
+			if ((is_dir("$dir/.git") && !is_link("$dir/.git")) || dirname($dir) === '.') {
+				break; //stop here
+			}
 			$dir = dirname($dir);
 		}
 		return $files;
@@ -439,9 +442,12 @@ EOF;
 		$files = array();
 		while (true) {
 			$file = "$dir/.langignore";
-			if (is_file($file)) $files[] = $file;
-			if (is_dir("$dir/.git") && !is_link("$dir/.git")) break;  # stop here
-			if (dirname($dir) === '.') break;                         # and here
+			if (is_file($file)) {
+				$files[] = $file;
+			}
+			if ((is_dir("$dir/.git") && !is_link("$dir/.git")) || dirname($dir) === '.') {
+			 break; //stop here
+			}
 			$dir = dirname($dir);
 		}
 		return $files;
@@ -452,22 +458,26 @@ EOF;
 	 * @param  string $file .gitignore file to parse
 	 * @return array       File list to ignore
 	 */
-	private function parse_git_ignore_file($file) { // $file = '/absolute/path/to/.gitignore'
+	private function parse_ignore_file($file) { // $file = '/absolute/path/to/.gitignore'
 		$dir = dirname($file);
 		$matches = array();
 		$lines = file($file);
 		foreach ($lines as $line) {
 			$line = trim($line);
-			if ($line === '') continue;                 // empty line
-			if (substr($line, 0, 1) == '#') continue;   // a comment
-			if (substr($line, 0, 1) == '!') {           // negated glob
+			if ($line === '') {
+				continue; // empty line
+			}
+			if (substr($line, 0, 1) == '#') {
+				continue; // a comment
+			}
+			if (substr($line, 0, 1) == '!') { // negated glob
 				$line = substr($line, 1);
 				$matches = array_diff($matches, array("$dir/$line"));
 				continue;
 			} elseif(preg_match('/\*/i',$line)) {
 				$files = glob("$dir/$line");
 			} else {
-				$files = array("$line");
+				$files = array("$dir/$line");
 			}
 			$matches = array_merge($matches, $files);
 		}
@@ -476,9 +486,8 @@ EOF;
 
 	/**
 	 * Parse all Ignore Files
-	 * @param string $directory The starting directory
 	 */
-	private function parseIgnoreFiles($directory) {
+	public function parseIgnoreFiles() {
 		$gitIgnoreFiles = $this->find_gitignore_files($this->cwd);
 		$langIgnoreFiles = $this->find_langignore_files($this->cwd);
 		$ignoreFiles = array_merge($gitIgnoreFiles, $langIgnoreFiles);
@@ -487,7 +496,7 @@ EOF;
 		}
 		$ignores = array();
 		foreach($ignoreFiles as $file) {
-			$i = $this->parse_git_ignore_file($file);
+			$i = $this->parse_ignore_file($file);
 			if(!empty($i) && is_array($i)) {
 				$ignores = array_merge($i, $ignores);
 			}

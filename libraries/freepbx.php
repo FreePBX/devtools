@@ -88,6 +88,26 @@ class freepbx {
 	 * @return  bool
 	 */
 	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null) {
+		$rawname = basename($directory);
+		if($rawname === 'framework') {
+			freepbx::out("Refusing to refresh framework as it will break everything. Do it manually");
+			return true;
+		}
+		exec('fwconsole ma list --format=json',$output,$ret);
+		if($ret !== 0) {
+			throw new \Exception("Unable to run fwconsole command");
+		}
+		$installedModules = array();
+		foreach($output as $line) {
+			$out = json_decode(trim($line),true);
+			if(!empty($out['data']) && is_array($out['data'])) {
+				foreach($out['data'] as $module) {
+					if($module[2] === 'Enabled') {
+						$installedModules[] = $module[0];
+					}
+				}
+			}
+		}
 		freepbx::outn("Attempting to open ".$directory."...");
 		//Attempt to open the module as a git repo, bail if it's not a repo
 		try {
@@ -115,7 +135,7 @@ class freepbx {
 		freepbx::out($activeb);
 		$lbranches = $repo->list_branches();
 		$rbranches = $repo->list_remote_branches();
-		foreach($rbranches as $k => &$rbranch) {
+		foreach($rbranches as &$rbranch) {
 			if(preg_match('/'.$remote.'\/(.*)/i',$rbranch)) {
 				$rbranch = str_replace($remote.'/','',$rbranch);
 				$rbranch_array[] = $rbranch;
@@ -166,6 +186,12 @@ class freepbx {
 		}
 
 		$repo->add_merge_driver();
+
+		if(in_array($rawname, $installedModules)) {
+			freepbx::outn("ReInstalling ".$rawname."...");
+			exec('fwconsole ma install '.$rawname);
+			freepbx::out("Done");
+		}
 	}
 
 	/**
@@ -241,22 +267,22 @@ class freepbx {
 			return false;
 		}
 		$release = $parts[1];
+		$return = false;
 		switch($release) {
 			case version_compare($release, "13.0", ">="):
 				$parts = explode(".",$release);
 				$major = $parts[0] - 1;
-				return "release/".$major.".0";
+				$return = "release/".$major.".0";
 			break;
 			case "12.0":
-				return "release/2.11";
+				$return = "release/2.11";
 			case "2.11":
-				return "relase/2.10";
+				$return = "release/2.10";
 			break;
 			default:
-				return false;
 			break;
 		}
-		return false;
+		return $return;
 	}
 
 	/**
@@ -275,7 +301,7 @@ class freepbx {
 
 		$dirs = array_filter(glob($directory.'/*'), 'is_dir');
 
-		foreach($dirs as $dirkey => $dirpath) {
+		foreach($dirs as $dirpath) {
 			if ($fwdir != $dirpath) {
 				$modlink = $fwmoddir . '/' . basename($dirpath);
 
@@ -480,15 +506,18 @@ class freepbx {
 
 		    foreach ($errors as $error) {
 			    switch ($error->level) {
-			        case LIBXML_ERR_WARNING:
-			            $ereturn = "Warning $error->code: ".trim($error->message);
-			            break;
-			         case LIBXML_ERR_ERROR:
-			            $ereturn = "Error $error->code: ".trim($error->message);
-			            break;
-			        case LIBXML_ERR_FATAL:
-			            $ereturn = "Fatal Error $error->code: ".trim($error->message);
-			            break;
+						case LIBXML_ERR_WARNING:
+							$ereturn = "Warning $error->code: ".trim($error->message);
+							break;
+						case LIBXML_ERR_ERROR:
+							$ereturn = "Error $error->code: ".trim($error->message);
+							break;
+						case LIBXML_ERR_FATAL:
+							$ereturn = "Fatal Error $error->code: ".trim($error->message);
+							break;
+						default:
+							$ereturn = "An unknown error occurred";
+							break;
 			    }
 				freepbx::out("\t\t\t\tXML ".$ereturn);
 		    }
