@@ -453,6 +453,7 @@ foreach ($modules as $module) {
 	}
 
 	fix_publisher($module);
+	fix_license_link($module);
 
 	//add changelog if requested
 	if ($vars['log'] && !$vars['debug']) {
@@ -920,6 +921,21 @@ function fix_publisher() {
 		file_put_contents($mod_dir . '/module.xml', $xml);
 		freepbx::out("Fixed");
 	}
+}
+
+function fix_license_link(){
+	global $mod_dir, $vars;
+
+	$xml = simplexml_load_file($mod_dir . '/module.xml');
+	$link = trim((string)$xml->licenselink);
+	if ($link == 'http://literature.schmoozecom.com/EUA/FreePBXCommercialModule-EndUserAgreement.txt') {
+		freepbx::outn("\tFixing commercial license link");
+		$xml->licenselink = "https://portal.sangoma.com/marketing/resources/2808/Sangoma%20Corporate/Terms%20of%20Service%20and%20User%20License%20Agreement/FreePBXCommercialModule-EndUserAgreement.txt";
+		$xml = trim(preg_replace('/^\<\?xml.*?\?\>/', '', $xml->asXML()));
+		file_put_contents($mod_dir . '/module.xml', $xml);
+		freepbx::out("Fixed");
+	}
+
 }
 
 //auto-bump module version, bumps last part by defualt
