@@ -87,7 +87,7 @@ class freepbx {
 	 * @param	string $final_branch The final branch to checkout after updating (null means whatever it was on before)
 	 * @return  bool
 	 */
-	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null) {
+	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null, $hard = false) {
 		$rawname = basename($directory);
 		if($rawname === 'framework') {
 			freepbx::out("Refusing to refresh framework as it will break everything. Do it manually");
@@ -117,10 +117,16 @@ class freepbx {
 			freepbx::out("Skipping");
 			return false;
 		}
-		$stash = $repo->add_stash();
-		if(!empty($stash)) {
-			freepbx::out("\tStashing Uncommited changes..Done");
+
+		if($hard) {
+			$repo->run('reset --hard');
+		} else {
+			$stash = $repo->add_stash();
+			if(!empty($stash)) {
+				freepbx::out("\tStashing Uncommited changes..Done");
+			}
 		}
+
 		freepbx::outn("\tRemoving unreachable object from the remote...");
 		$repo->prune($remote);
 		freepbx::out("Done");
@@ -174,14 +180,16 @@ class freepbx {
 		freepbx::out("\tPutting you back on ".$branch." ...");
 		$repo->checkout($branch);
 		freepbx::out("Done");
-		if(!empty($stash) && empty($final_branch)) {
-			freepbx::outn("\tRestoring Uncommited changes...");
-			try {
-				$repo->apply_stash();
-				$repo->drop_stash();
-				freepbx::out("Done");
-			} catch (Exception $e) {
-				freepbx::out("Failed to restore stash!, Please check your directory");
+		if(!$hard) {
+			if(!empty($stash) && empty($final_branch)) {
+				freepbx::outn("\tRestoring Uncommited changes...");
+				try {
+					$repo->apply_stash();
+					$repo->drop_stash();
+					freepbx::out("Done");
+				} catch (Exception $e) {
+					freepbx::out("Failed to restore stash!, Please check your directory");
+				}
 			}
 		}
 

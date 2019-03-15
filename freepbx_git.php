@@ -46,6 +46,7 @@ $help = array(
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes (!!you will lose all untracked branches!!)'),
+	array('--refreshhard', 'Updates all local modules with their remote changes (!!you will lose all untracked branches and work!!)'),
 	array('--addmergedriver', 'Updates/Adds Relevant Merge Drivers'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
 	array('--mode=<ssh|http>', 'What Mode to Use GIT in, Default is SSH. Use HTTP if you dont have SSH access or you dont know'),
@@ -57,6 +58,7 @@ $longopts  = array(
 	"setup",
 	"force",
 	"refresh",
+	"refreshhard",
 	"clean",
 	"addmergedriver",
 	"directory:",
@@ -217,6 +219,13 @@ if(!isset($options['setup']) && isset($options['switch']) && !empty($options['sw
 if(isset($options['refresh'])) {
 	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) {
 		freepbx::refreshRepo($dir);
+	}
+	exit(0);
+}
+
+if(isset($options['refreshhard'])) {
+	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) {
+		freepbx::refreshRepo($dir,'origin',null,true);
 	}
 	exit(0);
 }
