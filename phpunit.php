@@ -14,8 +14,8 @@ if(file_exists($mod_dir."/utests/utests.xml")) {
 }
 if(!empty($configFile)) {
 	$xml = simplexml_load_file($configFile);
-	if(isset($xml['freepbxBootstrap']) && $xml['freepbxBootstrap'] == 'false') {
-		$options['skipbootstrap'] = true;
+	if(isset($xml['freepbxBootstrap']) && (string)$xml['freepbxBootstrap'][0] == 'false') {
+		$options['skipfreepbxbootstrap'] = false;
 	}
 	$config = "-c ".$configFile;
 }
@@ -30,7 +30,9 @@ if(version_compare(phpversion(), "5.6", ">=")) {
 } else {
 	$bin = 'phpunit-4.8.36.phar';
 }
-if(isset($options['skipbootstrap'])) {
+
+if(isset($options['skipfreepbxbootstrap'])) {
+	echo "Running in non-freepbx bootstrap mode\n";
 	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitNoFreePBXBootstrap.php" '.$config.' '.$test_dir);
 } else {
 	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$test_dir);
