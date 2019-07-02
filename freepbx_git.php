@@ -136,20 +136,22 @@ if(isset($options['m'])) {
 		} elseif($mode == 'http') {
 			Git::enable_credential_cache();
 		}
+
+		try{
+			$stash = new Stash($username,$password);
+		}catch(Exception $e){
+			echo $e->getMessage().PHP_EOL;
+			return false;
+		}
+
+		$repo = false;
 		if(isset($options['r'])) {
-			$stash->project_key = $project;
-			$repo = $stash->getRepo($options['r']);
+			$repo = $stash->getRepo($options['m'], $options['r']);
 			if ($repo === false) {
 				freepbx::out("[ERROR] Unable to find ".$options['m']);
-				exit(1);
+				exit(0);
 			}
 		} else {
-			try{
-				$stash = new Stash($username,$password);
-			}catch(Exception $e){
-				echo $e->getMessage().PHP_EOL;
-				return false;
-			}
 			foreach($projects as $project => $description) {
 				$repo = $stash->getRepo($options['m'],$project);
 				if ($repo === false) {
@@ -162,19 +164,19 @@ if(isset($options['m'])) {
 				freepbx::out("[ERROR] Unable to find ".$options['m']);
 				exit(0);
 			}
-
-			$uri = ($mode == 'http') ? $repo['cloneUrl'] : $repo['cloneSSH'];
-			$dir = $directory.'/'.$options['m'];
-			freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
-			$repo = Git::create($dir, $uri);
-			if(isset($options['switch']) && !empty($options['switch'])) {
-				freepbx::switchBranch($dir,$options['switch']);
-			}
-			$repo->add_merge_driver();
-			freepbx::out("Done");
-			$freepbx = new freepbx($username,$password);
-			$freepbx->setupSymLinks($directory);
 		}
+
+		$uri = ($mode == 'http') ? $repo['cloneUrl'] : $repo['cloneSSH'];
+		$dir = $directory.'/'.$options['m'];
+		freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
+		$repo = Git::create($dir, $uri);
+		if(isset($options['switch']) && !empty($options['switch'])) {
+			freepbx::switchBranch($dir,$options['switch']);
+		}
+		$repo->add_merge_driver();
+		freepbx::out("Done");
+		$freepbx = new freepbx($username,$password);
+		$freepbx->setupSymLinks($directory);
 	} else {
 		freepbx::out("Module Already Exists");
 		if(!file_exists($directory.'/framework/amp_conf/htdocs/admin/modules/'.$options['m'])) {
