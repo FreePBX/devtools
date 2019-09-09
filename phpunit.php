@@ -31,9 +31,13 @@ if(version_compare(phpversion(), "5.6", ">=")) {
 	$bin = 'phpunit-4.8.36.phar';
 }
 
+// Build an args string to pass along to PHPUnit
+array_shift($argv);
+$args = join(' ', array_map(function ($s) { return "'{$s}'"; }, $argv));
+
 if(isset($options['skipfreepbxbootstrap'])) {
 	echo "Running in non-freepbx bootstrap mode\n";
-	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitNoFreePBXBootstrap.php" '.$config.' '.$test_dir);
+	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitNoFreePBXBootstrap.php" '.$config.' '.$test_dir.' '.$args);
 } else {
-	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$test_dir);
+	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$test_dir.' '.$args);
 }
