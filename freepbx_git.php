@@ -36,6 +36,7 @@ if (is_array($freepbx_conf) && !empty($freepbx_conf)) {
 		}
 	}
 }
+
 $mode = !empty($vars['mode']) ? $vars['mode'] : 'ssh';
 $vars['repo_directory'] = !empty($vars['repo_directory']) ? $vars['repo_directory'] : dirname(dirname(__FILE__));
 
@@ -43,6 +44,7 @@ $help = array(
 	array('-m', 'Checkout a Single Module. Without the -r option will also search all available Stash Projects for said module'),
 	array('-s', 'Setup symlinks into Framework for install'),
 	array('-r', 'Declare Stash Project Key for single module checkout'),
+	array('-y', 'Answer yes for all questions'),
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes (!!you will lose all untracked branches!!)'),
@@ -66,7 +68,7 @@ $longopts  = array(
 	"mode:",
 	"keys:"
 );
-$options = getopt("m:r:s",$longopts);
+$options = getopt("m:r:sy",$longopts);
 if(empty($options) || isset($options['help'])) {
 	freepbx::showHelp('freepbx_git.php',$help);
 	exit(0);
@@ -76,7 +78,8 @@ $mode = !empty($options['mode']) ? $options['mode'] : $mode;
 $directory = !empty($options['directory']) ? $options['directory'] : $vars['repo_directory'];
 
 if(!file_exists($directory)) {
-	$create = freepbx::getInput("Directory Doesnt Exist, Create? (y/n)",'y');
+	$create = isset($options['y']) ? 'y' : 
+		freepbx::getInput("Directory Doesnt Exist, Create? (y/n)",'y');
 	if($create == 'n' || !mkdir($directory)) {
 		die($directory . " Does Not Exist \n");
 	}
@@ -187,7 +190,8 @@ if(isset($options['m'])) {
 		}
 	}
 	if (empty($vars['dev_symlinks'])) {
-		$ul = freepbx::getInput("Update Dev SymLinks?",'n');
+		$ul = isset($options['y']) ? 'y' :
+			freepbx::getInput("Update Dev SymLinks?",'n');
 	} else {
 		$ul = $vars['dev_symlinks'];
 	}
