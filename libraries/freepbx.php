@@ -660,6 +660,7 @@ class freepbx {
 
 		curl_setopt($ch,  CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_URL, $licenseLink);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
 		$licenseText = curl_exec($ch);
 
