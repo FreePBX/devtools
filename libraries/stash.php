@@ -51,6 +51,7 @@ class Stash {
 		}
 		foreach($o['values'] as $key => $repo) {
 			$o['values'][$key]['cloneSSH'] = "ssh://git@git.freepbx.org/".$project_key."/".$repo['name'].".git";
+			$o['values'][$key]['cloneUrl'] = "http://git.freepbx.org/scm/".$project_key."/".$repo['name'].".git";
 		}
 		return $o;
 	}
@@ -63,6 +64,7 @@ class Stash {
 		}
 		if (is_array($o)) {
 			$o['cloneSSH'] = "ssh://git@git.freepbx.org/".$project_key."/".$o['name'].".git";
+			$o['cloneUrl'] = "http://git.freepbx.org/scm/".$project_key."/".$o['name'].".git";
 		}
 		return $o;
 	}

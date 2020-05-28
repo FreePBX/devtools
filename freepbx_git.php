@@ -133,12 +133,6 @@ if(isset($options['m'])) {
 		} else {
 			$password = $vars['password'];
 		}
-		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
-			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
-			die();
-		} elseif($mode == 'http') {
-			Git::enable_credential_cache();
-		}
 
 		try{
 			$stash = new Stash($username,$password);
@@ -173,6 +167,12 @@ if(isset($options['m'])) {
 		$dir = $directory.'/'.$options['m'];
 		freepbx::out("Cloning ".$repo['name'] . " into ".$dir);
 		$repo = Git::create($dir, $uri);
+		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
+			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
+			die();
+		} elseif($mode == 'http') {
+			Git::enable_credential_cache();
+		}
 		if(isset($options['switch']) && !empty($options['switch'])) {
 			freepbx::switchBranch($dir,$options['switch']);
 		}

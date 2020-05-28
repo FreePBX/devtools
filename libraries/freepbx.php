@@ -214,12 +214,6 @@ class freepbx {
 	function setupDevRepos($directory,$force=false,$mode='ssh',$branch='master',$project_key='freepbx') {
 		$skipr = array('devtools','moh_sounds','versionupgrade','fw_langpacks','custom-freepbx-modules','sipstation_module');
 		$o = $this->stash->getAllRepos($project_key);
-		if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
-			freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
-			die();
-		} elseif($mode == 'http') {
-			Git::enable_credential_cache();
-		}
 		foreach($o['values'] as $repos) {
 			$dir = $directory.'/'.$repos['name'];
 			if(in_array($repos['name'],$skipr)) {
@@ -235,6 +229,12 @@ class freepbx {
 			}
 			$uri = ($mode == 'http') ? $repos['cloneUrl'] : $repos['cloneSSH'];
 			$repo = Git::create($dir, $uri);
+			if(($mode == 'http') && version_compare(Git::version(),'1.7.9', '<')) {
+				freepbx::out("HTTP Mode is only supported with GIT 1.7.9 or Higher");
+				die();
+			} elseif($mode == 'http') {
+				Git::enable_credential_cache();
+			}
 			$repo->add_merge_driver();
 			freepbx::out("Done");
 
