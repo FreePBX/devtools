@@ -38,9 +38,9 @@ include __DIR__."/libraries/GPG.class.php";
 $gpg = new GPG();
 
 // Make sure we have the FreePBX key
-exec('gpg --list-key 9F9169F4B33B4659', $output, $retcode);
+exec('gpg --list-key B53D215A755231A3', $output, $retcode);
 if ($retcode != 0) {
-	recvKey('9F9169F4B33B4659');
+	recvKey('B53D215A755231A3');
 }
 
 // Now, figure out which key we want to use to sign this
@@ -126,7 +126,7 @@ function listPrivateKeys() {
 }
 
 function validateKey($key) {
-	$trusted = '9F9169F4B33B4659';
+	$trusted = 'B53D215A755231A3';
 	// Ask GPG for valid signatures
 	exec("gpg --with-colons --check-sigs $key", $output, $retvar);
 	foreach ($output as $l) {

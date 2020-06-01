@@ -33,7 +33,7 @@ class GPG {
 	const STATE_TRUSTED = 128;
 
 	// This is the FreePBX Master Key.
-	private $freepbxkey = '2016349F5BC6F49340FCCAF99F9169F4B33B4659';
+	private $freepbxkey = '456D051E9204C27C37D4811BB53D215A755231A3';
 
 	// Our path to GPG.
 	private $gpg;
@@ -262,7 +262,7 @@ class GPG {
 				continue;
 			}
 
-			// We now have a trust line that looks like "2016349F5BC6F49340FCCAF99F9169F4B33B4659:6:"
+			// We now have a trust line that looks like "456D051E9204C27C37D4811BB53D215A755231A3:6:"
 			$trust = explode(':', $line);
 			if ($trust[0] === $this->freepbxkey) {
 				$trusted = true;
