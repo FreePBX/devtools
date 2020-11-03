@@ -353,6 +353,24 @@ foreach ($modules as $module) {
 	}
 	unset($files);
 
+	//php 7 version check using php7cc vendor library 
+	if (version_compare(PHP_VERSION, '7.0.0') >= 0) {
+		freepbx::outn("\t Checking for Php 7 Syntax Using Php7cc");
+
+		$files = package_scandirr($mod_dir, true, $file_scan_exclude_list);
+		foreach ($files as $f) {
+			$path = __DIR__ . '/vendor/sstalle/php7cc/bin/php7cc' . ' ' . $f;
+			if (in_array(pathinfo($f, PATHINFO_EXTENSION), $vars['php_extens']) ){
+
+				$shell_execute = shell_exec($path);
+				$result = explode(" ",$shell_execute);
+				if($result[0] != 'Checked'){
+				$syntax_errors[] = 'syntax error detected in ' .$f . ' error is ' . $shell_execute;
+				}
+			}
+		}
+	}
+
 	//if there are syntax errors then display them
 	if ($syntax_errors) {
 		$final_status[$module] = implode(PHP_EOL, $syntax_errors);

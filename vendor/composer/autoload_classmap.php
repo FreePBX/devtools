@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'CSSmin' => $vendorDir . '/mrclay/minify/min/lib/CSSmin.php',
     'DooDigestAuth' => $vendorDir . '/mrclay/minify/min/lib/DooDigestAuth.php',
     'FirePHP' => $vendorDir . '/mrclay/minify/min/lib/FirePHP.php',
@@ -125,5 +126,8 @@ return array(
     'Minify_YUI_CssCompressor' => $vendorDir . '/mrclay/minify/min/lib/Minify/YUI/CssCompressor.php',
     'MrClay\\Cli' => $vendorDir . '/mrclay/minify/min/lib/MrClay/Cli.php',
     'MrClay\\Cli\\Arg' => $vendorDir . '/mrclay/minify/min/lib/MrClay/Cli/Arg.php',
+    'Stringable' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Stringable.php',
     'Text_Template' => $vendorDir . '/phpunit/php-text-template/src/Template.php',
+    'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
+    'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
 );
