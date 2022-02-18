@@ -36,6 +36,8 @@ $help[] = array('--re', 'A ticket number to be referenced in all checkins (i.e. 
 $help[] = array('--verbose', 'Run with extra verbosity and print each command before it\'s executed');
 $help[] = array('--forcetag', 'Force this sha1 onto the server if the tag already exists');
 $help[] = array('--remote', 'The Remote GIT Repository name, Default is origin');
+$help[] = array('--test', 'Run unit tests');
+
 //get cli opts
 $longopts = array(
 	'directory:',
@@ -51,7 +53,8 @@ $longopts = array(
 	'forcetag',
 	'skipunittests',
 	'remote::',
-	'sshuser::'
+	'sshuser::',
+	'test::'
 );
 $vars = getopt('m:d::v::c::', $longopts);
 
@@ -426,7 +429,7 @@ foreach ($modules as $module) {
 	}
 
 	//run unit tests
-	if(file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.php')) {
+	if($vars['test'] && file_exists($mod_dir.'/utests') && file_exists('/etc/freepbx.conf') && file_exists(__DIR__.'/phpunit.php')) {
 		freepbx::outn("\tDetected Unit Tests...");
 		if($var['run_unittests']) {
 			if(!run_cmd(__DIR__.'/phpunit.php --moddir='.$mod_dir,$outline,true)) {
