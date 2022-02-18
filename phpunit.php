@@ -37,9 +37,7 @@ $args = join(' ', array_map(function ($s) { return "'{$s}'"; }, $argv));
 
 if(isset($options['skipfreepbxbootstrap'])) {
 	echo "Running in non-freepbx bootstrap mode\n";
-	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitNoFreePBXBootstrap.php" '.$config.' '.$test_dir.' '.$args, $result_code);
-	exit($result_code);
+	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitNoFreePBXBootstrap.php" '.$config.' '.$test_dir.' '.$args);
 } else {
-	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$test_dir.' '.$args, $result_code);
-	exit($result_code);
+	passthru(__DIR__.'/binaries/'.$bin.' --bootstrap "'.__DIR__.'/phpunitBootstrap.php" '.$config.' '.$test_dir.' '.$args);
 }
