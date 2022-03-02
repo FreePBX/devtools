@@ -279,7 +279,7 @@ foreach ($modules as $module) {
 		freepbx::out("no");
 		freepbx::out("Please Switch ".$module." to be on a release branch");
 		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+		//continue;
 	} else {
 		freepbx::out("Yes (Working With ".$activeb.")");
 	}
