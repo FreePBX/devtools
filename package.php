@@ -300,7 +300,7 @@ foreach ($modules as $module) {
 	if($bver != $mver) {
 		freepbx::out("Module Version of ".$mver." does not match branch release version of ".$bver);
 		freepbx::out("Module " . $module . " will not be tagged!");
-		continue;
+		//continue;
 	}
 	//cleaner to the eyes of us mortals
 	natsort($rbranches);
@@ -335,7 +335,7 @@ foreach ($modules as $module) {
 				freepbx::out("Module " . $module . " will not be tagged!");
 				//completely exit out of attempting anything with this module, it has problems
 				//'mo money mo' problems I always say
-				continue(2);
+				//continue(2);
 			}
 			//some visual aides for good branches
 			if(!empty($bxml[2]['version'])) {
