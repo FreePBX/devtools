@@ -97,24 +97,15 @@ declare -a opensrcmodules=(
 downloadCode() {
 	i=$1
 	echo "$i downloading from git.freepbx.org "
-	./freepbx_git.php -m "$MODULE" -y
+ 	git clone git@github.com:FreePBX/$i.git /usr/src/freepbx/$i	
 }
-pushToGit() {
+changeRemoteToGithub() {
 	i=$1
 	cd /usr/src/freepbx/$i
-	echo "pushing $i to Github"
-	git fetch
-	git checkout release/16.0 || true
-	git pull origin release/16.0 || true
-	git checkout release/17.0 || true
-	git pull origin release/17.0 || true
-	git remote add github git@github.com:FreePBX/$i.git
+	git remote set-url origin git@github.com:FreePBX/$i.git
 	git remote -v
-	git push --all github
-	git push --tags github
-	git remote remove github
+	git fetch
 }
-
 
 # first update framework, because it apparently doesn't update with everything
 # else
@@ -124,11 +115,10 @@ for i in "${opensrcmodules[@]}"; do
 	dir=/usr/src/freepbx/$i
 
 	if [ -d $dir ]; then
-		pushToGit $i 
+		changeRemoteToGithub $i 
 	else
 		echo "$i directory does not exists"
 		downloadCode $i 
-		pushToGit $i 
 	fi
 done
 

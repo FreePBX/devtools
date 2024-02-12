@@ -103,5 +103,6 @@ cloneLabel() {
 
 for i in "${opensrcmodules[@]}"; do
 		echo "$i repo "
+		#gh label delete "Need Information" --yes -R FreePBX/$i
 		cloneLabel $i
 done
