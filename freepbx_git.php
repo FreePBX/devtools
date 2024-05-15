@@ -117,7 +117,8 @@ if(isset($options['clean']) && isset($options['m'])) {
 }
 
 if(isset($options['s'])) {
-	freepbx::setupSymLinks($directory);
+	$freepbx = new freepbx('','', false);
+	$freepbx->setupSymLinks($directory);
 	exit(0);
 }
 

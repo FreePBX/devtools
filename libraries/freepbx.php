@@ -17,8 +17,10 @@ class freepbx {
 	 * @param   string $password FreePBX.org password
 	 * @return  array
 	 */
-	function __construct($username,$password) {
-		$this->stash = new Stash($username,$password);
+	function __construct($username,$password, $requireStash = true) {
+		if ($requireStash) {
+			$this->stash = new Stash($username,$password);
+		}
 	}
 
 	/**
@@ -212,9 +214,10 @@ class freepbx {
 	 * @return  array
 	 */
 	function setupDevRepos($directory,$force=false,$mode='ssh',$branch='master',$project_key='freepbx') {
-		$skipr = array('devtools','moh_sounds','versionupgrade','fw_langpacks','custom-freepbx-modules','sipstation_module');
+		// $skipr = array('devtools','moh_sounds','versionupgrade','fw_langpacks','custom-freepbx-modules','sipstation_module');
+		$skipr = array('digiumaddoninstaller','dundicheck','weakpasswords','freepbxlocalization','cxpanel','configedit','devtools','dbmanager','figlet','.github','issue-tracker','sng_freepbx_debian_install','security-reporting','xmpp','restart','phonebook','digium_phones','pbdirectory','speeddial');
 		$o = $this->stash->getAllRepos($project_key);
-		foreach($o['values'] as $repos) {
+		foreach($o as $repos) {
 			$dir = $directory.'/'.$repos['name'];
 			if(in_array($repos['name'],$skipr)) {
 				continue;
