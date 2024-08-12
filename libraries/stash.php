@@ -3,7 +3,7 @@ if(!class_exists('PestJSON')) {
 	require_once('pest/PestJSON.php');
 }
 class Stash {
-	private $api_url = 'https://git.freepbx.org';
+	private $api_url = 'https://api.github.com';
 	private $pest;
 
 	/**
@@ -31,7 +31,7 @@ class Stash {
 	 */
 	function getUser($username) {
 		try {
-			$o = $this->pest->get('/rest/api/1.0/users/'.$username);
+			$o = $this->pest->get('/users/' . $username, [], ['User-Agent' => 'FreePBX']);
 		} catch (Exception $e) {
 			return false;
 		}
@@ -45,27 +45,37 @@ class Stash {
 	 */
 	function getAllRepos($project_key='freepbx') {
 		try {
-			$o = $this->pest->get('/projects/'.$project_key.'/repos?limit=200');
+			$o = $this->pest->get('/orgs/'.$project_key.'/repos', ['per_page' => 200], ['User-Agent' => 'FreePBX']);
 		} catch (Exception $e) {
 			return false;
 		}
-		foreach($o['values'] as $key => $repo) {
-			$o['values'][$key]['cloneSSH'] = "ssh://git@git.freepbx.org/".$project_key."/".$repo['name'].".git";
-			$o['values'][$key]['cloneUrl'] = "http://git.freepbx.org/scm/".$project_key."/".$repo['name'].".git";
+		$repos = [];
+		foreach($o as $repo) {
+			$name = $repo['name'];
+			$repos[] = [
+				'name' => $name,
+				'cloneSSH' => "git@github.com:".$project_key."/".$name.".git",
+				'cloneUrl' => "https://github.com/".$project_key."/".$name.".git"
+			];
 		}
-		return $o;
+		return $repos;
 	}
 
 	function getRepo($repoName,$project_key='freepbx') {
 		try {
-			$o = $this->pest->get('/projects/'.$project_key.'/repos/'.$repoName);
+			$o = $this->pest->get('/repos/'.$project_key.'/'.$repoName, [], ['User-Agent' => 'FreePBX']);
 		} catch (Exception $e) {
 			return false;
 		}
+		$repo = [];
 		if (is_array($o)) {
-			$o['cloneSSH'] = "ssh://git@git.freepbx.org/".$project_key."/".$o['name'].".git";
-			$o['cloneUrl'] = "http://git.freepbx.org/scm/".$project_key."/".$o['name'].".git";
+			$name = $o['name'];
+			$repo = [
+				'name' => $name,
+				'cloneSSH' => "git@github.com:".$project_key."/".$name.".git",
+				'cloneUrl' => "https://github.com/".$project_key."/".$name.".git"
+			];
 		}
-		return $o;
+		return $repo;
 	}
 }
