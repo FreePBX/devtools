@@ -25,9 +25,16 @@ if(!file_exists($test_dir)) {
 	exit(1);
 }
 
-if(version_compare(phpversion(), "5.6", ">=")) {
+if(version_compare(phpversion(), "8.2", ">="))
+{
+	$bin = 'phpunit-11.4.2.phar';
+}
+elseif(version_compare(phpversion(), "5.6", ">="))
+{
 	$bin = 'phpunit-5.7.21.phar';
-} else {
+}
+else
+{
 	$bin = 'phpunit-4.8.36.phar';
 }
 
