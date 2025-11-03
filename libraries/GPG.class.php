@@ -221,7 +221,7 @@ class GPG {
 		}
 
 		// Do we have this key in a local file?
-		$longkey = __DIR__."/${key}.key";
+		$longkey = __DIR__."/{$key}.key";
 		if (file_exists($longkey)) {
 			$out = $this->runGPG("--import $longkey");
 			$this->checkPermissions();
