@@ -50,8 +50,26 @@ class freepbx {
 		$repo->clean(true,true);
 		freepbx::out("Done");
 		freepbx::outn("\tFetching Changes...");
-		$repo->fetch();
-		freepbx::out("Done");
+		try {
+			$repo->fetch();
+			freepbx::out("Done");
+		} catch (Exception $e) {
+			// A plain "fetch --tags" aborts with "would clobber existing tag"
+			// when a remote tag has been moved/recreated. Force only if told to,
+			// otherwise ask before forcing.
+			freepbx::out("Failed");
+			if(!$force) {
+				$answer = freepbx::getInput("\tFetch failed (a remote tag may have been moved). Force update of local tags? (y/n)", 'n');
+				$force = (strtolower(trim($answer)) == 'y');
+			}
+			if($force) {
+				freepbx::outn("\tForcing tag update...");
+				$repo->fetch(true);
+				freepbx::out("Done");
+			} else {
+				freepbx::out("\tError: unable to fetch, local tags conflict with the remote. Skipping forced update.");
+			}
+		}
 		freepbx::outn("\tChecking out ".$branch." ...");
 		try {
 			$repo->checkout($branch);
@@ -87,9 +105,11 @@ class freepbx {
 	 * @param   string $directory Location of repo
 	 * @param   string $remote The name of the remote origin
 	 * @param	string $final_branch The final branch to checkout after updating (null means whatever it was on before)
+	 * @param	bool $hard True to reset --hard instead of stashing local changes
+	 * @param	bool $force True to force-update local tags on conflict without prompting
 	 * @return  bool
 	 */
-	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null, $hard = false) {
+	public static function refreshRepo($directory, $remote = 'origin', $final_branch = null, $hard = false, $force = false) {
 		$rawname = basename($directory);
 		if($rawname === 'framework') {
 			freepbx::out("Refusing to refresh framework as it will break everything. Do it manually");

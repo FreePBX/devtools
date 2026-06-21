@@ -48,6 +48,7 @@ $help = array(
 	array('--setup', 'Setup new freepbx dev tools environment (use --force to re-setup environment)'),
 	array('--clean', 'Prunes all tags and branches that do no exist on the remote, can be used with the -m command for individual'),
 	array('--refresh', 'Updates all local modules with their remote changes (!!you will lose all untracked branches!!)'),
+	array('--force', 'With --refresh, force-update local tags on conflict without prompting (also used by --setup)'),
 	array('--refreshhard', 'Updates all local modules with their remote changes (!!you will lose all untracked branches and work!!)'),
 	array('--addmergedriver', 'Updates/Adds Relevant Merge Drivers'),
 	array('--switch=<branch>', 'Switch all local modules to branch'),
@@ -233,15 +234,22 @@ if(!isset($options['setup']) && isset($options['switch']) && !empty($options['sw
 }
 
 if(isset($options['refresh'])) {
+	// --force (or -y) forces tag updates without prompting. Otherwise ask once
+	// upfront whether to force automatically or be asked on each conflict.
+	$force = isset($options['force']) || isset($options['y']);
+	if(!$force) {
+		$answer = freepbx::getInput("On tag conflicts, force tag updates automatically? (y = always force / n = ask for each repo)", 'n');
+		$force = (strtolower(trim($answer)) == 'y');
+	}
 	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) {
-		freepbx::refreshRepo($dir);
+		freepbx::refreshRepo($dir,'origin',null,false,$force);
 	}
 	exit(0);
 }
 
 if(isset($options['refreshhard'])) {
 	foreach(glob($directory."/*", GLOB_ONLYDIR) as $dir) {
-		freepbx::refreshRepo($dir,'origin',null,true);
+		freepbx::refreshRepo($dir,'origin',null,true,true);
 	}
 	exit(0);
 }

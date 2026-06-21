@@ -723,9 +723,9 @@ class GitRepo {
 	 * @access  public
 	 * @return  string
 	 */
-	public function fetch() {
+	public function fetch($force = false) {
 		$this->run("fetch -q");
-		$this->run("fetch --tags -q");
+		$this->run("fetch --tags -q" . ($force ? " --force" : ""));
 		return true;
 	}
 
